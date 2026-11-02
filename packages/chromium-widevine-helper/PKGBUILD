@@ -1,0 +1,55 @@
+pkgname=chromium-widevine-helper
+pkgver=1.0.9
+pkgrel=1
+pkgdesc="Extension + native helper that installs Google's Widevine CDM into Chromium-based browser profiles"
+arch=('any')
+url="https://github.com/GloriousEggroll/chromium-widevine-helper"
+license=('GPL-3.0-only')
+depends=('python' 'procps-ng' 'ca-certificates')
+backup=('etc/helium/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/net.imput.helium/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/chromium/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/chromium-browser/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/opt/chrome/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/opt/edge/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/brave/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/vivaldi/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/opera/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/thorium/native-messaging-hosts/org.chromium.widevine.json'
+        'etc/iridium/native-messaging-hosts/org.chromium.widevine.json')
+_commit="586b42ceb035f3202a2d23ee156ecd987567ba2f"
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/${_commit}.tar.gz")
+sha256sums=('ae59742c78f0942599d1bfcd5e067f113c11bbc049a31d1b3a6dab9ab45ecb63')
+
+prepare() {
+  local _specver
+  _specver="$(grep -Po '^%global helper_version \K[0-9.]+' \
+    "${pkgname}-${_commit}/Packaging/rpm/chromium-widevine-helper.spec")"
+  [[ "$_specver" == "$pkgver" ]] || return 1
+}
+
+package() {
+  cd "${pkgname}-${_commit}"
+
+  install -Dm755 helper/chromium-widevine \
+    "$pkgdir/usr/lib/chromium-widevine/chromium-widevine"
+  install -d "$pkgdir/usr/bin"
+  ln -s /usr/lib/chromium-widevine/chromium-widevine \
+    "$pkgdir/usr/bin/chromium-widevine"
+
+  install -d "$pkgdir/usr/share/chromium-widevine"
+  cp -a extension "$pkgdir/usr/share/chromium-widevine/extension"
+  find "$pkgdir/usr/share/chromium-widevine" -type d -exec chmod 755 {} +
+  find "$pkgdir/usr/share/chromium-widevine" -type f -exec chmod 644 {} +
+
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+
+  local _hostdir
+  for _hostdir in helium net.imput.helium chromium chromium-browser \
+                  opt/chrome opt/edge brave vivaldi opera thorium iridium; do
+    install -Dm644 helper/chromium-widevine-native-host.json \
+      "$pkgdir/etc/$_hostdir/native-messaging-hosts/org.chromium.widevine.json"
+  done
+  find "$pkgdir/etc" -name 'org.chromium.widevine.json' -exec \
+    sed -i 's|/usr/libexec/chromium-widevine/|/usr/lib/chromium-widevine/|' {} +
+}

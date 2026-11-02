@@ -1,0 +1,36 @@
+pkgname=multiviewer
+pkgver=2.13.1
+_build=2.13.1/1/MtYLQVbIR8u346Ga7uyKYsQONQfmyc3n
+pkgrel=1
+pkgdesc="Unofficial motorsports desktop client"
+arch=('x86_64')
+url="https://multiviewer.app"
+license=('unknown')
+depends=('nss' 'alsa-lib' 'gtk3' 'at-spi2-core' 'xdg-utils')
+makedepends=('asar')
+provides=('f1multiviewer' 'f1multiviewer-bin')
+conflicts=('f1multiviewer' 'f1multiviewer-bin')
+replaces=('f1multiviewer-bin')
+install=multiviewer.install
+source=("https://releases.multiviewer.app/v/$_build/MultiViewer-linux-x64-$pkgver.zip"
+    "f1multiviewer.desktop")
+sha256sums=('3a470f01dea3e7d2b46c4f7d6b6e199a61aa7e1778219f24c1e73c7d39ad7259'
+            'bd2b11e7efe75cc8fd77884c5c47648da6280b9e3e363c2dcfda91f07f6d7f1b')
+
+package() {
+    install -d "$pkgdir/opt/$pkgname"
+    cp -a "MultiViewer-linux-x64/." "$pkgdir/opt/$pkgname"
+    chmod 755 "$pkgdir/opt/$pkgname"
+    chmod 755 "$pkgdir/opt/$pkgname/multiviewer"
+
+    install -d "$pkgdir/usr/bin/"
+    ln -s "/opt/$pkgname/multiviewer" "$pkgdir/usr/bin/f1multiviewer"
+    ln -s "/opt/$pkgname/multiviewer" "$pkgdir/usr/bin/multiviewer"
+
+    asar extract-file "MultiViewer-linux-x64/resources/app.asar" ".webpack/main/88a36af69fdc182ce561a66de78de7b1.png"
+    install -Dm644 "88a36af69fdc182ce561a66de78de7b1.png" "$pkgdir/usr/share/pixmaps/f1multiviewer.png"
+    install -Dm644 f1multiviewer.desktop "$pkgdir/usr/share/applications/f1multiviewer.desktop"
+
+    install -Dm644 "MultiViewer-linux-x64/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/Electron-LICENSE"
+    install -Dm644 "MultiViewer-linux-x64/LICENSES.chromium.html" "$pkgdir/usr/share/licenses/$pkgname/LICENSES.chromium.html"
+}

@@ -1,0 +1,15 @@
+packages/*/src/
+packages/*/pkg/
+packages/*/*.pkg.tar.*
+packages/*/*.tar.gz
+packages/*/*.tar.xz
+packages/*/*.tgz
+packages/*/*.zip
+packages/*/*.deb
+packages/*/LICENSE-*
+packages/*/README-*
+packages/*/rgrc/
+packages/*/isocast/
+packages/*/sonora-*-x86_64
+repo/
+artifacts/

@@ -1,0 +1,29 @@
+pkgname=obs-pipewire-audio-capture
+pkgver=1.2.2
+pkgrel=1
+pkgdesc='Audio device and application capture for OBS Studio using PipeWire'
+arch=('x86_64')
+url='https://github.com/dimtpap/obs-pipewire-audio-capture'
+license=('GPL-2.0-only')
+depends=('obs-studio' 'wireplumber')
+makedepends=('cmake' 'pipewire' 'obs-studio' 'simde')
+optdepends=('pipewire-pulse: record PulseAudio applications'
+            'pipewire-jack: record JACK applications'
+            'pipewire-alsa: record ALSA applications')
+replaces=('obs-pipewire-audio-capture-bin')
+conflicts=('obs-pipewire-audio-capture-bin')
+source=("$url/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('c1e3c5aa1b4c24be9ff5c3c176e48ebb1f170ed4af865d647f2f0ab13aad72a1')
+
+build() {
+  cd "$pkgname-$pkgver"
+  cmake -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo
+  cmake --build build
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+}

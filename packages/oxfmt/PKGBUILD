@@ -1,0 +1,31 @@
+_appname=oxfmt
+pkgname=${_appname}
+pkgver=0.75.0
+oxfmt_pkgver=${pkgver}
+pkgrel=1
+pkgdesc="Oxfmt is a high-performance formatter for the JavaScript ecosystem"
+arch=('x86_64')
+url='https://oxc.rs'
+license=('MIT')
+provides=('oxfmt-bin')
+conflicts=('oxfmt-bin')
+replaces=('oxfmt-bin')
+optdepends=('oxlint')
+depends=('glibc' 'libgcc')
+
+_github_url="https://github.com/oxc-project/oxc/releases/download/${_appname}_v${oxfmt_pkgver}"
+_github_url_raw="https://raw.githubusercontent.com/oxc-project/oxc/${_appname}_v${oxfmt_pkgver}"
+_binary_x86_64="${_appname}-x86_64-unknown-linux-gnu"
+
+source=("README-${pkgver}.md::${_github_url_raw}/README.md"
+		"LICENSE-${pkgver}::${_github_url_raw}/LICENSE")
+source_x86_64=("${_binary_x86_64}-$pkgver.tar.gz::${_github_url}/${_binary_x86_64}.tar.gz")
+sha256sums=('324ce0bf668dd2add5bed0ab6b46cf582c46292e1b88fccb9f82a0d42edd1a56'
+            '95ced5ecf1133fbf41d409b5555c86c344f83f3b019926057ddbc07cfdcc27b3')
+sha256sums_x86_64=('6a111e38ab6edfe61b87deffbc95e461e3b7326d5d034bdee71ba92cdfd87641')
+
+package() {
+    install -Dm755 "${srcdir}/${_binary_x86_64}" "${pkgdir}/usr/bin/${_appname}"
+    install -Dm644 "README-${pkgver}.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+    install -Dm644 "LICENSE-${pkgver}" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
