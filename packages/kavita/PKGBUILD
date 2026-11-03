@@ -49,7 +49,6 @@ build() {
     --runtime linux-x64 \
     --self-contained true \
     --output "$srcdir/publish" \
-    -p:AssemblyName=Kavita \
     -p:PublishReadyToRun=true \
     -p:UseAppHost=true \
     -p:DebugType=none
