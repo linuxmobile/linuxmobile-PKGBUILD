@@ -62,9 +62,9 @@ package() {
 
   install -Dm0644 "packaging/linux/dev.isocast.Isocast.desktop" "$pkgdir/usr/share/applications/dev.isocast.Isocast.desktop"
   for size in 16 24 32 48 64 128 256 512; do
-    install -Dm0644 "packaging/linux/icons/hicolor/${size}x${size}/apps/isocast.png" \
-      "$pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/isocast.png"
+    install -Dm0644 "packaging/linux/icons/hicolor/${size}x${size}/apps/dev.isocast.Isocast.png" \
+      "$pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/dev.isocast.Isocast.png"
   done
-  install -Dm0644 "packaging/linux/icons/hicolor/scalable/apps/isocast.svg" \
-    "$pkgdir/usr/share/icons/hicolor/scalable/apps/isocast.svg"
+  install -Dm0644 "packaging/linux/icons/hicolor/scalable/apps/dev.isocast.Isocast.svg" \
+    "$pkgdir/usr/share/icons/hicolor/scalable/apps/dev.isocast.Isocast.svg"
 }

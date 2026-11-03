@@ -22,7 +22,7 @@ Install the packages:
 
 ```bash
 sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper hibiki \
-isocast kavita kernwatch koe lui mdrs microsoft-edge-beta multiviewer netwatch \
+isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer netwatch \
 obs-pipewire-audio-capture omalive omarchy-bitwarden omatuner oxfmt ps_mem \
 rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch
 ```
@@ -39,7 +39,7 @@ oxfmt-bin ps_mem rawmakase rgrc rhun-bin rlottie rusty-inbox sonora-bin strata-b
 
 ```bash
 sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper hibiki \
-isocast kavita kernwatch koe lui mdrs microsoft-edge-beta multiviewer netwatch \
+isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer netwatch \
 obs-pipewire-audio-capture omalive omarchy-bitwarden omatuner oxfmt ps_mem \
 rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch
 ```
@@ -58,7 +58,6 @@ After that, remove the AUR repository from `pacman.conf` and from `yay` or `paru
 | isocast                    | source          | yes       |
 | kavita                     | source          | yes       |
 | kernwatch                  | source          | yes       |
-| koe                        | source          | yes       |
 | lui                        | source          | yes       |
 | mdrs                       | source          | yes       |
 | microsoft-edge-beta        | upstream binary | no        |
