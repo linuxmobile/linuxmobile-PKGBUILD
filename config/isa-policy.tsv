@@ -1,0 +1,38 @@
+# Package ISA policy used by scripts/validate-package-isa.sh
+# Format: package|policy|exception path|reason
+# required: every ELF in the package must declare x86-64-v3 in GNU ISA_1_NEEDED.
+# partial: same check, except for the exact bundled upstream ELF path.
+# target: the PKGBUILD must explicitly pin the compiler target to x86-64-v3;
+#         GNU ISA_1_NEEDED is not asserted for this toolchain/project build system.
+# upstream: executable payloads are shipped prebuilt by upstream and are not rebuilt here.
+# any: architecture-independent package (for example, Python scripts only).
+# review: source is built locally, but this repository does not currently guarantee v3.
+# r2r: .NET ReadyToRun managed code uses the x86-64-v3 instruction-set baseline; bundled native runtime components are not certified.
+
+anix|upstream||Upstream Debian binary; not rebuilt by this repository.
+antigravity-cli|upstream||Upstream binary archive; not rebuilt by this repository.
+blurcam|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
+chromium-widevine-helper|any||Python helper and extension assets; arch=any.
+cressida|required||Meson/C++ source build with x86-64-v3 compiler and linker flags.
+hibiki|required||Rust source build with x86-64-v3 target and linker flags.
+isocast|required||Rust source build with x86-64-v3 target; LTO is disabled by its recipe.
+kavita|r2r||.NET 10 Crossgen2 ReadyToRun application assemblies use the x86-64-v3 instruction-set baseline; bundled native runtime files are not certified.
+kernwatch|required||Rust source build with x86-64-v3 target and linker flags.
+lui|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
+mdrs|required||Rust source build with x86-64-v3 target and linker flags.
+microsoft-edge-beta|upstream||Upstream Debian binary; not rebuilt by this repository.
+multiviewer|upstream||Upstream Electron binary archive; not rebuilt by this repository.
+netwatch|required||Rust source build with x86-64-v3 target and linker flags.
+obs-pipewire-audio-capture|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
+omalive|required||Rust source build with x86-64-v3 target and linker flags.
+omatuner|required||Rust source build with x86-64-v3 target and linker flags.
+oxfmt|required||Rust source build with x86-64-v3 target and linker flags.
+ps_mem|any||Python script; arch=any.
+rawmakase|partial|usr/lib/rawmakase/libonnxruntime.so|Rust app is built for v3; bundled ONNX Runtime is an upstream prebuilt library.
+rgrc|required||Rust source build with x86-64-v3 target and linker flags.
+rhun|review||Hand-written assembly build; instruction-set usage is not audited or pinned here.
+rlottie|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
+rusty-inbox|required||Rust source build with x86-64-v3 target and linker flags.
+sonora|required||Rust source build with x86-64-v3 target and linker flags.
+strata|required||Rust source build with x86-64-v3 target and linker flags.
+syswatch|required||Rust source build with x86-64-v3 target and linker flags.

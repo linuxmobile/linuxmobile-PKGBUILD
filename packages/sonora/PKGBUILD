@@ -31,7 +31,7 @@ build() {
   cd "${pkgname}-${pkgver}"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR=target
-  export RUSTFLAGS="${RUSTFLAGS:-} -C link-args=-Wl,-z,shstk --remap-path-prefix=${srcdir}=/usr/src"
+  export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-z,shstk --remap-path-prefix=${srcdir}=/usr/src"
   export CFLAGS="${CFLAGS} -ffat-lto-objects"
   export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
   export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"

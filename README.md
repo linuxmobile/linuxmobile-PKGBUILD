@@ -23,7 +23,7 @@ Install the packages:
 ```bash
 sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper hibiki \
 isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer netwatch \
-obs-pipewire-audio-capture omalive omarchy-bitwarden omatuner oxfmt ps_mem \
+obs-pipewire-audio-capture omalive omatuner oxfmt ps_mem \
 rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch
 ```
 
@@ -40,7 +40,7 @@ oxfmt-bin ps_mem rawmakase rgrc rhun-bin rlottie rusty-inbox sonora-bin strata-b
 ```bash
 sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper hibiki \
 isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer netwatch \
-obs-pipewire-audio-capture omalive omarchy-bitwarden omatuner oxfmt ps_mem \
+obs-pipewire-audio-capture omalive omatuner oxfmt ps_mem \
 rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch
 ```
 
@@ -48,41 +48,41 @@ After that, remove the AUR repository from `pacman.conf` and from `yay` or `paru
 
 ## Packages
 
-| Package                    | Source          | x86-64-v3 |
-| -------------------------- | --------------- | --------- |
-| anix                       | upstream .deb   | no        |
-| antigravity-cli            | upstream binary | no        |
-| blurcam                    | source          | yes       |
-| chromium-widevine-helper   | source          | n/a (any) |
-| hibiki                     | source          | yes       |
-| isocast                    | source          | yes       |
-| kavita                     | source          | yes       |
-| kernwatch                  | source          | yes       |
-| lui                        | source          | yes       |
-| mdrs                       | source          | yes       |
-| microsoft-edge-beta        | upstream binary | no        |
-| multiviewer                | upstream binary | no        |
-| netwatch                   | source          | yes       |
-| obs-pipewire-audio-capture | source          | yes       |
-| omalive                    | source          | yes       |
-| omarchy-bitwarden          | source          | n/a (QML) |
-| omatuner                   | source          | yes       |
-| oxfmt                      | source          | yes       |
-| ps_mem                     | source          | n/a (any) |
-| rawmakase                  | source          | yes       |
-| rgrc                       | source          | yes       |
-| rhun                       | source          | yes       |
-| rlottie                    | source          | yes       |
-| rusty-inbox                | source          | yes       |
-| sonora                     | source          | yes       |
-| strata                     | source          | yes       |
-| syswatch                   | source          | yes       |
+The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata does not encode an ISA level, so pacman will not prevent installation on an older x86-64 processor. Do not install this repository on a CPU that lacks x86-64-v3 support.
 
-Packages whose upstream only publishes binaries cannot be recompiled. Compiled packages use `-march=x86-64-v3` and `-C target-cpu=x86-64-v3`.
+| Package                    | Payload / build           | x86-64-v3 status                                         |
+| -------------------------- | ------------------------- | -------------------------------------------------------- |
+| anix                       | Upstream Debian package   | Upstream binary; not guaranteed                          |
+| antigravity-cli            | Upstream binary archive   | Upstream binary; not guaranteed                          |
+| blurcam                    | CMake/C++                 | Enforced by CI                                           |
+| chromium-widevine-helper   | Python / assets           | n/a (`any`)                                              |
+| cressida                   | Meson/C++                 | Enforced by CI                                           |
+| hibiki                     | Rust                      | Enforced by CI                                           |
+| isocast                    | Rust                      | Enforced by CI                                           |
+| kavita                     | .NET ReadyToRun           | Not guaranteed; not pinned to v3                         |
+| kernwatch                  | Rust                      | Enforced by CI                                           |
+| lui                        | Zig                       | v3 target explicitly selected; GNU ISA note not asserted |
+| mdrs                       | Rust                      | Enforced by CI                                           |
+| microsoft-edge-beta        | Upstream Debian package   | Upstream binary; not guaranteed                          |
+| multiviewer                | Upstream Electron archive | Upstream binary; not guaranteed                          |
+| netwatch                   | Rust                      | Enforced by CI                                           |
+| obs-pipewire-audio-capture | CMake/C++                 | Enforced by CI                                           |
+| omalive                    | Rust                      | Enforced by CI                                           |
+| omatuner                   | Rust                      | Enforced by CI                                           |
+| oxfmt                      | Rust                      | Enforced by CI                                           |
+| ps_mem                     | Python                    | n/a (`any`)                                              |
+| rawmakase                  | Rust + ONNX Runtime       | Partial; bundled ONNX Runtime is upstream                |
+| rgrc                       | Rust                      | Enforced by CI                                           |
+| rhun                       | Assembly                  | Not guaranteed; instruction set not audited              |
+| rlottie                    | CMake/C++                 | Enforced by CI                                           |
+| rusty-inbox                | Rust                      | Enforced by CI                                           |
+| sonora                     | Rust                      | Enforced by CI                                           |
+| strata                     | Rust                      | Enforced by CI                                           |
+| syswatch                   | Rust                      | Enforced by CI                                           |
 
-`omarchy-bitwarden` installs the QML plugin files under `/usr/share/omarchy/plugins/icyleaf.bitwarden` and does
-not modify user configuration. It uses the `omawarden-bin` engine from the AUR. Omarchy loads third-party plugins
-from `~/.config/omarchy/plugins`, so enable it with the normal Omarchy plugin workflow if you want the shell to load it.
+C/C++ builds receive `-march=x86-64-v3` and the linker requirement `-Wl,-z,x86-64-v3`. Rust builds receive `-C target-cpu=x86-64-v3` and the equivalent linker argument. `lui` pins Zig's CPU target directly in its PKGBUILD. Rawmakase bundles an upstream ONNX Runtime library, while Kavita and Rhun need separate work before they can be described as fully v3-targeted.
+
+CI checks the GNU `x86 ISA needed` property on every x86-64 ELF in packages marked `required`, with a documented exception for Rawmakase's bundled ONNX Runtime. Upstream binaries and architecture-independent packages are explicitly exempt from this check; the policy lives in `config/isa-policy.tsv`.
 
 ## Local build
 
@@ -90,7 +90,7 @@ from `~/.config/omarchy/plugins`, so enable it with the normal Omarchy plugin wo
 ./scripts/build.sh <package>
 ```
 
-The script uses `config/makepkg.conf` and targets x86-64-v3.
+The script uses `config/makepkg.conf` and targets x86-64-v3. After building, run `./scripts/validate-package-isa.sh <package>` to check the package against `config/isa-policy.tsv`.
 
 ## Publishing
 

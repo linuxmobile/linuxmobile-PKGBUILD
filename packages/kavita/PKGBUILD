@@ -45,13 +45,15 @@ build() {
   export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 
   dotnet publish Kavita.Server/Kavita.Server.csproj \
-    --configuration Release \
-    --runtime linux-x64 \
-    --self-contained true \
-    --output "$srcdir/publish" \
-    -p:PublishReadyToRun=true \
-    -p:UseAppHost=true \
-    -p:DebugType=none
+  --configuration Release \
+  --runtime linux-x64 \
+  --self-contained true \
+  --output "$srcdir/publish" \
+  -p:PublishReadyToRun=true \
+  -p:PublishReadyToRunUseCrossgen2=true \
+  -p:PublishReadyToRunCrossgen2ExtraArgs=--instruction-set=avx2,bmi,bmi2,f16c,fma,lzcnt,movbe \
+  -p:UseAppHost=true \
+  -p:DebugType=none
 }
 
 package() {

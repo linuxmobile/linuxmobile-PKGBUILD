@@ -86,7 +86,7 @@ jobs:
       - name: Prepare Arch environment
         run: |
           printf "\n[linuxmobile]\nSigLevel = Optional DatabaseOptional\nServer = https://github.com/linuxmobile/linuxmobile-PKGBUILD/releases/download/repo\n" >> /etc/pacman.conf
-          pacman -Syu --noconfirm --needed base-devel git sudo
+          pacman -Syu --noconfirm --needed base-devel binutils libarchive git sudo
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/builder
 
@@ -96,7 +96,20 @@ jobs:
         run: |
           chown -R builder:builder "$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-          sudo --preserve-env=CARGO_NET_GIT_FETCH_WITH_CLI -u builder bash scripts/build.sh "$PKG"
+
+          build_env=()
+          if [[ "$PKG" == "kavita" ]]; then
+            build_env+=(
+              PublishReadyToRunUseCrossgen2=true
+              PublishReadyToRunCrossgen2ExtraArgs=--instruction-set:avx2,bmi,bmi2,f16c,fma,lzcnt,movbe
+            )
+          fi
+
+          sudo --preserve-env=CARGO_NET_GIT_FETCH_WITH_CLI -u builder \
+            env "${build_env[@]}" bash scripts/build.sh "$PKG"
+
+      - name: Validate x86-64-v3 ELF metadata
+        run: bash scripts/validate-package-isa.sh "$PKG"
 
       - name: Restore workspace ownership
         if: always()
@@ -115,6 +128,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - name: Refresh README ISA status
+        run: |
+          python3 scripts/update-readme-isa.py
+          if ! git diff --quiet -- README.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add README.md
+            git commit -m "docs: update package ISA status"
+            git push
+          fi
       - name: Fetch published packages
         if: needs.discover.outputs.full != 'true'
         env:

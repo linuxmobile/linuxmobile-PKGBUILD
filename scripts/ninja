@@ -1,2 +1,10 @@
-#!/bin/sh
-exec /usr/bin/ninja -j"${NINJA_JOBS:-2}" "$@"
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -n "${NINJAFLAGS:-}" ]]; then
+  read -r -a ninja_flags <<< "$NINJAFLAGS"
+else
+  ninja_flags=("-j${NINJA_JOBS:-$(nproc)}")
+fi
+
+exec /usr/bin/ninja "${ninja_flags[@]}" "$@"

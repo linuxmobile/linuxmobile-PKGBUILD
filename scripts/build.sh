@@ -4,8 +4,7 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 pkg="${1:?usage: build.sh <package>}"
 
-export RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=x86-64-v3"
-export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="$RUSTFLAGS"
+export RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=x86-64-v3 -C link-arg=-Wl,-z,x86-64-v3"
 export PATH="$root/scripts:$PATH"
 
 cd "$root/packages/$pkg"
