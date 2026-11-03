@@ -73,32 +73,35 @@ jobs:
     needs: discover
     if: needs.discover.outputs.packages != '[]'
     runs-on: ubuntu-24.04
+    container:
+      image: archlinux:latest
     strategy:
       fail-fast: false
       matrix:
         package: ${{ fromJson(needs.discover.outputs.packages) }}
+    env:
+      PKG: ${{ matrix.package }}
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
     steps:
-      - uses: actions/checkout@v7
-      - name: Build ${{ matrix.package }}
-        env:
-          PKG: ${{ matrix.package }}
-          RUSTFLAGS: -C target-cpu=x86-64-v3
+      - name: Prepare Arch environment
         run: |
-          docker run --rm \
-            -v "$PWD:/src" \
-            -e PKG \
-            -e RUSTFLAGS \
-            archlinux:latest bash -c '
-              pacman -Syu --noconfirm --needed base-devel git sudo
-              useradd -m builder
-              echo "builder ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/builder
-              chown -R builder:builder /src/packages /src/scripts /src/config
-              cd /src
-              sudo -u builder bash scripts/build.sh "$PKG"
-            '
+          printf "\n[linuxmobile]\nSigLevel = Optional DatabaseOptional\nServer = https://github.com/linuxmobile/linuxmobile-PKGBUILD/releases/download/repo\n" >> /etc/pacman.conf
+          pacman -Syu --noconfirm --needed base-devel git sudo
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/builder
+
+      - uses: actions/checkout@v7
+
+      - name: Build ${{ matrix.package }}
+        run: |
+          chown -R builder:builder "$GITHUB_WORKSPACE"
+          cd "$GITHUB_WORKSPACE"
+          sudo --preserve-env=CARGO_NET_GIT_FETCH_WITH_CLI -u builder bash scripts/build.sh "$PKG"
+
       - name: Restore workspace ownership
         if: always()
-        run: sudo chown -R "$(id -u):$(id -g)" packages scripts config
+        run: chown -R root:root "$GITHUB_WORKSPACE"
+
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.package }}
