@@ -56,7 +56,15 @@ build() {
 }
 
 package() {
-	cd "$_pkgname"
-	install -Dm0755 -t "$pkgdir/usr/bin/" "target/release/$_pkgname"{,d,-ui}
-	install -Dm0644 -t "$pkgdir/usr/share/licenses/$pkgname/" LICENSE-{APACHE,MIT}
+  cd "$_pkgname"
+  install -Dm0755 -t "$pkgdir/usr/bin/" "target/release/$_pkgname"{,d,-ui}
+  install -Dm0644 -t "$pkgdir/usr/share/licenses/$pkgname/" LICENSE-{APACHE,MIT}
+
+  install -Dm0644 "packaging/linux/dev.isocast.Isocast.desktop" "$pkgdir/usr/share/applications/dev.isocast.Isocast.desktop"
+  for size in 16 24 32 48 64 128 256 512; do
+    install -Dm0644 "packaging/linux/icons/hicolor/${size}x${size}/apps/isocast.png" \
+      "$pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/isocast.png"
+  done
+  install -Dm0644 "packaging/linux/icons/hicolor/scalable/apps/isocast.svg" \
+    "$pkgdir/usr/share/icons/hicolor/scalable/apps/isocast.svg"
 }
