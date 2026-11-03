@@ -14,7 +14,7 @@ provides=('rhun-bin')
 conflicts=('rhun-bin')
 replaces=('rhun-bin')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('fe09fc611ccc1776fdf104895eb12c4483ab5a019ec096b3f1abc4d90e8fbc07')
+sha256sums=('e11e20f04fb2ac9cdcb32015fb583748cce77eb16a0c81c9e30fa04b2946ec88')
 
 build() {
   cd "${pkgname}-${pkgver}"
