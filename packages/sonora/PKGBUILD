@@ -1,5 +1,4 @@
 pkgname=sonora
-_pkgname=sonora
 pkgver=0.47.0
 pkgrel=1
 pkgdesc='A native music streaming client, built with Rust and GPUI'
@@ -17,39 +16,55 @@ optdepends=('vulkan-radeon: Vulkan driver for AMD GPUs'
 provides=('sonora-bin')
 conflicts=('sonora-bin')
 replaces=('sonora-bin')
-options=('!strip' '!debug')
-source=("${url}/archive/refs/tags/v${pkgver}/${_pkgname}-${pkgver}.tar.gz")
-source_x86_64=("${_pkgname}-${pkgver}-x86_64::${url}/releases/download/v${pkgver}/sonora-v${pkgver}-x86_64-unknown-linux-gnu")
+makedepends=('rust' 'cmake')
+options=('!lto')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('98dc495f0cf94e032de758cb85d61dbde820a23d2fd90e9230907f9ab265a085')
-sha256sums_x86_64=('9086e44ca1bfbc286b96a8c70e8efaf12935403d34d6e7c8b6d07147ceb8aa53')
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} -C link-args=-Wl,-z,shstk --remap-path-prefix=${srcdir}=/usr/src"
+  export CFLAGS="${CFLAGS} -ffat-lto-objects"
+  export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
+  export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"
+  cargo build --frozen --release
+}
 
 package() {
-  cd "${_pkgname}-${pkgver}"
+  cd "${pkgname}-${pkgver}"
 
-  install -Dm755 "${srcdir}/${_pkgname}-${pkgver}-${CARCH}" "${pkgdir}/usr/bin/${_pkgname}"
-  install -Dm644 assets/linux/sonora.desktop \
-    "${pkgdir}/usr/share/applications/sonora.desktop"
-  install -Dm644 assets/linux/sonora.svg \
-    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/sonora.svg"
+  install -Dm0755 target/release/sonora "$pkgdir/usr/bin/sonora"
+  install -Dm0644 assets/linux/sonora.desktop \
+    "$pkgdir/usr/share/applications/sonora.desktop"
+  install -Dm0644 assets/linux/sonora.svg \
+    "$pkgdir/usr/share/icons/hicolor/scalable/apps/sonora.svg"
 
   for icon in assets/linux/icons/hicolor/*/apps/sonora.png; do
     local size
     size=$(basename "$(dirname "$(dirname "${icon}")")")
-    install -Dm644 "${icon}" \
-      "${pkgdir}/usr/share/icons/hicolor/${size}/apps/sonora.png"
+    install -Dm0644 "${icon}" \
+      "$pkgdir/usr/share/icons/hicolor/${size}/apps/sonora.png"
   done
 
-  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${_pkgname}/LICENSE"
-  install -Dm644 THIRD-PARTY.md "${pkgdir}/usr/share/licenses/${_pkgname}/THIRD-PARTY.md"
-  install -Dm644 assets/fonts/LICENSE.txt \
-    "${pkgdir}/usr/share/licenses/${_pkgname}/LICENSE.Inter"
-  install -Dm644 assets/icons/LICENSE \
-    "${pkgdir}/usr/share/licenses/${_pkgname}/icons/LICENSE"
+  install -Dm0644 COPYING "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm0644 THIRD-PARTY.md "$pkgdir/usr/share/licenses/${pkgname}/THIRD-PARTY.md"
+  install -Dm0644 assets/fonts/LICENSE.txt \
+    "$pkgdir/usr/share/licenses/${pkgname}/LICENSE.Inter"
+  install -Dm0644 assets/icons/LICENSE \
+    "$pkgdir/usr/share/licenses/${pkgname}/icons/LICENSE"
 
   for licence in assets/icons/*/LICENSE; do
     local pack
     pack=$(basename "$(dirname "${licence}")")
-    install -Dm644 "${licence}" \
-      "${pkgdir}/usr/share/licenses/${_pkgname}/icons/LICENSE.${pack}"
+    install -Dm0644 "${licence}" \
+      "$pkgdir/usr/share/licenses/${pkgname}/icons/LICENSE.${pack}"
   done
 }

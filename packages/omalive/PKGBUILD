@@ -1,0 +1,57 @@
+pkgname=omalive
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Voice and camera processing for calls on Omarchy'
+arch=('x86_64')
+url='https://github.com/kierangraham/omalive'
+license=('MIT')
+depends=(
+  'gcc-libs'
+  'glibc'
+  'libjpeg-turbo'
+  'libpipewire'
+  'libxcb'
+  'libxkbcommon'
+  'libxkbcommon-x11'
+  'pipewire'
+  'util-linux'
+  'vulkan-icd-loader'
+  'wayland'
+)
+makedepends=('cargo' 'clang' 'cmake' 'pkgconf')
+optdepends=(
+  'noise-suppression-for-voice: RNNoise noise suppression'
+  'swh-plugins: SC4 compressor'
+  'pipewire-audio: play back voice tests (pw-play)'
+  'libnotify: desktop notifications'
+  'xdg-desktop-portal: file picker for importing looks'
+  'v4l2loopback-dkms: a V4L2 camera for apps that do not use PipeWire'
+)
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('d5174fe28ae150ff2a8e2c4d4440db59ca3386451b848708c16f3fce829dd70f')
+
+_srcenv() {
+  cd "${pkgname}-${pkgver}"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
+  export CFLAGS="${CFLAGS} -ffat-lto-objects"
+  export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
+  export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"
+}
+
+prepare() {
+  _srcenv
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  _srcenv
+  cargo build --frozen --release -p omalive-app
+}
+
+package() {
+  _srcenv
+  make install DESTDIR="$pkgdir" PREFIX=/usr
+  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+}

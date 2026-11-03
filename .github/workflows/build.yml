@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'packages/**'
+      - 'scripts/**'
+      - 'config/**'
+      - '.github/workflows/build.yml'
   schedule:
     - cron: '0 3 * * 0'
   workflow_dispatch:
@@ -26,15 +31,47 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       packages: ${{ steps.list.outputs.packages }}
+      full: ${{ steps.list.outputs.full }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
       - id: list
+        env:
+          EVENT: ${{ github.event_name }}
         run: |
-          packages="$(find packages -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')"
-          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+          full=false
+          base="HEAD^"
+
+          if [ "$EVENT" != "push" ]; then
+            full=true
+          elif ! git rev-parse --verify "$base" >/dev/null 2>&1; then
+            full=true
+          else
+            changed="$(git diff --name-only "$base" HEAD)"
+            if printf '%s\n' "$changed" | grep -qE '^(scripts/|config/|\.github/workflows/build\.yml)'; then
+              full=true
+            fi
+          fi
+
+          if [ "$full" = "true" ]; then
+            packages="$(find packages -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)"
+          else
+            packages="$(printf '%s\n' "$changed" |
+              sed -n 's#^packages/\([^/]*\)/.*#\1#p' |
+              sort -u |
+              while read -r p; do
+                [ -d "packages/$p" ] && printf '%s\n' "$p"
+              done)"
+          fi
+
+          json="$(printf '%s\n' "$packages" | jq -R -s -c 'split("\n") | map(select(length > 0))')"
+          echo "full=$full" >> "$GITHUB_OUTPUT"
+          echo "packages=$json" >> "$GITHUB_OUTPUT"
 
   build:
     needs: discover
+    if: needs.discover.outputs.packages != '[]'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -70,10 +107,18 @@ jobs:
           compression-level: 0
 
   publish:
-    needs: build
+    needs: [discover, build]
+    if: needs.discover.outputs.packages != '[]'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - name: Fetch published packages
+        if: needs.discover.outputs.full != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p repo
+          gh release download repo --pattern '*.pkg.tar.zst' --dir repo || true
       - uses: actions/download-artifact@v8
         with:
           path: artifacts
@@ -93,11 +138,14 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FULL: ${{ needs.discover.outputs.full }}
         run: |
           gh release view repo >/dev/null 2>&1 || gh release create repo --title "linuxmobile repository" --notes "Rolling pacman repository."
-          for asset in $(gh release view repo --json assets --jq '.assets[].name'); do
-            if [ ! -e "repo/$asset" ]; then
-              gh release delete-asset repo "$asset" -y
-            fi
-          done
+          if [ "$FULL" = "true" ]; then
+            for asset in $(gh release view repo --json assets --jq '.assets[].name'); do
+              if [ ! -e "repo/$asset" ]; then
+                gh release delete-asset repo "$asset" -y
+              fi
+            done
+          fi
           gh release upload repo repo/* --clobber

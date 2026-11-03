@@ -1,0 +1,27 @@
+pkgname=lui
+pkgver=0.10.3
+pkgrel=1
+pkgdesc='TUI file manager written in Zig'
+arch=('x86_64')
+url='https://codeberg.org/lukeflo/lui'
+license=('GPL-3.0-or-later')
+depends=('glibc')
+makedepends=('zig')
+source=("${pkgname}-${pkgver}.tar.gz::https://codeberg.org/lukeflo/lui/archive/73486a5b3911d5590a15655bc810067252f0f6b1.tar.gz")
+sha256sums=('1d219643d1cb5955d13e44e1616184a833929a53576e84aa58d463f394fb6f17')
+
+build() {
+  cd "${pkgname}"
+  zig build -Doptimize=ReleaseFast -Dcpu=x86_64_v3 \
+    --prefix "$srcdir/build" \
+    --cache-dir "$srcdir/.zig-cache"
+}
+
+package() {
+  cd "${pkgname}"
+
+  install -Dm0755 "$srcdir/build/bin/lui" "$pkgdir/usr/bin/lui"
+  install -Dm0644 etc/luiconfig.zon "$pkgdir/usr/share/doc/${pkgname}/luiconfig.zon"
+  install -Dm0644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
+  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+}

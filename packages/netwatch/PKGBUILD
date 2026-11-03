@@ -1,0 +1,41 @@
+pkgname=netwatch
+pkgver=0.39.0
+pkgrel=1
+pkgdesc='Real-time network diagnostics in your terminal'
+arch=('x86_64')
+url='https://github.com/matthart1983/netwatch'
+license=('MIT')
+depends=('glibc' 'gcc-libs' 'libpcap' 'iproute2')
+makedepends=('cargo' 'pkgconf')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('b3096edb78aec785f5a066c17cacc640f72bc95084418268295dbeaddfd7dfa2')
+
+_srcenv() {
+  cd "${pkgname}-${pkgver}"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
+  export CFLAGS="${CFLAGS} -ffat-lto-objects"
+  export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
+  export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"
+}
+
+prepare() {
+  _srcenv
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  _srcenv
+  cargo build --frozen --release
+}
+
+package() {
+  _srcenv
+  install -Dm0755 "target/release/netwatch" "$pkgdir/usr/bin/netwatch"
+  install -Dm0644 completions/netwatch.bash "$pkgdir/usr/share/bash-completion/completions/netwatch"
+  install -Dm0644 completions/_netwatch "$pkgdir/usr/share/zsh/site-functions/_netwatch"
+  install -Dm0644 completions/netwatch.fish "$pkgdir/usr/share/fish/vendor_completions.d/netwatch.fish"
+  install -Dm0644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
+  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+}

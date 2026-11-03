@@ -1,46 +1,72 @@
 pkgname=kavita
 pkgver=0.9.1.4
-pkgrel=2
-pkgdesc="Self hosted ebook and comic reader"
+pkgrel=1
+pkgdesc='Self hosted ebook and comic reader'
 arch=('x86_64')
-url="https://www.kavitareader.com/"
-license=('GPL3')
-backup=("etc/Kavita/appsettings.json")
-depends=()
-makedepends=()
+url='https://www.kavitareader.com/'
+license=('GPL-3.0-only')
+depends=('glibc' 'gcc-libs' 'icu' 'libgdiplus' 'openssl' 'zlib' 'curl' 'tzdata')
+makedepends=('dotnet-sdk' 'nodejs' 'npm')
 provides=('kavita-bin')
 conflicts=('kavita-bin')
 replaces=('kavita-bin')
+backup=('etc/Kavita/appsettings.json')
 install=kavita.install
-options=(!debug)
-source_x86_64=(
-https://github.com/Kareadita/Kavita/releases/download/v$pkgver/kavita-linux-x64.tar.gz
-kavita.install
-kavita.service
-kavita.sysusers
-kavita.tmpfiles
-)
-sha512sums_x86_64=(
-4a2ec939eaa05e2f4dc68fc94b33a0e0a00efd0d9741abc237a4f1a338724c17a07887003d8cfb0209e106bb9cd704c010e18d2f32f6712783cd39689bdd0fe9
-'SKIP'
-'SKIP'
-'SKIP'
-'SKIP'
-)
+options=('!debug' '!strip')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/Kareadita/Kavita/archive/refs/tags/v${pkgver}.tar.gz"
+        kavita.install
+        kavita.service
+        kavita.sysusers
+        kavita.tmpfiles)
+sha256sums=('7432e957f806285f2219a493a6f6d9bde6f940e2a771cbfb36b8f894abe3f13a'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP')
+
+prepare() {
+  cd "Kavita-${pkgver}/UI/Web"
+  npm ci --legacy-peer-deps
+}
 
 build() {
-    cd "${srcdir}"
-    cd Kavita
-    chmod 755 Kavita
+  cd "Kavita-${pkgver}"
+
+  (
+    cd UI/Web
+    npm run prod
+    mkdir -p ../../Kavita.Server/wwwroot
+    rm -rf ../../Kavita.Server/wwwroot/*
+    cp -r dist/browser/* ../../Kavita.Server/wwwroot/
+  )
+
+  export DOTNET_CLI_TELEMETRY_OPTOUT=1
+  export DOTNET_NOLOGO=1
+  export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+
+  dotnet publish Kavita.sln \
+    --configuration Release \
+    --runtime linux-x64 \
+    --self-contained true \
+    --output "$srcdir/publish" \
+    -p:AssemblyName=Kavita \
+    -p:PublishReadyToRun=true \
+    -p:UseAppHost=true \
+    -p:DebugType=none
 }
 
 package() {
-mkdir -p $pkgdir/opt/kavita
-install -Dm 644 $srcdir/Kavita/config/appsettings-init.json  $pkgdir/etc/Kavita/appsettings.json
-cp -Ra $srcdir/Kavita/* $pkgdir/opt/kavita
-install -Dm 644 ${srcdir}/kavita.sysusers "${pkgdir}"/usr/lib/sysusers.d/${pkgname}.conf
-install -Dm 644 ${srcdir}/kavita.tmpfiles "${pkgdir}"/usr/lib/tmpfiles.d/${pkgname}.conf
-install -Dm 644 ${srcdir}/kavita.service -t "$pkgdir"/usr/lib/systemd/system/
-rm $pkgdir/opt/kavita/config/appsettings-init.json
-ln -s /etc/Kavita/appsettings.json $pkgdir/opt/kavita/config/appsettings-init.json
+  cd "Kavita-${pkgver}"
+
+  install -d "$pkgdir/opt/kavita"
+  cp -Ra "$srcdir/publish/." "$pkgdir/opt/kavita/"
+
+  install -Dm0644 Kavita.Server/config/appsettings.json "$pkgdir/etc/Kavita/appsettings.json"
+  install -dm0755 "$pkgdir/opt/kavita/config"
+  rm -f "$pkgdir/opt/kavita/config/appsettings.json"
+  ln -s /etc/Kavita/appsettings.json "$pkgdir/opt/kavita/config/appsettings.json"
+
+  install -Dm0644 "$srcdir/kavita.sysusers" "$pkgdir/usr/lib/sysusers.d/${pkgname}.conf"
+  install -Dm0644 "$srcdir/kavita.tmpfiles" "$pkgdir/usr/lib/tmpfiles.d/${pkgname}.conf"
+  install -Dm0644 "$srcdir/kavita.service" "$pkgdir/usr/lib/systemd/system/kavita.service"
 }

@@ -1,0 +1,23 @@
+pkgname=omarchy-bitwarden
+pkgver=0.13.2
+pkgrel=1
+pkgdesc='Bitwarden vault overlay plugin for the Omarchy shell'
+arch=('x86_64')
+url='https://github.com/icyleaf/omarchy-bitwarden'
+license=('MIT')
+optdepends=('omawarden-bin: native engine from the AUR')
+source=("omarchy-bitwarden-0.10.2.tar.gz::${url}/archive/refs/tags/omawarden-0.10.2.tar.gz")
+sha256sums=('9c57c7ef5b23343bf4d348fdd7da2af973e0f3b7f6127c84f65a4509260db93f')
+
+package() {
+  cd "omarchy-bitwarden-omawarden-0.10.2"
+  local dest="$pkgdir/usr/share/omarchy/plugins/icyleaf.bitwarden"
+
+  install -Dm0644 manifest.json "$dest/manifest.json"
+  install -Dm0644 OmarchyBitwarden.qml "$dest/OmarchyBitwarden.qml"
+  install -dm0755 "$dest/components"
+  install -m0644 components/* "$dest/components/"
+
+  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm0644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
+}

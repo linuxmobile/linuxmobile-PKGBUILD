@@ -1,0 +1,56 @@
+pkgname=rusty-inbox
+pkgver=0.2.0
+pkgrel=1
+pkgdesc='Native email client with a Rust engine and a Qt 6/QML interface'
+arch=('x86_64')
+url='https://github.com/karem505/rusty-inbox'
+license=('MIT OR Apache-2.0')
+depends=(
+  'ca-certificates'
+  'gcc-libs'
+  'glibc'
+  'hicolor-icon-theme'
+  'qt6-base'
+  'qt6-declarative'
+  'qt6-webengine'
+)
+makedepends=('cargo')
+optdepends=('ollama: run the AI assistant locally')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('1947444426100725c8dbe6739352bc92aa18c743febad3de3f7825fbca9ce05c')
+
+_srcenv() {
+  cd "${pkgname}-${pkgver}"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export QMAKE=/usr/bin/qmake6
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
+  export CFLAGS="${CFLAGS} -ffat-lto-objects"
+  export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
+  export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"
+}
+
+prepare() {
+  _srcenv
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  _srcenv
+  cargo build --frozen --release -p rusty-inbox
+}
+
+package() {
+  _srcenv
+  install -Dm0755 target/release/rusty-inbox "$pkgdir/usr/bin/rusty-inbox"
+  install -Dm0644 app/packaging/rusty-inbox.desktop \
+    "$pkgdir/usr/share/applications/rusty-inbox.desktop"
+  for s in 16 22 24 32 48 64 96 128 256 512; do
+    install -Dm0644 "app/packaging/icons/rusty-inbox-${s}.png" \
+      "$pkgdir/usr/share/icons/hicolor/${s}x${s}/apps/rusty-inbox.png"
+  done
+  install -Dm0644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
+  install -d "$pkgdir/usr/share/licenses/${pkgname}"
+  install -Dm0644 LICENSE-MIT "$pkgdir/usr/share/licenses/${pkgname}/LICENSE-MIT"
+  install -Dm0644 LICENSE-APACHE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE-APACHE"
+}

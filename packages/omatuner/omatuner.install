@@ -1,0 +1,13 @@
+post_install() {
+  echo "==> To connect an AI agent (Claude Code, Codex, Gemini CLI…) to Tuner: Tuner offers it"
+  echo "    when it next starts, or open Settings ▸ AI agents (Claude Code: tuner claude-setup)."
+}
+
+post_upgrade() {
+  if (( $(vercmp "$2" 0.2.3) < 0 )); then
+    post_install
+  fi
+  if (( $(vercmp "$2" 0.3.0) < 0 )); then
+    echo "==> Cast to your TV: Settings ▸ Cast (ufw users: Tuner offers an Allow on firewall button)."
+  fi
+}

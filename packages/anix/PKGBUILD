@@ -1,0 +1,37 @@
+pkgname=anix
+pkgver=1.4.0
+pkgrel=1
+pkgdesc='Anime catalogue, tracker, library and player'
+arch=('x86_64')
+url='https://anix-linux.vercel.app'
+license=('MIT')
+depends=(
+  'webkit2gtk-4.1'
+  'gtk3'
+  'libayatana-appindicator'
+  'librsvg'
+  'openssl'
+  'gst-plugins-base'
+  'gst-plugins-good'
+  'gst-plugins-bad'
+  'gst-libav'
+  'xdg-utils'
+)
+optdepends=(
+  'mpv: open episodes in mpv'
+  'vlc: open episodes in VLC'
+  'ffmpeg: download episodes that are streamed in parts (HLS)'
+)
+provides=('anix-bin')
+conflicts=('anix-bin')
+replaces=('anix-bin')
+options=('!strip' '!debug')
+source=("https://github.com/MaidLover69/Anix/releases/download/v${pkgver}/Anix_${pkgver}_amd64.deb"
+        "LICENSE-${pkgver}::https://raw.githubusercontent.com/MaidLover69/Anix/v${pkgver}/LICENSE")
+sha256sums=('e482de92a82a87be390ebf8d3cb3aaec78db078e4924d53282c5f4fe19df8f14'
+            '18b58b87a6862f3651243d210089290c8c329583702b76710d5685c2545edde2')
+
+package() {
+  bsdtar -xf data.tar.* -C "$pkgdir"
+  install -Dm0644 "LICENSE-${pkgver}" "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+}

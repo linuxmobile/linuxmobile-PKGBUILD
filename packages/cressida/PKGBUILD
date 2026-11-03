@@ -1,0 +1,26 @@
+pkgname=cressida
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Native Discord client written in C++ (Cressida)'
+url='https://github.com/Ly-sec/Cressida'
+license=('MIT')
+arch=('x86_64')
+depends=('gtk4' 'glib2' 'libadwaita' 'libsignal-protocol-c' 'sqlite' 'json-glib' 'rlottie')
+makedepends=('meson' 'ninja' 'cmake' 'git')
+source=("${pkgname}::git+https://github.com/Ly-sec/Cressida.git#tag=v${pkgver}")
+sha256sums=('SKIP')
+
+build() {
+  cd "${pkgname}"
+  meson setup build \
+    --prefix=/usr \
+    --buildtype=release \
+    -Dbuildtype=release
+  ninja -C build
+}
+
+package() {
+  cd "${pkgname}"
+  DESTDIR="$pkgdir" ninja -C build install
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
