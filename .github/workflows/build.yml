@@ -96,17 +96,7 @@ jobs:
         run: |
           chown -R builder:builder "$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-
-          build_env=()
-          if [[ "$PKG" == "kavita" ]]; then
-            build_env+=(
-              PublishReadyToRunUseCrossgen2=true
-              PublishReadyToRunCrossgen2ExtraArgs=--instruction-set:avx2,bmi,bmi2,f16c,fma,lzcnt,movbe
-            )
-          fi
-
-          sudo --preserve-env=CARGO_NET_GIT_FETCH_WITH_CLI -u builder \
-            env "${build_env[@]}" bash scripts/build.sh "$PKG"
+          sudo --preserve-env=CARGO_NET_GIT_FETCH_WITH_CLI -u builder bash scripts/build.sh "$PKG"
 
       - name: Validate x86-64-v3 ELF metadata
         run: bash scripts/validate-package-isa.sh "$PKG"

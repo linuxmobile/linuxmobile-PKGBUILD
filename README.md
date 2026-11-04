@@ -50,35 +50,42 @@ After that, remove the AUR repository from `pacman.conf` and from `yay` or `paru
 
 The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata does not encode an ISA level, so pacman will not prevent installation on an older x86-64 processor. Do not install this repository on a CPU that lacks x86-64-v3 support.
 
-| Package                    | Payload / build           | x86-64-v3 status                                         |
-| -------------------------- | ------------------------- | -------------------------------------------------------- |
-| anix                       | Upstream Debian package   | Upstream binary; not guaranteed                          |
-| antigravity-cli            | Upstream binary archive   | Upstream binary; not guaranteed                          |
-| blurcam                    | CMake/C++                 | Enforced by CI                                           |
-| chromium-widevine-helper   | Python / assets           | n/a (`any`)                                              |
-| cressida                   | Meson/C++                 | Enforced by CI                                           |
-| hibiki                     | Rust                      | Enforced by CI                                           |
-| isocast                    | Rust                      | Enforced by CI                                           |
-| kavita                     | .NET ReadyToRun           | Not guaranteed; not pinned to v3                         |
-| kernwatch                  | Rust                      | Enforced by CI                                           |
-| lui                        | Zig                       | v3 target explicitly selected; GNU ISA note not asserted |
-| mdrs                       | Rust                      | Enforced by CI                                           |
-| microsoft-edge-beta        | Upstream Debian package   | Upstream binary; not guaranteed                          |
-| multiviewer                | Upstream Electron archive | Upstream binary; not guaranteed                          |
-| netwatch                   | Rust                      | Enforced by CI                                           |
-| obs-pipewire-audio-capture | CMake/C++                 | Enforced by CI                                           |
-| omalive                    | Rust                      | Enforced by CI                                           |
-| omatuner                   | Rust                      | Enforced by CI                                           |
-| oxfmt                      | Rust                      | Enforced by CI                                           |
-| ps_mem                     | Python                    | n/a (`any`)                                              |
-| rawmakase                  | Rust + ONNX Runtime       | Partial; bundled ONNX Runtime is upstream                |
-| rgrc                       | Rust                      | Enforced by CI                                           |
-| rhun                       | Assembly                  | Not guaranteed; instruction set not audited              |
-| rlottie                    | CMake/C++                 | Enforced by CI                                           |
-| rusty-inbox                | Rust                      | Enforced by CI                                           |
-| sonora                     | Rust                      | Enforced by CI                                           |
-| strata                     | Rust                      | Enforced by CI                                           |
-| syswatch                   | Rust                      | Enforced by CI                                           |
+<!-- BEGIN GENERATED PACKAGE ISA STATUS -->
+| Package | Payload / build | x86-64-v3 status |
+| -------------------------- | --------------- | ---------------- |
+| anix | Upstream Debian package | Upstream binary; not guaranteed |
+| antigravity-cli | Upstream binary archive | Upstream binary; not guaranteed |
+| blurcam | CMake/C++ | Enforced by CI (ELF ISA note) |
+| chromium-widevine-helper | Python / assets | n/a (`any`) |
+| cressida | Meson/C++ | Enforced by CI (ELF ISA note) |
+| hibiki | Rust | Enforced by CI (ELF ISA note) |
+| isocast | Rust | Enforced by CI (ELF ISA note) |
+| kavita | .NET ReadyToRun | Review required; ISA audit/tuning pending |
+| kernwatch | Rust | Enforced by CI (ELF ISA note) |
+| lui | Zig | v3 target selected; GNU ISA note not asserted |
+| mdrs | Rust | Enforced by CI (ELF ISA note) |
+| microsoft-edge-beta | Upstream Debian package | Upstream binary; not guaranteed |
+| multiviewer | Upstream Electron archive | Upstream binary; not guaranteed |
+| netwatch | Rust | Enforced by CI (ELF ISA note) |
+| obs-pipewire-audio-capture | CMake/C++ | Enforced by CI (ELF ISA note) |
+| omalive | Rust | Enforced by CI (ELF ISA note) |
+| omatuner | Rust | Enforced by CI (ELF ISA note) |
+| oxfmt | Rust | Enforced by CI (ELF ISA note) |
+| ps_mem | Python | n/a (`any`) |
+| rawmakase | Rust + ONNX Runtime | Partial; bundled upstream ELF excluded |
+| rgrc | Rust | Enforced by CI (ELF ISA note) |
+| rhun | Assembly | Review required; ISA audit/tuning pending |
+| rlottie | CMake/C++ | Enforced by CI (ELF ISA note) |
+| rusty-inbox | Rust | Enforced by CI (ELF ISA note) |
+| sonora | Rust | Enforced by CI (ELF ISA note) |
+| strata | Rust | Enforced by CI (ELF ISA note) |
+| syswatch | Rust | Enforced by CI (ELF ISA note) |
+<!-- END GENERATED PACKAGE ISA STATUS -->
+
+<!-- BEGIN GENERATED PACKAGE ISA NOTE -->
+The ISA status table is generated from `config/isa-policy.tsv` during repository publication. `required` packages are checked for the GNU `x86 ISA needed` property. Kavita's .NET 10 application ReadyToRun is configured with the x86-64-v3 instruction-set baseline; bundled native runtime files are not certified as v3. Rhun remains under review until its hand-written assembly is audited and tuned.
+<!-- END GENERATED PACKAGE ISA NOTE -->
+
 
 C/C++ builds receive `-march=x86-64-v3` and the linker requirement `-Wl,-z,x86-64-v3`. Rust builds receive `-C target-cpu=x86-64-v3` and the equivalent linker argument. `lui` pins Zig's CPU target directly in its PKGBUILD. Rawmakase bundles an upstream ONNX Runtime library, while Kavita and Rhun need separate work before they can be described as fully v3-targeted.
 

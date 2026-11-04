@@ -39,20 +39,6 @@ case "$policy" in
       exit 1
     fi
     ;;
-  r2r)
-    workflow="$root/.github/workflows/build.yml"
-    r2r_isa='--instruction-set:avx2,bmi,bmi2,f16c,fma,lzcnt,movbe'
-    if ! grep -Fq -- 'PublishReadyToRunUseCrossgen2=true' "$workflow"; then
-      printf 'error: %s is marked r2r, but the workflow does not enable Crossgen2 for Kavita\n' "$pkg" >&2
-      exit 1
-    fi
-    if ! grep -Fq -- "PublishReadyToRunCrossgen2ExtraArgs=$r2r_isa" "$workflow"; then
-      printf 'error: %s is marked r2r, but the workflow is missing its x86-64-v3 instruction-set baseline\n' "$pkg" >&2
-      exit 1
-    fi
-    printf 'ISA check: %s (r2r) — application ReadyToRun is configured for v3; bundled native runtime files are not certified.\n' "$pkg"
-    exit 0
-    ;;
   required|partial)
     ;;
   *)

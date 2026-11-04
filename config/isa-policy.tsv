@@ -16,7 +16,7 @@ chromium-widevine-helper|any||Python helper and extension assets; arch=any.
 cressida|required||Meson/C++ source build with x86-64-v3 compiler and linker flags.
 hibiki|required||Rust source build with x86-64-v3 target and linker flags.
 isocast|required||Rust source build with x86-64-v3 target; LTO is disabled by its recipe.
-kavita|r2r||.NET 10 Crossgen2 ReadyToRun application assemblies use the x86-64-v3 instruction-set baseline; bundled native runtime files are not certified.
+kavita|review||.NET ReadyToRun build; v3 managed tuning and runtime audit pending.
 kernwatch|required||Rust source build with x86-64-v3 target and linker flags.
 lui|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
 mdrs|required||Rust source build with x86-64-v3 target and linker flags.
