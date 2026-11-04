@@ -32,7 +32,7 @@ rawmakase|partial|usr/lib/rawmakase/libonnxruntime.so|Rust app is built for v3; 
 rgrc|required||Rust source build with x86-64-v3 target and linker flags.
 rhun|review||Hand-written assembly build; instruction-set usage is not audited or pinned here.
 rlottie|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
-rusty-inbox|required||Rust source build with x86-64-v3 target and linker flags.
+rusty-inbox|review||Rust/Qt build links with lld; GNU ISA ELF note not emitted.
 sonora|required||Rust source build with x86-64-v3 target and linker flags.
 strata|required||Rust source build with x86-64-v3 target and linker flags.
 syswatch|required||Rust source build with x86-64-v3 target and linker flags.

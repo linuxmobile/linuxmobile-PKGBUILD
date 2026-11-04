@@ -12,6 +12,11 @@ on:
   schedule:
     - cron: '0 3 * * 0'
   workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to build (or "all")'
+        required: false
+        default: 'all'
 
 permissions:
   contents: write
@@ -39,30 +44,26 @@ jobs:
       - id: list
         env:
           EVENT: ${{ github.event_name }}
+          TARGET_PKG: ${{ inputs.package }}
         run: |
           full=false
-          base="HEAD^"
+          packages=""
 
-          if [ "$EVENT" != "push" ]; then
+          if [ "$EVENT" = "schedule" ] || [ "$TARGET_PKG" = "all" ]; then
             full=true
-          elif ! git rev-parse --verify "$base" >/dev/null 2>&1; then
-            full=true
-          else
-            changed="$(git diff --name-only "$base" HEAD)"
-            if printf '%s\n' "$changed" | grep -qE '^(scripts/|config/|\.github/workflows/build\.yml)'; then
-              full=true
-            fi
-          fi
-
-          if [ "$full" = "true" ]; then
             packages="$(find packages -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)"
-          else
-            packages="$(printf '%s\n' "$changed" |
-              sed -n 's#^packages/\([^/]*\)/.*#\1#p' |
-              sort -u |
+          elif [ -n "$TARGET_PKG" ]; then
+            packages="$TARGET_PKG"
+          elif git rev-parse --verify "HEAD^" >/dev/null 2>&1; then
+            packages="$(git diff --name-only "HEAD^" HEAD | \
+              sed -n 's#^packages/\([^/]*\)/.*#\1#p' | \
+              sort -u | \
               while read -r p; do
                 [ -d "packages/$p" ] && printf '%s\n' "$p"
               done)"
+          else
+            full=true
+            packages="$(find packages -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)"
           fi
 
           json="$(printf '%s\n' "$packages" | jq -R -s -c 'split("\n") | map(select(length > 0))')"

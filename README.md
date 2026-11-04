@@ -76,7 +76,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | rgrc | Rust | Enforced by CI (ELF ISA note) |
 | rhun | Assembly | Review required; ISA audit/tuning pending |
 | rlottie | CMake/C++ | Enforced by CI (ELF ISA note) |
-| rusty-inbox | Rust | Enforced by CI (ELF ISA note) |
+| rusty-inbox | Rust | Review required; ISA audit/tuning pending |
 | sonora | Rust | Enforced by CI (ELF ISA note) |
 | strata | Rust | Enforced by CI (ELF ISA note) |
 | syswatch | Rust | Enforced by CI (ELF ISA note) |
@@ -101,5 +101,18 @@ The script uses `config/makepkg.conf` and targets x86-64-v3. After building, run
 
 ## Publishing
 
-Every push to `main` builds only the packages changed by that push. Manual runs and the weekly schedule rebuild every package.
-Both modes run in `archlinux:latest`, generate the database with `repo-add`, and update the assets of the `repo` release.
+Every push to `main` builds only the packages changed under `packages/` by that push.
+
+To trigger a build manually for a specific package:
+
+```bash
+gh workflow run build.yml -f package=cressida
+```
+
+To trigger a full rebuild of every package:
+
+```bash
+gh workflow run build.yml -f package=all
+```
+
+The weekly schedule also rebuilds every package. Both modes run in `archlinux:latest`, generate the database with `repo-add`, and update the assets of the `repo` release.
