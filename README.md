@@ -21,10 +21,10 @@ Include = /etc/pacman.d/linuxmobile-mirrorlist
 Install the packages:
 
 ```bash
-sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper hibiki \
-isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer netwatch \
-obs-pipewire-audio-capture omalive omatuner oxfmt ps_mem \
-rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch
+sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper cressida \
+frame hibiki isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer \
+netwatch obs-pipewire-audio-capture omalive omatuner oxfmt ps_mem \
+rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch zapfast
 ```
 
 ## Migration from AUR
@@ -34,14 +34,15 @@ The new packages declare `provides`, `conflicts`, and `replaces` for the old AUR
 ```bash
 sudo pacman -Rns antigravity-cli chromium-widevine-helper f1multiviewer-bin hibiki-bin \
 isocast-git kavita-bin kernwatch microsoft-edge-beta-bin obs-pipewire-audio-capture-bin \
-oxfmt-bin ps_mem rawmakase rgrc rhun-bin rlottie rusty-inbox sonora-bin strata-bin syswatch
+oxfmt-bin ps_mem rawmakase rgrc rhun-bin rlottie rusty-inbox sonora-bin strata-bin syswatch \
+zapfast-bin zapfast-git
 ```
 
 ```bash
-sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper hibiki \
-isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer netwatch \
-obs-pipewire-audio-capture omalive omatuner oxfmt ps_mem \
-rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch
+sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper cressida \
+frame hibiki isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer \
+netwatch obs-pipewire-audio-capture omalive omatuner oxfmt ps_mem \
+rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch zapfast
 ```
 
 After that, remove the AUR repository from `pacman.conf` and from `yay` or `paru`.
@@ -58,6 +59,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | blurcam | CMake/C++ | Enforced by CI (ELF ISA note) |
 | chromium-widevine-helper | Python / assets | n/a (`any`) |
 | cressida | Meson/C++ | Enforced by CI (ELF ISA note) |
+| frame | Rust | Enforced by CI (ELF ISA note) |
 | hibiki | Rust | Enforced by CI (ELF ISA note) |
 | isocast | Rust | Enforced by CI (ELF ISA note) |
 | kavita | .NET ReadyToRun | Review required; ISA audit/tuning pending |
@@ -80,6 +82,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | sonora | Rust | Enforced by CI (ELF ISA note) |
 | strata | Rust | Enforced by CI (ELF ISA note) |
 | syswatch | Rust | Enforced by CI (ELF ISA note) |
+| zapfast | Rust | Enforced by CI (ELF ISA note) |
 <!-- END GENERATED PACKAGE ISA STATUS -->
 
 <!-- BEGIN GENERATED PACKAGE ISA NOTE -->

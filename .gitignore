@@ -1,15 +1,28 @@
+# makepkg work directories and packages
 packages/*/src/
 packages/*/pkg/
+packages/*/*/
 packages/*/*.pkg.tar.*
-packages/*/*.tar.gz
-packages/*/*.tar.xz
+packages/*/*.src.tar.*
+packages/*/*.log
+packages/*/*.part
+
+# downloaded sources
+packages/*/*.tar
+packages/*/*.tar.*
 packages/*/*.tgz
+packages/*/*.tbz
+packages/*/*.txz
 packages/*/*.zip
+packages/*/*.7z
 packages/*/*.deb
+packages/*/*.rpm
+packages/*/*.AppImage
+packages/*/*.appimage
+packages/*/*.run
 packages/*/LICENSE-*
 packages/*/README-*
-packages/*/rgrc/
-packages/*/isocast/
 packages/*/sonora-*-x86_64
+
 repo/
 artifacts/

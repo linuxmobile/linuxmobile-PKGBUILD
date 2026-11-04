@@ -5,9 +5,8 @@ pkgdesc='Fast, non-destructive RAW photo developer'
 arch=('x86_64')
 url='https://github.com/pch/rawmakase'
 license=('MIT')
-depends=('gcc-libs' 'glibc' 'hicolor-icon-theme' 'libxkbcommon' 'libxkbcommon-x11'
-         'vulkan-icd-loader' 'wayland' 'libx11' 'libxcb' 'libxcursor' 'libxi'
-         'libxrandr' 'libglvnd')
+depends=('gcc-libs' 'glibc' 'hicolor-icon-theme' 'libxkbcommon'
+         'vulkan-icd-loader' 'wayland' 'libglvnd')
 optdepends=('xdg-desktop-portal: native file dialogs')
 makedepends=('cargo' 'pkgconf')
 options=('!lto' '!debug')
@@ -30,6 +29,7 @@ _srcenv() {
 
 prepare() {
   _srcenv
+  sed -i 's/, "x11"\]/]/' Cargo.toml
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 

@@ -1,0 +1,89 @@
+pkgname=frame
+pkgver=0.33.1
+pkgrel=1
+pkgdesc='Native desktop interface for FFmpeg media conversion'
+arch=('x86_64')
+url='https://github.com/66HEX/frame'
+license=('GPL-3.0-or-later')
+depends=(
+  'alsa-lib'
+  'ffmpeg'
+  'fontconfig'
+  'freetype2'
+  'libdrm'
+  'libglvnd'
+  'libpulse'
+  'libxkbcommon'
+  'vulkan-driver'
+  'vulkan-icd-loader'
+  'wayland'
+)
+makedepends=(
+  'cargo'
+  'clang'
+  'pkgconf'
+)
+options=('!lto')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
+sha256sums=('4a89cfc5c63170ee7107189e017faa3015980a3377d8d61b25882b8b01ac1ce7')
+
+_srcenv() {
+  cd "frame-${pkgver}"
+  export CARGO_HOME="$srcdir/cargo"
+  export CARGO_TARGET_DIR=target
+  export RUSTUP_TOOLCHAIN=stable
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
+}
+
+prepare() {
+  _srcenv
+  sed -i 's/^default = \["wayland", "x11"\]$/default = ["wayland"]/' \
+    vendor/gpui-ce/crates/gpui_linux/Cargo.toml
+  sed -i '/^xkbcommon = { version = "0.8.0", features = \[/,/^\]/ { /"x11",/d }' \
+    vendor/gpui-ce/crates/gpui_linux/Cargo.toml
+  sed -i 's|^gpui = { package = "gpui", git = "https://github.com/gpui-ce/gpui-ce" }$|gpui = { package = "gpui", git = "https://github.com/gpui-ce/gpui-ce", default-features = false, features = ["font-kit", "wayland"] }|' \
+    frame-app/Cargo.toml
+  sed -i 's|^gpui_platform = { git = "https://github.com/gpui-ce/gpui-ce", features = \["font-kit"\] }$|gpui_platform = { git = "https://github.com/gpui-ce/gpui-ce", default-features = false, features = ["font-kit", "wayland"] }|' \
+    frame-app/Cargo.toml
+  cargo fetch --locked
+}
+
+build() {
+  _srcenv
+  cargo build --frozen --release --package frame-app
+}
+
+package() {
+  cd "frame-${pkgver}"
+
+  install -Dm755 target/release/frame "$pkgdir/usr/lib/frame/frame"
+  install -dm755 "$pkgdir/usr/bin"
+  cat > "$pkgdir/usr/bin/frame" <<'EOF'
+#!/bin/sh
+export FRAME_USE_SYSTEM_MEDIA_TOOLS=1
+export FRAME_UPDATE_EXPLANATION='This Frame package is managed by pacman. Update it with your system package manager.'
+exec /usr/lib/frame/frame "$@"
+EOF
+  chmod 755 "$pkgdir/usr/bin/frame"
+
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+
+  install -Dm644 frame-app/resources/frame.desktop.in \
+    "$pkgdir/usr/share/applications/frame.desktop"
+  sed -i -e 's/\$APP_NAME/Frame/' \
+    -e 's/\$APP_CLI/frame/' \
+    -e 's/\$APP_ICON/frame/' \
+    "$pkgdir/usr/share/applications/frame.desktop"
+
+  install -Dm644 frame-app/resources/app-icons/32x32.png \
+    "$pkgdir/usr/share/icons/hicolor/32x32/apps/frame.png"
+  install -Dm644 frame-app/resources/app-icons/64x64.png \
+    "$pkgdir/usr/share/icons/hicolor/64x64/apps/frame.png"
+  install -Dm644 frame-app/resources/app-icons/128x128.png \
+    "$pkgdir/usr/share/icons/hicolor/128x128/apps/frame.png"
+  install -Dm644 frame-app/resources/app-icons/128x128@2x.png \
+    "$pkgdir/usr/share/icons/hicolor/256x256/apps/frame.png"
+  install -Dm644 frame-app/resources/app-icons/icon.png \
+    "$pkgdir/usr/share/icons/hicolor/512x512/apps/frame.png"
+}

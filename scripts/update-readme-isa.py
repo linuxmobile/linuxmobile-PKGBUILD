@@ -23,6 +23,7 @@ PAYLOADS = {
     "blurcam": "CMake/C++",
     "chromium-widevine-helper": "Python / assets",
     "cressida": "Meson/C++",
+    "frame": "Rust",
     "hibiki": "Rust",
     "isocast": "Rust",
     "kavita": ".NET ReadyToRun",
@@ -45,6 +46,7 @@ PAYLOADS = {
     "sonora": "Rust",
     "strata": "Rust",
     "syswatch": "Rust",
+    "zapfast": "Rust",
 }
 
 

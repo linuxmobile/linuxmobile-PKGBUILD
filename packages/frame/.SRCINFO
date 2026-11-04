@@ -1,0 +1,26 @@
+pkgbase = frame
+	pkgdesc = Native desktop interface for FFmpeg media conversion
+	pkgver = 0.33.1
+	pkgrel = 1
+	url = https://github.com/66HEX/frame
+	arch = x86_64
+	license = GPL-3.0-or-later
+	makedepends = cargo
+	makedepends = clang
+	makedepends = pkgconf
+	depends = alsa-lib
+	depends = ffmpeg
+	depends = fontconfig
+	depends = freetype2
+	depends = libdrm
+	depends = libglvnd
+	depends = libpulse
+	depends = libxkbcommon
+	depends = vulkan-driver
+	depends = vulkan-icd-loader
+	depends = wayland
+	options = !lto
+	source = frame-0.33.1.tar.gz::https://github.com/66HEX/frame/archive/refs/tags/0.33.1.tar.gz
+	sha256sums = 4a89cfc5c63170ee7107189e017faa3015980a3377d8d61b25882b8b01ac1ce7
+
+pkgname = frame

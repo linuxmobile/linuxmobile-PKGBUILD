@@ -1,5 +1,5 @@
 pkgname=cressida
-pkgver=0.1.0
+pkgver=0.1.0.r186.gbf6c2ad
 pkgrel=1
 pkgdesc='Native Discord client written in C++ (Cressida)'
 url='https://github.com/Ly-sec/Cressida'
@@ -17,6 +17,7 @@ depends=(
   'libjxl'
   'libpipewire'
   'libpulse'
+  'librsvg'
   'libsecret'
   'libsodium'
   'libwebp'
@@ -43,8 +44,15 @@ makedepends=(
   'pkgconf'
   'wayland-protocols'
 )
-source=("${pkgname}::git+https://github.com/Ly-sec/Cressida.git#tag=v${pkgver}")
+source=("${pkgname}::git+https://github.com/Ly-sec/Cressida.git")
 sha256sums=('SKIP')
+
+pkgver() {
+  cd "${pkgname}"
+  local ver
+  ver="$(sed 's/^v//' VERSION)"
+  printf '%s.r%s.g%s' "$ver" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
 
 build() {
   cd "${pkgname}"

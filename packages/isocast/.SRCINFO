@@ -1,0 +1,39 @@
+pkgbase = isocast
+	pkgdesc = Screen and camera recorder that records every source as its own file
+	pkgver = 0.0.10
+	pkgrel = 1
+	url = https://github.com/anomalyco/isocast
+	arch = x86_64
+	license = MIT OR Apache-2.0
+	makedepends = cargo
+	makedepends = clang
+	makedepends = cmake
+	makedepends = git
+	makedepends = nasm
+	depends = alsa-lib
+	depends = fontconfig
+	depends = freetype2
+	depends = gtk4
+	depends = webkitgtk-6.0
+	depends = openssl
+	depends = libpipewire>=1.0.5
+	depends = gstreamer
+	depends = gst-plugins-base
+	depends = gst-plugins-good
+	depends = gst-libav
+	depends = openh264>=2.6
+	depends = libopenh264.so=8-64
+	depends = vulkan-icd-loader
+	depends = vulkan-driver
+	depends = libglvnd
+	depends = wayland
+	depends = libxkbcommon
+	provides = isocast-git
+	conflicts = isocast-git
+	replaces = isocast-git
+	options = !lto
+	options = !debug
+	source = git+https://github.com/anomalyco/isocast.git
+	sha256sums = SKIP
+
+pkgname = isocast
