@@ -45,12 +45,12 @@ prepare() {
     frame-app/Cargo.toml
   sed -i 's|^gpui_platform = { git = "https://github.com/gpui-ce/gpui-ce", features = \["font-kit"\] }$|gpui_platform = { git = "https://github.com/gpui-ce/gpui-ce", default-features = false, features = ["font-kit", "wayland"] }|' \
     frame-app/Cargo.toml
-  cargo fetch --locked
+  cargo fetch
 }
 
 build() {
   _srcenv
-  cargo build --frozen --release --package frame-app
+  cargo build --offline --release --package frame-app
 }
 
 package() {
