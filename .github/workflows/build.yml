@@ -5,18 +5,18 @@ on:
     branches:
       - main
     paths:
-      - 'packages/**'
-      - 'scripts/**'
-      - 'config/**'
-      - '.github/workflows/build.yml'
+      - "packages/**"
+      - "scripts/**"
+      - "config/**"
+      - ".github/workflows/build.yml"
   schedule:
-    - cron: '0 3 * * 0'
+    - cron: "0 3 * * 0"
   workflow_dispatch:
     inputs:
       package:
         description: 'Package to build (or "all")'
         required: false
-        default: 'all'
+        default: "all"
 
 permissions:
   contents: write
@@ -53,7 +53,7 @@ jobs:
             full=true
             packages="$(find packages -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)"
           elif [ -n "$TARGET_PKG" ]; then
-            packages="$TARGET_PKG"
+            packages="$(tr ',' '\n' <<< "$TARGET_PKG" | tr -d ' ' | sed '/^$/d')"
           elif git rev-parse --verify "HEAD^" >/dev/null 2>&1; then
             packages="$(git diff --name-only "HEAD^" HEAD | \
               sed -n 's#^packages/\([^/]*\)/.*#\1#p' | \
