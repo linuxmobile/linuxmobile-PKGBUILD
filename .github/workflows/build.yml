@@ -115,7 +115,10 @@ jobs:
 
   publish:
     needs: [discover, build]
-    if: needs.discover.outputs.packages != '[]'
+    if: |
+      !cancelled() &&
+      needs.discover.outputs.packages != '[]' &&
+      !contains(needs.build.result, 'cancelled')
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -137,11 +140,23 @@ jobs:
           mkdir -p repo
           gh release download repo --pattern '*.pkg.tar.zst' --dir repo || true
       - uses: actions/download-artifact@v8
+        id: download
+        continue-on-error: true
         with:
           path: artifacts
           merge-multiple: true
       - name: Create database
+        id: db
         run: |
+          shopt -s nullglob
+          built=(artifacts/*.pkg.tar.zst)
+          shopt -u nullglob
+          if [ ${#built[@]} -eq 0 ]; then
+            echo "has_packages=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "has_packages=true" >> "$GITHUB_OUTPUT"
+
           mkdir -p repo
           cp artifacts/*.pkg.tar.zst repo/
           docker run --rm -v "$PWD/repo:/repo" archlinux:latest bash -c '
@@ -153,6 +168,7 @@ jobs:
           '
           sudo chown -R "$(id -u):$(id -g)" repo
       - name: Publish release
+        if: steps.db.outputs.has_packages == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FULL: ${{ needs.discover.outputs.full }}
@@ -166,3 +182,8 @@ jobs:
             done
           fi
           gh release upload repo repo/* --clobber
+      - name: Assert all packages built
+        if: contains(needs.build.result, 'failure')
+        run: |
+          echo "::warning::Some packages failed to build; successfully built packages were published."
+          exit 1
