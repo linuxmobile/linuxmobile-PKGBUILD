@@ -33,7 +33,7 @@ options=('!debug' '!lto')
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/crmne/zapfast/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('39437cdb259aa6576d19172e2b3e98a524619923497e4751cb0282e86bf54338')
 
-_srcdir='zapfast'
+_srcdir="${pkgname}-${pkgver}"
 
 prepare() {
   cd "$_srcdir"
@@ -57,6 +57,6 @@ package() {
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 THIRD-PARTY-NOTICES.md "$pkgdir/usr/share/licenses/$pkgname/THIRD-PARTY-NOTICES.md"
   install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
-  install -Dm644 packaging/applications/zapfast.desktop "pkgdir/usr/share/applications/zapfast.desktop"
+  install -Dm644 packaging/applications/zapfast.desktop "$pkgdir/usr/share/applications/zapfast.desktop"
   install -Dm644 packaging/icons/zapfast.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/zapfast.svg"
 }
