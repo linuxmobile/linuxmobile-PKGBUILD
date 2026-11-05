@@ -52,38 +52,37 @@ After that, remove the AUR repository from `pacman.conf` and from `yay` or `paru
 The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata does not encode an ISA level, so pacman will not prevent installation on an older x86-64 processor. Do not install this repository on a CPU that lacks x86-64-v3 support.
 
 <!-- BEGIN GENERATED PACKAGE ISA STATUS -->
-| Package                    | Payload / build           | x86-64-v3 status                              |
-| -------------------------- | ------------------------- | --------------------------------------------- |
-| anix                       | Upstream Debian package   | Upstream binary; not guaranteed               |
-| antigravity-cli            | Upstream binary archive   | Upstream binary; not guaranteed               |
-| blurcam                    | CMake/C++                 | Enforced by CI (ELF ISA note)                 |
-| chromium-widevine-helper   | Python / assets           | n/a (`any`)                                   |
-| cressida                   | Meson/C++                 | Enforced by CI (ELF ISA note)                 |
-| frame                      | Rust                      | Enforced by CI (ELF ISA note)                 |
-| hibiki                     | Rust                      | Enforced by CI (ELF ISA note)                 |
-| isocast                    | Rust                      | Enforced by CI (ELF ISA note)                 |
-| kavita                     | .NET ReadyToRun           | Review required; ISA audit/tuning pending     |
-| kernwatch                  | Rust                      | Enforced by CI (ELF ISA note)                 |
-| lui                        | Zig                       | v3 target selected; GNU ISA note not asserted |
-| mdrs                       | Rust                      | Enforced by CI (ELF ISA note)                 |
-| microsoft-edge-beta        | Upstream Debian package   | Upstream binary; not guaranteed               |
-| multiviewer                | Upstream Electron archive | Upstream binary; not guaranteed               |
-| netwatch                   | Rust                      | Enforced by CI (ELF ISA note)                 |
-| obs-pipewire-audio-capture | CMake/C++                 | Enforced by CI (ELF ISA note)                 |
-| omalive                    | Rust                      | Enforced by CI (ELF ISA note)                 |
-| omatuner                   | Rust                      | Enforced by CI (ELF ISA note)                 |
-| oxfmt                      | Rust                      | Enforced by CI (ELF ISA note)                 |
-| ps_mem                     | Python                    | n/a (`any`)                                   |
-| quill                      | Rust                      | Enforced by CI (ELF ISA note)                 |
-| rawmakase                  | Rust + ONNX Runtime       | Partial; bundled upstream ELF excluded        |
-| rgrc                       | Rust                      | Enforced by CI (ELF ISA note)                 |
-| rhun                       | Assembly                  | Review required; ISA audit/tuning pending     |
-| rlottie                    | CMake/C++                 | Enforced by CI (ELF ISA note)                 |
-| rusty-inbox                | Rust                      | Review required; ISA audit/tuning pending     |
-| sonora                     | Rust                      | Enforced by CI (ELF ISA note)                 |
-| strata                     | Rust                      | Enforced by CI (ELF ISA note)                 |
-| syswatch                   | Rust                      | Enforced by CI (ELF ISA note)                 |
-| zapfast                    | Rust                      | Enforced by CI (ELF ISA note)                 |
+| Package | Payload / build | x86-64-v3 status |
+| -------------------------- | --------------- | ---------------- |
+| anix | Upstream Debian package | Upstream binary; not guaranteed |
+| antigravity-cli | Upstream binary archive | Upstream binary; not guaranteed |
+| blurcam | CMake/C++ | Enforced by CI (ELF ISA note) |
+| chromium-widevine-helper | Python / assets | n/a (`any`) |
+| cressida | Meson/C++ | Enforced by CI (ELF ISA note) |
+| frame | Rust | Enforced by CI (ELF ISA note) |
+| hibiki | Rust | Enforced by CI (ELF ISA note) |
+| isocast | Rust | Enforced by CI (ELF ISA note) |
+| kavita | .NET ReadyToRun | Review required; ISA audit/tuning pending |
+| kernwatch | Rust | Enforced by CI (ELF ISA note) |
+| lui | Zig | v3 target selected; GNU ISA note not asserted |
+| mdrs | Rust | Enforced by CI (ELF ISA note) |
+| microsoft-edge-beta | Upstream Debian package | Upstream binary; not guaranteed |
+| multiviewer | Upstream Electron archive | Upstream binary; not guaranteed |
+| netwatch | Rust | Enforced by CI (ELF ISA note) |
+| obs-pipewire-audio-capture | CMake/C++ | Enforced by CI (ELF ISA note) |
+| omalive | Rust | Enforced by CI (ELF ISA note) |
+| omatuner | Rust | Enforced by CI (ELF ISA note) |
+| oxfmt | Rust | Enforced by CI (ELF ISA note) |
+| ps_mem | Python | n/a (`any`) |
+| rawmakase | Rust + ONNX Runtime | Partial; bundled upstream ELF excluded |
+| rgrc | Rust | Enforced by CI (ELF ISA note) |
+| rhun | Assembly | Review required; ISA audit/tuning pending |
+| rlottie | CMake/C++ | Enforced by CI (ELF ISA note) |
+| rusty-inbox | Rust | Review required; ISA audit/tuning pending |
+| sonora | Rust | Enforced by CI (ELF ISA note) |
+| strata | Rust | Enforced by CI (ELF ISA note) |
+| syswatch | Rust | Enforced by CI (ELF ISA note) |
+| zapfast | Rust | Enforced by CI (ELF ISA note) |
 <!-- END GENERATED PACKAGE ISA STATUS -->
 
 <!-- BEGIN GENERATED PACKAGE ISA NOTE -->
