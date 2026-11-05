@@ -47,6 +47,7 @@ PAYLOADS = {
     "sonora": "Rust",
     "strata": "Rust",
     "syswatch": "Rust",
+    "twitch-hls-client:": "Rust",
     "zapfast": "Rust",
 }
 

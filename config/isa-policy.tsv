@@ -38,4 +38,5 @@ rusty-inbox|review||Rust/Qt build links with lld; GNU ISA ELF note not emitted.
 sonora|required||Rust source build with x86-64-v3 target and linker flags.
 strata|required||Rust source build with x86-64-v3 target and linker flags.
 syswatch|required||Rust source build with x86-64-v3 target and linker flags.
+twitch-hls-client|required||Rust source build with x86-64-v3 target and linker flags.
 zapfast|required||Rust source build with x86-64-v3 target and linker flags; LTO is disabled by its recipe.

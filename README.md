@@ -74,6 +74,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | sonora | Rust | Enforced by CI (ELF ISA note) |
 | strata | Rust | Enforced by CI (ELF ISA note) |
 | syswatch | Rust | Enforced by CI (ELF ISA note) |
+| twitch-hls-client | Rust | Enforced by CI (ELF ISA note) |
 | zapfast | Rust | Enforced by CI (ELF ISA note) |
 <!-- END GENERATED PACKAGE ISA STATUS -->
 

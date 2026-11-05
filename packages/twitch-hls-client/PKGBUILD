@@ -1,0 +1,35 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
+pkgname=twitch-hls-client
+pkgver=1.8.0
+pkgrel=1
+pkgdesc='Minimal CLI client for watching Twitch streams'
+url='https://github.com/2bc4/twitch-hls-client'
+license=('GPL-3.0-or-later')
+makedepends=('cargo' 'clang')
+depends=()
+arch=('x86_64')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/2bc4/twitch-hls-client/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('df93b68f361a38615eddcf7bd43b057e7eb5f92ec382fd4b63352686d2930cd4')
+
+_srcdir="${pkgname}-${pkgver}"
+
+prepare() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-z,shstk --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
+  cargo build --frozen --release
+}
+
+package() {
+  cd "$_srcdir"
+
+  install -Dm755 target/release/twitch-hls-client "$pkgdir/usr/bin/twitch-hls-client"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+}
