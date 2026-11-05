@@ -83,21 +83,43 @@ jobs:
     env:
       PKG: ${{ matrix.package }}
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      CARGO_HOME: ${{ github.workspace }}/.cache/cargo
+      CARGO_INCREMENTAL: "0"
+      RUSTC_WRAPPER: sccache
+      SCCACHE_DIR: ${{ github.workspace }}/.cache/sccache
+      SCCACHE_CACHE_SIZE: 1G
+      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+      CCACHE_MAXSIZE: 512M
     steps:
       - name: Prepare Arch environment
         run: |
           printf "\n[linuxmobile]\nSigLevel = Optional DatabaseOptional\nServer = https://github.com/linuxmobile/linuxmobile-PKGBUILD/releases/download/repo\n" >> /etc/pacman.conf
-          pacman -Syu --noconfirm --needed base-devel binutils libarchive git sudo
+          pacman -Syu --noconfirm --needed base-devel binutils libarchive git sudo ccache sccache
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/builder
 
       - uses: actions/checkout@v7
 
+      - name: Prepare cache directories
+        run: mkdir -p .cache/cargo .cache/sccache .cache/ccache
+
+      - name: Restore compiler and Cargo caches
+        uses: actions/cache@v6
+        with:
+          path: |
+            .cache/cargo/registry
+            .cache/cargo/git
+            .cache/sccache
+            .cache/ccache
+          key: archlinux-x86_64-v3-${{ matrix.package }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            archlinux-x86_64-v3-${{ matrix.package }}-
+
       - name: Build ${{ matrix.package }}
         run: |
           chown -R builder:builder "$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-          sudo --preserve-env=CARGO_NET_GIT_FETCH_WITH_CLI -u builder bash scripts/build.sh "$PKG"
+          sudo --preserve-env=CARGO_NET_GIT_FETCH_WITH_CLI,CARGO_HOME,CARGO_INCREMENTAL,RUSTC_WRAPPER,SCCACHE_DIR,SCCACHE_CACHE_SIZE,CCACHE_DIR,CCACHE_MAXSIZE -u builder bash scripts/build.sh "$PKG"
 
       - name: Validate x86-64-v3 ELF metadata
         run: bash scripts/validate-package-isa.sh "$PKG"
