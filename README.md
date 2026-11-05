@@ -74,6 +74,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | omatuner | Rust | Enforced by CI (ELF ISA note) |
 | oxfmt | Rust | Enforced by CI (ELF ISA note) |
 | ps_mem | Python | n/a (`any`) |
+| quill | Rust | Enforced by CI (ELF ISA note) |
 | rawmakase | Rust + ONNX Runtime | Partial; bundled upstream ELF excluded |
 | rgrc | Rust | Enforced by CI (ELF ISA note) |
 | rhun | Assembly | Review required; ISA audit/tuning pending |
