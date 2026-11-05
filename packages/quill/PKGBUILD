@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=quill-git
 pkgver=r5008.141878c
 pkgrel=1
@@ -7,16 +8,11 @@ url='https://shinycake.github.io/quill/'
 license=('MIT' 'LGPL-3.0-only' 'LGPL-2.1-or-later' 'BSL-1.0')
 depends=(
   'alsa-lib'
-  'cairo'
-  'fontconfig'
-  'freetype2'
   'gcc-libs'
-  'gdk-pixbuf2'
-  'glib2'
   'glibc'
-  'gtk3'
-  'hicolor-icon-theme'
-  'libpulse'
+  'libxkbcommon-x11'
+  'libxcb'
+  'libxkbcommon'
   'vulkan-driver'
   'vulkan-icd-loader'
   'wayland'
@@ -30,6 +26,9 @@ makedepends=(
   'pkgconf'
 )
 optdepends=(
+  'gtk3: file dialogs / portals'
+  'libpulse: audio via PulseAudio'
+  'hicolor-icon-theme: theme icons'
   'webkit2gtk-4.1: bot mini apps'
   'libsoup3: bot mini apps'
   'ffmpeg: editing and sending videos, video stickers'
