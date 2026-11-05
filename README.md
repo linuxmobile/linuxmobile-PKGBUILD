@@ -1,6 +1,6 @@
 # linuxmobile PKGBUILD
 
-Arch and CachyOS package repository built with GitHub Actions and published as a pacman repository through GitHub Releases.
+Arch based package repository built with GitHub Actions and published as a pacman repository through GitHub Releases.
 
 ## Installation
 
@@ -21,10 +21,7 @@ Include = /etc/pacman.d/linuxmobile-mirrorlist
 Install the packages:
 
 ```bash
-sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper cressida \
-frame hibiki isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer \
-netwatch obs-pipewire-audio-capture omalive omatuner oxfmt ps_mem \
-rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch zapfast
+sudo pacman -S isocast
 ```
 
 ## Migration from AUR
@@ -32,17 +29,11 @@ rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch zapfast
 The new packages declare `provides`, `conflicts`, and `replaces` for the old AUR names. To replace them explicitly:
 
 ```bash
-sudo pacman -Rns antigravity-cli chromium-widevine-helper f1multiviewer-bin hibiki-bin \
-isocast-git kavita-bin kernwatch microsoft-edge-beta-bin obs-pipewire-audio-capture-bin \
-oxfmt-bin ps_mem rawmakase rgrc rhun-bin rlottie rusty-inbox sonora-bin strata-bin syswatch \
-zapfast-bin zapfast-git
+sudo pacman -Rns f1multiviewer-bin hibiki-bin
 ```
 
 ```bash
-sudo pacman -S anix antigravity-cli blurcam chromium-widevine-helper cressida \
-frame hibiki isocast kavita kernwatch lui mdrs microsoft-edge-beta multiviewer \
-netwatch obs-pipewire-audio-capture omalive omatuner oxfmt ps_mem \
-rawmakase rgrc rhun rlottie rusty-inbox sonora strata syswatch zapfast
+sudo pacman -S multiviewer
 ```
 
 After that, remove the AUR repository from `pacman.conf` and from `yay` or `paru`.
