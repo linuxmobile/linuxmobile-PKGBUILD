@@ -1,0 +1,80 @@
+pkgname=quill-git
+pkgver=r5008.141878c
+pkgrel=1
+pkgdesc='Independent, unofficial Telegram desktop client written in Rust with GPUI and TDLib'
+arch=('x86_64')
+url='https://shinycake.github.io/quill/'
+license=('MIT' 'LGPL-3.0-only' 'LGPL-2.1-or-later' 'BSL-1.0')
+depends=(
+  'alsa-lib'
+  'cairo'
+  'fontconfig'
+  'freetype2'
+  'gcc-libs'
+  'gdk-pixbuf2'
+  'glib2'
+  'glibc'
+  'gtk3'
+  'hicolor-icon-theme'
+  'libpulse'
+  'vulkan-driver'
+  'vulkan-icd-loader'
+  'wayland'
+  'zlib'
+)
+makedepends=(
+  'cargo'
+  'clang'
+  'cmake'
+  'git'
+  'pkgconf'
+)
+optdepends=(
+  'webkit2gtk-4.1: bot mini apps'
+  'libsoup3: bot mini apps'
+  'ffmpeg: editing and sending videos, video stickers'
+  'pipewire: screen sharing in calls'
+  'xdg-desktop-portal: screen sharing and file pickers'
+)
+provides=('quill')
+conflicts=('quill' 'quill-bin')
+replaces=('quill-bin')
+options=('!lto')
+source=("quill::git+https://github.com/shinycake/quill.git")
+sha256sums=('SKIP')
+
+_srcdir='quill'
+
+pkgver() {
+  cd "$_srcdir"
+  printf 'r%s.%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+prepare() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
+  cargo build --frozen --release --features ui
+}
+
+package() {
+  cd "$_srcdir"
+
+  install -Dm755 target/release/quill -t "$pkgdir/usr/bin/"
+  install -Dm644 assets/org.shinycake.quill.desktop \
+    -t "$pkgdir/usr/share/applications/"
+
+  local _icon
+  for _icon in assets/icons/hicolor/*/apps/quill.png; do
+    install -Dm644 "$_icon" "$pkgdir/usr/$_icon"
+  done
+
+  install -Dm644 LICENSE THIRD_PARTY.md -t "$pkgdir/usr/share/licenses/$pkgname/"
+}
