@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=omatuner
 pkgver=0.3.10
 pkgrel=1
@@ -16,25 +17,20 @@ options=('!lto' '!debug' '!strip')
 install=omatuner.install
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('9731197e947ed883745ee65261b3aac29939607bc25820ffdec8ffbc57cd48ed')
-_srcdir() {
-  echo "$srcdir/${pkgname}-${pkgver}"
-}
 
-_cflags() {
-  local _f _kept=()
-  for _f in $CFLAGS; do [[ $_f == -O* ]] || _kept+=("$_f"); done
-  export CFLAGS="${_kept[*]}"
-}
+_srcdir="${pkgname}-${pkgver}"
 
 prepare() {
-  cd "$(_srcdir)"
+  cd "$_srcdir"
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  cd "$(_srcdir)"
-  _cflags
+  cd "$_srcdir"
+  local _f _kept=()
+  for _f in $CFLAGS; do [[ $_f == -O* ]] || _kept+=("$_f"); done
+  export CFLAGS="${_kept[*]}"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR="$srcdir/target"
   export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
@@ -49,24 +45,27 @@ check() {
 }
 
 package() {
-  cd "$(_srcdir)"
-  install -Dm0755 "$srcdir/target/release/tuner" "$pkgdir/usr/bin/tuner"
-  install -Dm0755 "$srcdir/target/release/tuner-firewall" "$pkgdir/usr/lib/tuner/tuner-firewall"
-  install -Dm0755 "$srcdir/target/release/tuner-update" "$pkgdir/usr/lib/tuner/tuner-update"
-  install -Dm0644 packaging/polkit/io.github.rthoms334.omatuner.firewall.policy \
-    "$pkgdir/usr/share/polkit-1/actions/io.github.rthoms334.omatuner.firewall.policy"
-  install -Dm0644 packaging/polkit/io.github.rthoms334.omatuner.update.policy \
-    "$pkgdir/usr/share/polkit-1/actions/io.github.rthoms334.omatuner.update.policy"
-  install -Dm0644 packaging/tuner.desktop "$pkgdir/usr/share/applications/tuner.desktop"
-  install -Dm0644 packaging/icons/tuner.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/tuner.svg"
-  install -Dm0644 packaging/systemd/tuner-rearm.service "$pkgdir/usr/lib/systemd/user/tuner-rearm.service"
-  install -dm0755 "$pkgdir/usr/lib/systemd/user/graphical-session.target.wants"
+  cd "$_srcdir"
+  install -Dm755 "$srcdir/target/release/tuner" "$pkgdir/usr/bin/tuner"
+  install -Dm755 "$srcdir/target/release/tuner-firewall" "$pkgdir/usr/lib/tuner/tuner-firewall"
+  install -Dm755 "$srcdir/target/release/tuner-update" "$pkgdir/usr/lib/tuner/tuner-update"
+
+  install -Dm644 packaging/polkit/io.github.rthoms334.omatuner.firewall.policy "$pkgdir/usr/share/polkit-1/actions/io.github.rthoms334.omatuner.firewall.policy"
+  install -Dm644 packaging/polkit/io.github.rthoms334.omatuner.update.policy "$pkgdir/usr/share/polkit-1/actions/io.github.rthoms334.omatuner.update.policy"
+  install -Dm644 packaging/tuner.desktop "$pkgdir/usr/share/applications/tuner.desktop"
+  install -Dm644 packaging/icons/tuner.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/tuner.svg"
+  install -Dm644 packaging/systemd/tuner-rearm.service "$pkgdir/usr/lib/systemd/user/tuner-rearm.service"
+
+  install -dm755 "$pkgdir/usr/lib/systemd/user/graphical-session.target.wants"
+
   ln -s ../tuner-rearm.service "$pkgdir/usr/lib/systemd/user/graphical-session.target.wants/tuner-rearm.service"
-  install -Dm0644 .claude-plugin/marketplace.json "$pkgdir/usr/share/tuner/claude/.claude-plugin/marketplace.json"
+  install -Dm644 .claude-plugin/marketplace.json "$pkgdir/usr/share/tuner/claude/.claude-plugin/marketplace.json"
+
   local _f
   while IFS= read -r -d '' _f; do
-    install -Dm0644 "$_f" "$pkgdir/usr/share/tuner/claude/$_f"
+    install -Dm644 "$_f" "$pkgdir/usr/share/tuner/claude/$_f"
   done < <(find plugins/omatuner -type f -print0)
-  install -Dm0644 README.md docs/DESIGN.md docs/MANUAL_CHECKLIST.md -t "$pkgdir/usr/share/doc/tuner"
-  install -Dm0644 LICENSE THIRD_PARTY_NOTICES.md -t "$pkgdir/usr/share/licenses/$pkgname"
+
+  install -Dm644 README.md docs/DESIGN.md docs/MANUAL_CHECKLIST.md -t "$pkgdir/usr/share/doc/tuner"
+  install -Dm644 LICENSE THIRD_PARTY_NOTICES.md -t "$pkgdir/usr/share/licenses/$pkgname"
 }

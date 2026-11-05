@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=ps_mem
 pkgver=3.14
 pkgrel=2
@@ -9,9 +10,11 @@ depends=('python')
 source=("$pkgname-$pkgver.tgz::https://github.com/pixelb/ps_mem/archive/v$pkgver.tar.gz")
 sha256sums=('ad8bf87f9b9acd9b0b4997445bd99a8eeace4d816b207d56b03c5a83fec00514')
 
+_srcdir="${pkgname}-${pkgver}"
+
 package() {
-  cd "$srcdir/$pkgname-$pkgver"
-  install -D -m 755 ps_mem.py "${pkgdir}/usr/bin/${pkgname}"
-  install -D -m 644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
-  install -D -m 644 "${pkgname}.1" "${pkgdir}/usr/share/man/man1/${pkgname}.1"
+  cd "$_srcdir"
+  install -Dm755 ps_mem.py "${pkgdir}/usr/bin/${pkgname}"
+  install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 "${pkgname}.1" "${pkgdir}/usr/share/man/man1/${pkgname}.1"
 }

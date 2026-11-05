@@ -63,7 +63,7 @@ build() {
   cd "$_srcdir"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR=target
-  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
+  export RUSTFLAGS="${RUSTFLAGS:-} -C linker-features=-lld --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
   cargo build --frozen --release --features ui
 }
 
@@ -71,12 +71,11 @@ package() {
   cd "$_srcdir"
 
   install -Dm755 target/release/quill -t "$pkgdir/usr/bin/"
-  install -Dm644 assets/org.shinycake.quill.desktop \
-    -t "$pkgdir/usr/share/applications/"
+  install -Dm644 assets/org.shinycake.quill.desktop -t "$pkgdir/usr/share/applications/"
 
   local _icon
   for _icon in assets/icons/hicolor/*/apps/quill.png; do
-    install -Dm644 "$_icon" "$pkgdir/usr/$_icon"
+    install -Dm644 "$_icon" "$pkgdir/usr/share/icons/hicolor/${_icon#assets/icons/hicolor/}"
   done
 
   install -Dm644 LICENSE THIRD_PARTY.md -t "$pkgdir/usr/share/licenses/$pkgname/"

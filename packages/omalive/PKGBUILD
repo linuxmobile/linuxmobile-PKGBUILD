@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=omalive
 pkgver=0.1.0
 pkgrel=1
@@ -27,31 +28,28 @@ optdepends=(
   'xdg-desktop-portal: file picker for importing looks'
   'v4l2loopback-dkms: a V4L2 camera for apps that do not use PipeWire'
 )
+options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('d5174fe28ae150ff2a8e2c4d4440db59ca3386451b848708c16f3fce829dd70f')
 
-_srcenv() {
-  cd "${pkgname}-${pkgver}"
-  export RUSTUP_TOOLCHAIN=stable
-  export CARGO_TARGET_DIR=target
-  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
-  export CFLAGS="${CFLAGS} -ffat-lto-objects"
-  export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
-  export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"
-}
+_srcdir="${pkgname}-${pkgver}"
 
 prepare() {
-  _srcenv
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  _srcenv
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
   cargo build --frozen --release -p omalive-app
 }
 
 package() {
-  _srcenv
+  cd "$_srcdir"
   make install DESTDIR="$pkgdir" PREFIX=/usr
-  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
 }

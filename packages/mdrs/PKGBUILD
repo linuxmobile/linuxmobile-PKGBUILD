@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=mdrs
 pkgver=0.2.3
 pkgrel=1
@@ -7,33 +8,29 @@ url='https://github.com/NicKoehler/mediafire_rs'
 license=('MIT')
 depends=('glibc' 'gcc-libs')
 makedepends=('cargo')
+options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('e32879bd7f6d69844b9755d4eded29d67846dec8fb9747ce86c5542d2ef18464')
 
-_srcenv() {
-  cd "mediafire_rs-${pkgver}"
-  export RUSTUP_TOOLCHAIN=stable
-  export CARGO_TARGET_DIR=target
-  export CARGO_PROFILE_RELEASE_LTO=false
-  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
-  export CFLAGS="${CFLAGS} -ffat-lto-objects"
-  export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
-  export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"
-}
+_srcdir="mediafire_rs-${pkgver}"
 
 prepare() {
-  _srcenv
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  _srcenv
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
   cargo build --frozen --release
 }
 
 package() {
-  _srcenv
-  install -Dm0755 "target/release/mdrs" "$pkgdir/usr/bin/mdrs"
-  install -Dm0644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
-  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  cd "$_srcdir"
+  install -Dm755 "target/release/mdrs" "$pkgdir/usr/bin/mdrs"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
 }

@@ -1,5 +1,5 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=microsoft-edge-beta
-_pkgname=microsoft-edge-beta
 _pkgshortname=msedge-beta
 pkgver=157.0.4341.24
 pkgrel=1
@@ -22,7 +22,7 @@ optdepends=('libpipewire: WebRTC desktop sharing under Wayland'
 options=(!strip !zipman)
 install=microsoft-edge-beta.install
 _channel=beta
-source=("https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-beta/${_pkgname}_${pkgver}-1_amd64.deb"
+source=("https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-beta/${pkgname}_${pkgver}-1_amd64.deb"
         "microsoft-edge-beta.sh"
         "Microsoft Standard Application License Terms - Standalone (free) Use Terms.pdf")
 sha256sums=('87d7bc4dc77720ab4320ecacdee0fb4448a9076b699f578b2fbabfd6baf7f256'
@@ -30,28 +30,28 @@ sha256sums=('87d7bc4dc77720ab4320ecacdee0fb4448a9076b699f578b2fbabfd6baf7f256'
             'edf2ed596eb068f168287fc76aa713ad5e0afb59f0a0a47a4f29c0c124ade15e')
 
 package() {
-	bsdtar -xf data.tar.xz -C "$pkgdir/"
+  bsdtar -xf data.tar.xz -C "$pkgdir/"
 
-	chmod 4755 "${pkgdir}/opt/microsoft/${_pkgshortname}/msedge-sandbox"
+  chmod 4755 "${pkgdir}/opt/microsoft/${_pkgshortname}/msedge-sandbox"
 
-	for res in 128 64 48 32; do
-		magick "${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_256_beta.png" \
-			-resize ${res}x${res} \
-			"${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_${res}_beta.png"
-	done
-	for res in 22 16; do
-		magick "${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_24_beta.png" \
-			-resize ${res}x${res} \
-			"${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_${res}_beta.png"
-	done
+  for res in 128 64 48 32; do
+    magick "${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_256_beta.png" \
+      -resize ${res}x${res} \
+      "${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_${res}_beta.png"
+  done
+  for res in 22 16; do
+    magick "${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_24_beta.png" \
+      -resize ${res}x${res} \
+      "${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_${res}_beta.png"
+  done
 
-	for res in 16 22 24 32 48 64 128 256; do
-		install -Dm644 "${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_${res}_beta.png" \
-			"${pkgdir}/usr/share/icons/hicolor/${res}x${res}/apps/${_pkgname}.png"
-	done
-       install -m755 microsoft-edge-beta.sh "${pkgdir}/usr/bin/microsoft-edge-beta"
+  for res in 16 22 24 32 48 64 128 256; do
+    install -Dm644 "${pkgdir}/opt/microsoft/${_pkgshortname}/product_logo_${res}_beta.png" \
+      "${pkgdir}/usr/share/icons/hicolor/${res}x${res}/apps/${pkgname}.png"
+  done
+  install -Dm755 microsoft-edge-beta.sh "${pkgdir}/usr/bin/microsoft-edge-beta"
 
-	install -Dm644 'Microsoft Standard Application License Terms - Standalone (free) Use Terms.pdf' "${pkgdir}/usr/share/licenses/${_pkgname}/LICENSE.pdf"
-	rm -r "${pkgdir}/etc/cron.daily/" "${pkgdir}/opt/microsoft/${_pkgshortname}/cron/"
-	rm "${pkgdir}/opt/microsoft/${_pkgshortname}"/product_logo_*.png
+  install -Dm644 'Microsoft Standard Application License Terms - Standalone (free) Use Terms.pdf' "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE.pdf"
+  rm -r "${pkgdir}/etc/cron.daily/" "${pkgdir}/opt/microsoft/${_pkgshortname}/cron/"
+  rm "${pkgdir}/opt/microsoft/${_pkgshortname}"/product_logo_*.png
 }

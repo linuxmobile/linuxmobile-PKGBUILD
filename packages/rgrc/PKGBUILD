@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=rgrc
 pkgver=0.6.35.r0.g14c596c
 pkgrel=1
@@ -13,25 +14,28 @@ makedepends=(
   cargo
   git
 )
+options=('!lto')
 source=("${pkgname}::git+${url}#branch=master")
 sha256sums=('SKIP')
 
+_srcdir='rgrc'
+
 prepare() {
-  cd "${pkgname}"
-  cargo fetch --locked
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 pkgver() {
-  cd "${pkgname}"
+  cd "$_srcdir"
   git describe --long --tags --abbrev=7 | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s/^v//'
 }
 
 build() {
-  cd "${pkgname}"
+  cd "$_srcdir"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR=target
-  export CFLAGS="${CFLAGS} -ffat-lto-objects"
-  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
   cargo build --frozen --release --no-default-features
 
   target/release/${pkgname} --completions=zsh > etc/_${pkgname}
@@ -42,17 +46,17 @@ build() {
 }
 
 package() {
-  cd "${pkgname}"
+  cd "$_srcdir"
 
-  install -Dm 0755 "target/release/${pkgname}" -t "${pkgdir}/usr/bin/"
-  install -Dm 0644 etc/rgrc.conf -t "${pkgdir}/etc/"
-  install -Dm 0644 share/conf.* -t "${pkgdir}/usr/share/${pkgname}/"
+  install -Dm755 "target/release/${pkgname}" -t "${pkgdir}/usr/bin/"
+  install -Dm644 etc/rgrc.conf -t "${pkgdir}/etc/"
+  install -Dm644 share/conf.* -t "${pkgdir}/usr/share/${pkgname}/"
 
-  install -Dm 0644 etc/_${pkgname} -t "${pkgdir}/usr/share/zsh/site-functions/"
-  install -Dm 0644 etc/${pkgname} -t "${pkgdir}/usr/share/bash-completion/completions/"
-  install -Dm 0644 etc/${pkgname}.fish -t "${pkgdir}/usr/share/fish/vendor_completions.d/"
+  install -Dm644 etc/_${pkgname} -t "${pkgdir}/usr/share/zsh/site-functions/"
+  install -Dm644 etc/${pkgname} -t "${pkgdir}/usr/share/bash-completion/completions/"
+  install -Dm644 etc/${pkgname}.fish -t "${pkgdir}/usr/share/fish/vendor_completions.d/"
 
-  install -Dm 0644 doc/rgrc.1.gz -t "${pkgdir}/usr/share/man/man1/"
+  install -Dm644 doc/rgrc.1.gz -t "${pkgdir}/usr/share/man/man1/"
 
-  install -Dm 0644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}/"
+  install -Dm644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}/"
 }

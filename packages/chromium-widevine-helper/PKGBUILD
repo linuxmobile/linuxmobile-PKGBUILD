@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=chromium-widevine-helper
 pkgver=1.0.9
 pkgrel=1

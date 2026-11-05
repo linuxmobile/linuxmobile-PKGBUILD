@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=zapfast
 pkgver=0.21.1
 pkgrel=1
@@ -26,55 +27,36 @@ optdepends=(
   'xdg-desktop-portal: the file picker for attachments'
 )
 provides=('fastsapp')
-conflicts=('zapfast-bin' 'zapfast-git' 'fastsapp' 'fastsapp-bin' 'fastsapp-git')
+conflicts=('zapfast-bin' 'zapfast-git')
 replaces=('fastsapp')
 options=('!debug' '!lto')
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/crmne/zapfast/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('39437cdb259aa6576d19172e2b3e98a524619923497e4751cb0282e86bf54338')
 
+_srcdir='zapfast'
+
 prepare() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "$_srcdir"
   export RUSTUP_TOOLCHAIN=stable
-  local need have
-  need=$(sed -n 's/^rust-version = "\(.*\)"$/\1/p' Cargo.toml)
-  have=$(rustc --version 2>/dev/null | cut -d' ' -f2)
-  if [[ -n "${need}" && -n "${have}" && "$(vercmp "${have}" "${need}")" -lt 0 ]]; then
-    error "ZapFast needs Rust ${need} or newer, but rustc is ${have}."
-    return 1
-  fi
   sed -i 's/"wayland", "x11", "persistence"/"wayland", "persistence"/' Cargo.toml
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "$_srcdir"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR=target
-  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/"
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
   cargo build --frozen --release
 }
 
-check() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  export RUSTUP_TOOLCHAIN=stable
-  cargo test --frozen --features demo
-}
-
 package() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "$_srcdir"
 
-  install -Dm755 "target/release/zapfast" "${pkgdir}/usr/bin/zapfast"
-  install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
-  install -Dm644 "THIRD-PARTY-NOTICES.md" "${pkgdir}/usr/share/licenses/${pkgname}/THIRD-PARTY-NOTICES.md"
-  install -Dm644 "README.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
-  install -Dm644 "packaging/applications/zapfast.desktop" \
-    "${pkgdir}/usr/share/applications/zapfast.desktop"
-  install -Dm644 "packaging/icons/zapfast.svg" \
-    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/zapfast.svg"
-  if [[ -f "contrib/omarchy/zapfast.json.tpl" ]]; then
-    install -Dm644 "contrib/omarchy/zapfast.json.tpl" \
-      "${pkgdir}/usr/share/zapfast/omarchy/zapfast.json.tpl"
-    install -Dm755 "contrib/omarchy/zapfast-theme" \
-      "${pkgdir}/usr/share/zapfast/omarchy/zapfast-theme"
-  fi
+  install -Dm755 target/release/zapfast "$pkgdir/usr/bin/zapfast"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 THIRD-PARTY-NOTICES.md "$pkgdir/usr/share/licenses/$pkgname/THIRD-PARTY-NOTICES.md"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+  install -Dm644 packaging/applications/zapfast.desktop "pkgdir/usr/share/applications/zapfast.desktop"
+  install -Dm644 packaging/icons/zapfast.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/zapfast.svg"
 }

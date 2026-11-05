@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=sonora
 pkgver=0.47.0
 pkgrel=1
@@ -21,50 +22,43 @@ options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('98dc495f0cf94e032de758cb85d61dbde820a23d2fd90e9230907f9ab265a085')
 
+_srcdir="${pkgname}-${pkgver}"
+
 prepare() {
-  cd "${pkgname}-${pkgver}"
+  cd "$_srcdir"
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  cd "${pkgname}-${pkgver}"
+  cd "$_srcdir"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR=target
-  export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-z,shstk --remap-path-prefix=${srcdir}=/usr/src"
-  export CFLAGS="${CFLAGS} -ffat-lto-objects"
-  export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
-  export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"
+  export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-z,shstk --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
   cargo build --frozen --release
 }
 
 package() {
-  cd "${pkgname}-${pkgver}"
+  cd "$_srcdir"
 
-  install -Dm0755 target/release/sonora "$pkgdir/usr/bin/sonora"
-  install -Dm0644 assets/linux/sonora.desktop \
-    "$pkgdir/usr/share/applications/sonora.desktop"
-  install -Dm0644 assets/linux/sonora.svg \
-    "$pkgdir/usr/share/icons/hicolor/scalable/apps/sonora.svg"
+  install -Dm755 target/release/sonora "$pkgdir/usr/bin/sonora"
+  install -Dm644 assets/linux/sonora.desktop "$pkgdir/usr/share/applications/sonora.desktop"
+  install -Dm644 assets/linux/sonora.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/sonora.svg"
 
   for icon in assets/linux/icons/hicolor/*/apps/sonora.png; do
     local size
     size=$(basename "$(dirname "$(dirname "${icon}")")")
-    install -Dm0644 "${icon}" \
-      "$pkgdir/usr/share/icons/hicolor/${size}/apps/sonora.png"
+    install -Dm644 "${icon}" "$pkgdir/usr/share/icons/hicolor/${size}/apps/sonora.png"
   done
 
-  install -Dm0644 COPYING "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
-  install -Dm0644 THIRD-PARTY.md "$pkgdir/usr/share/licenses/${pkgname}/THIRD-PARTY.md"
-  install -Dm0644 assets/fonts/LICENSE.txt \
-    "$pkgdir/usr/share/licenses/${pkgname}/LICENSE.Inter"
-  install -Dm0644 assets/icons/LICENSE \
-    "$pkgdir/usr/share/licenses/${pkgname}/icons/LICENSE"
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 THIRD-PARTY.md "$pkgdir/usr/share/licenses/${pkgname}/THIRD-PARTY.md"
+  install -Dm644 assets/fonts/LICENSE.txt "$pkgdir/usr/share/licenses/${pkgname}/LICENSE.Inter"
+  install -Dm644 assets/icons/LICENSE "$pkgdir/usr/share/licenses/${pkgname}/icons/LICENSE"
 
   for licence in assets/icons/*/LICENSE; do
     local pack
     pack=$(basename "$(dirname "${licence}")")
-    install -Dm0644 "${licence}" \
-      "$pkgdir/usr/share/licenses/${pkgname}/icons/LICENSE.${pack}"
+    install -Dm644 "${licence}" "$pkgdir/usr/share/licenses/${pkgname}/icons/LICENSE.${pack}"
   done
 }

@@ -1,4 +1,4 @@
-
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=rhun
 pkgver=0.19.1
 pkgrel=1
@@ -16,21 +16,23 @@ replaces=('rhun-bin')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('e11e20f04fb2ac9cdcb32015fb583748cce77eb16a0c81c9e30fa04b2946ec88')
 
+_srcdir="${pkgname}-${pkgver}"
+
 build() {
-  cd "${pkgname}-${pkgver}"
+  cd "$_srcdir"
   RHUN_DIST=1 ./build.sh release
 }
 
 package() {
-  cd "${pkgname}-${pkgver}"
+  cd "$_srcdir"
 
-  install -Dm0755 build/rhun "$pkgdir/usr/bin/rhun"
-  install -Dm0644 assets/rhun.desktop "$pkgdir/usr/share/applications/rhun.desktop"
-  install -Dm0644 assets/rhun-url-handler.desktop "$pkgdir/usr/share/applications/rhun-url-handler.desktop"
-  install -Dm0644 assets/icons/rhun.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/rhun.svg"
-  install -Dm0644 assets/icons/rhun-256.png "$pkgdir/usr/share/icons/hicolor/256x256/apps/rhun.png"
-  install -Dm0644 assets/icons/rhun-512.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/rhun.png"
-  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
-  install -Dm0644 assets/licenses/LICENSE-Unicode.txt "$pkgdir/usr/share/licenses/${pkgname}/LICENSE-Unicode.txt"
-  install -Dm0644 assets/fonts/LICENSE-Iosevka.md "$pkgdir/usr/share/licenses/${pkgname}/LICENSE-Iosevka.md"
+  install -Dm755 build/rhun "$pkgdir/usr/bin/rhun"
+  install -Dm644 assets/rhun.desktop "$pkgdir/usr/share/applications/rhun.desktop"
+  install -Dm644 assets/rhun-url-handler.desktop "$pkgdir/usr/share/applications/rhun-url-handler.desktop"
+  install -Dm644 assets/icons/rhun.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/rhun.svg"
+  install -Dm644 assets/icons/rhun-256.png "$pkgdir/usr/share/icons/hicolor/256x256/apps/rhun.png"
+  install -Dm644 assets/icons/rhun-512.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/rhun.png"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 assets/licenses/LICENSE-Unicode.txt "$pkgdir/usr/share/licenses/${pkgname}/LICENSE-Unicode.txt"
+  install -Dm644 assets/fonts/LICENSE-Iosevka.md "$pkgdir/usr/share/licenses/${pkgname}/LICENSE-Iosevka.md"
 }

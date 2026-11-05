@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=kernwatch
 pkgver=0.5.1
 pkgrel=1
@@ -7,35 +8,32 @@ url='https://github.com/matthart1983/kernwatch'
 license=('MIT')
 depends=('glibc' 'gcc-libs' 'libpcap' 'traceroute')
 makedepends=('cargo')
+options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('9596b3b28b8764e4320d0d8e5ec0528cb82733e8f1587c949d82ae1bcb47c1b3')
 
-_srcenv() {
-  cd "${pkgname}-${pkgver}"
-  export RUSTUP_TOOLCHAIN=stable
-  export CARGO_TARGET_DIR=target
-  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
-  export CFLAGS="${CFLAGS} -ffat-lto-objects"
-  export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
-  export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"
-}
+_srcdir="${pkgname}-${pkgver}"
 
 prepare() {
-  _srcenv
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  _srcenv
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
   cargo build --frozen --release
 }
 
 package() {
-  _srcenv
-  install -Dm0755 "target/release/kernwatch" "$pkgdir/usr/bin/kernwatch"
-  install -Dm0644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
-  install -Dm0644 CONTRIBUTING.md "$pkgdir/usr/share/doc/${pkgname}/CONTRIBUTING.md"
-  install -Dm0644 docs/FLAME_GRAPHS.md "$pkgdir/usr/share/doc/${pkgname}/FLAME_GRAPHS.md"
-  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
-  install -Dm0644 licenses/* "$pkgdir/usr/share/licenses/${pkgname}/"
+  cd "$_srcdir"
+  install -Dm755 "target/release/kernwatch" "$pkgdir/usr/bin/kernwatch"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 CONTRIBUTING.md "$pkgdir/usr/share/doc/${pkgname}/CONTRIBUTING.md"
+  install -Dm644 docs/FLAME_GRAPHS.md "$pkgdir/usr/share/doc/${pkgname}/FLAME_GRAPHS.md"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 licenses/* "$pkgdir/usr/share/licenses/${pkgname}/"
 }

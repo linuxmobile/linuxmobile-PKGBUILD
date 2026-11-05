@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=syswatch
 pkgver=0.14.4
 pkgrel=1
@@ -7,33 +8,30 @@ url='https://github.com/matthart1983/syswatch'
 license=('MIT')
 depends=('glibc' 'gcc-libs' 'libpcap')
 makedepends=('cargo' 'pkgconf')
+options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('390c0bf558e8c1859ffb77e05dcce47f7af073b26a38fc8800129c2d550ff44a')
 
-_srcenv() {
-  cd "${pkgname}-${pkgver}"
-  export RUSTUP_TOOLCHAIN=stable
-  export CARGO_TARGET_DIR=target
-  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
-  export CFLAGS="${CFLAGS} -ffat-lto-objects"
-  export CXXFLAGS="${CXXFLAGS:-} -ffat-lto-objects"
-  export CPPFLAGS="${CPPFLAGS:-} -ffat-lto-objects"
-}
+_srcdir="${pkgname}-${pkgver}"
 
 prepare() {
-  _srcenv
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  _srcenv
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
   cargo build --frozen --release
 }
 
 package() {
-  _srcenv
-  install -Dm0755 "target/release/syswatch" "$pkgdir/usr/bin/syswatch"
-  install -Dm0644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
-  install -Dm0644 docs/REFERENCE.md "$pkgdir/usr/share/doc/${pkgname}/REFERENCE.md"
-  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  cd "$_srcdir"
+  install -Dm755 "target/release/syswatch" "$pkgdir/usr/bin/syswatch"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 docs/REFERENCE.md "$pkgdir/usr/share/doc/${pkgname}/REFERENCE.md"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
 }

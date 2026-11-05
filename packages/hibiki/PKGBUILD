@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=hibiki
 pkgver=0.2.0
 pkgrel=1
@@ -24,25 +25,32 @@ optdepends=(
 )
 replaces=('hibiki-bin')
 conflicts=('hibiki-bin')
+options=('!lto')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
 sha256sums=('b4eea7617a81954778a3181497d05d665a815da249dc810475f51e3f58f36ba2')
 
+_srcdir="${pkgname}-${pkgver}"
+
+prepare() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
 build() {
-  cd "$pkgname-$pkgver"
-  export CARGO_HOME="$srcdir/cargo"
-  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
-  cargo build --release --locked
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
+  cargo build --release --frozen
 }
 
 package() {
-  cd "$pkgname-$pkgver"
+  cd "$_srcdir"
 
   install -Dm755 "target/release/$pkgname" "$pkgdir/usr/bin/$pkgname"
-  install -Dm644 assets/hibiki.desktop \
-    "$pkgdir/usr/share/applications/hibiki.desktop"
-  install -Dm644 assets/hibiki.metainfo.xml \
-    "$pkgdir/usr/share/metainfo/hibiki.metainfo.xml"
-  install -Dm644 assets/hibiki.svg \
-    "$pkgdir/usr/share/icons/hicolor/scalable/apps/hibiki.svg"
+  install -Dm644 assets/hibiki.desktop "$pkgdir/usr/share/applications/hibiki.desktop"
+  install -Dm644 assets/hibiki.metainfo.xml "$pkgdir/usr/share/metainfo/hibiki.metainfo.xml"
+  install -Dm644 assets/hibiki.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/hibiki.svg"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

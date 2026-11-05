@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=cressida
 pkgver=0.1.0.r186.gbf6c2ad
 pkgrel=1
@@ -44,18 +45,20 @@ makedepends=(
   'pkgconf'
   'wayland-protocols'
 )
-source=("${pkgname}::git+https://github.com/Ly-sec/Cressida.git")
+source=("cressida::git+https://github.com/Ly-sec/Cressida.git")
 sha256sums=('SKIP')
 
+_srcdir='cressida'
+
 pkgver() {
-  cd "${pkgname}"
+  cd "$_srcdir"
   local ver
   ver="$(sed 's/^v//' VERSION)"
   printf '%s.r%s.g%s' "$ver" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
 }
 
 build() {
-  cd "${pkgname}"
+  cd "$_srcdir"
   meson setup build \
     --prefix=/usr \
     --buildtype=release \
@@ -65,6 +68,6 @@ build() {
 }
 
 package() {
-  cd "${pkgname}"
+  cd "$_srcdir"
   DESTDIR="$pkgdir" ninja -C build install
 }

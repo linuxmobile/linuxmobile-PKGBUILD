@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=kavita
 pkgver=0.9.1.4
 pkgrel=1
@@ -60,12 +61,12 @@ package() {
   install -d "$pkgdir/opt/kavita"
   cp -Ra "$srcdir/publish/." "$pkgdir/opt/kavita/"
 
-  install -Dm0644 Kavita.Server/config/appsettings.json "$pkgdir/etc/Kavita/appsettings.json"
-  install -dm0755 "$pkgdir/opt/kavita/config"
+  install -Dm644 Kavita.Server/config/appsettings.json "$pkgdir/etc/Kavita/appsettings.json"
+  install -dm755 "$pkgdir/opt/kavita/config"
   rm -f "$pkgdir/opt/kavita/config/appsettings.json"
   ln -s /etc/Kavita/appsettings.json "$pkgdir/opt/kavita/config/appsettings.json"
 
-  install -Dm0644 "$srcdir/kavita.sysusers" "$pkgdir/usr/lib/sysusers.d/${pkgname}.conf"
-  install -Dm0644 "$srcdir/kavita.tmpfiles" "$pkgdir/usr/lib/tmpfiles.d/${pkgname}.conf"
-  install -Dm0644 "$srcdir/kavita.service" "$pkgdir/usr/lib/systemd/system/kavita.service"
+  install -Dm644 "$srcdir/kavita.sysusers" "$pkgdir/usr/lib/sysusers.d/${pkgname}.conf"
+  install -Dm644 "$srcdir/kavita.tmpfiles" "$pkgdir/usr/lib/tmpfiles.d/${pkgname}.conf"
+  install -Dm644 "$srcdir/kavita.service" "$pkgdir/usr/lib/systemd/system/kavita.service"
 }

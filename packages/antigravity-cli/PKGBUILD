@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=antigravity-cli
 pkgver=1.4.12_4768735748292608
 pkgrel=1
@@ -18,6 +19,6 @@ source_x86_64=("${pkgname}-${pkgver}-x86_64.tar.gz::https://storage.googleapis.c
 sha256sums_x86_64=('3368d1923fc869f21ec8fce83252a8c96c89283aac9393958ac91fbf7a3949e4')
 
 package() {
-    install -Dm755 "${srcdir}/antigravity" "${pkgdir}/usr/bin/agy"
-    install -Dm644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm755 "$srcdir/antigravity" "$pkgdir/usr/bin/agy"
+  install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
 }

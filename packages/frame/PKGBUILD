@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=frame
 pkgver=0.33.1
 pkgrel=1
@@ -27,16 +28,10 @@ options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
 sha256sums=('4a89cfc5c63170ee7107189e017faa3015980a3377d8d61b25882b8b01ac1ce7')
 
-_srcenv() {
-  cd "frame-${pkgver}"
-  export CARGO_HOME="$srcdir/cargo"
-  export CARGO_TARGET_DIR=target
-  export RUSTUP_TOOLCHAIN=stable
-  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src"
-}
+_srcdir="frame-${pkgver}"
 
 prepare() {
-  _srcenv
+  cd "$_srcdir"
   sed -i 's/^default = \["wayland", "x11"\]$/default = ["wayland"]/' \
     vendor/gpui-ce/crates/gpui_linux/Cargo.toml
   sed -i '/^xkbcommon = { version = "0.8.0", features = \[/,/^\]/ { /"x11",/d }' \
@@ -45,18 +40,23 @@ prepare() {
     frame-app/Cargo.toml
   sed -i 's|^gpui_platform = { git = "https://github.com/gpui-ce/gpui-ce", features = \["font-kit"\] }$|gpui_platform = { git = "https://github.com/gpui-ce/gpui-ce", default-features = false, features = ["font-kit", "wayland"] }|' \
     frame-app/Cargo.toml
+  export RUSTUP_TOOLCHAIN=stable
   cargo fetch
 }
 
 build() {
-  _srcenv
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
   cargo build --offline --release --package frame-app
 }
 
 package() {
-  cd "frame-${pkgver}"
+  cd "$_srcdir"
 
   install -Dm755 target/release/frame "$pkgdir/usr/lib/frame/frame"
+
   install -dm755 "$pkgdir/usr/bin"
   cat > "$pkgdir/usr/bin/frame" <<'EOF'
 #!/bin/sh
@@ -69,21 +69,22 @@ EOF
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
 
-  install -Dm644 frame-app/resources/frame.desktop.in \
-    "$pkgdir/usr/share/applications/frame.desktop"
+  install -Dm644 frame-app/resources/frame.desktop.in "$pkgdir/usr/share/applications/frame.desktop"
+
   sed -i -e 's/\$APP_NAME/Frame/' \
     -e 's/\$APP_CLI/frame/' \
     -e 's/\$APP_ICON/frame/' \
     "$pkgdir/usr/share/applications/frame.desktop"
 
-  install -Dm644 frame-app/resources/app-icons/32x32.png \
-    "$pkgdir/usr/share/icons/hicolor/32x32/apps/frame.png"
-  install -Dm644 frame-app/resources/app-icons/64x64.png \
-    "$pkgdir/usr/share/icons/hicolor/64x64/apps/frame.png"
-  install -Dm644 frame-app/resources/app-icons/128x128.png \
-    "$pkgdir/usr/share/icons/hicolor/128x128/apps/frame.png"
-  install -Dm644 frame-app/resources/app-icons/128x128@2x.png \
-    "$pkgdir/usr/share/icons/hicolor/256x256/apps/frame.png"
-  install -Dm644 frame-app/resources/app-icons/icon.png \
-    "$pkgdir/usr/share/icons/hicolor/512x512/apps/frame.png"
+  local _size _icon
+  for _size in 32 64 128 256 512; do
+    case $_size in
+      256) _icon="128x128@2x.png" ;;
+      512) _icon="icon.png" ;;
+      *)   _icon="${_size}x${_size}.png" ;;
+    esac
+
+    install -Dm644 "frame-app/resources/app-icons/$_icon" \
+      "$pkgdir/usr/share/icons/hicolor/${_size}x${_size}/apps/frame.png"
+  done
 }

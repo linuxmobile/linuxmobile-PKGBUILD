@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=obs-pipewire-audio-capture
 pkgver=1.2.2
 pkgrel=1
@@ -15,15 +16,17 @@ conflicts=('obs-pipewire-audio-capture-bin')
 source=("$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('c1e3c5aa1b4c24be9ff5c3c176e48ebb1f170ed4af865d647f2f0ab13aad72a1')
 
+_srcdir="${pkgname}-${pkgver}"
+
 build() {
-  cd "$pkgname-$pkgver"
+  cd "$_srcdir"
   cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo
+    -DCMAKE_BUILD_TYPE=Release
   cmake --build build
 }
 
 package() {
-  cd "$pkgname-$pkgver"
+  cd "$_srcdir"
   DESTDIR="$pkgdir" cmake --install build
 }

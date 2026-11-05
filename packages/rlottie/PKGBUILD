@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=rlottie
 pkgver=0.2
 pkgrel=5
@@ -15,30 +16,33 @@ sha256sums=('030ccbc270f144b4f3519fb3b86e20dd79fb48d5d55e57f950f12bab9b65216a'
             '6dd2d214beecf74347102b0f4481cfc3a4faa5d8a8ac19d4d03a1ddfd0744d00'
             '42d5b07836d08927bf6a211fd36f1bee7122ccc96ae9ddc47267ebac47d680e2')
 
+_srcdir="${pkgname}-${pkgver}"
+
 prepare() {
-	cd "$srcdir/$pkgname-$pkgver"
-	patch -N -p0 -i "$srcdir/0001-add-missing-include.patch"
-	patch -N -p1 -i "$srcdir/0002-cmake-3.5.patch"
-	mkdir -p build
+  cd "$_srcdir"
+  patch -N -p0 -i "$srcdir/0001-add-missing-include.patch"
+  patch -N -p1 -i "$srcdir/0002-cmake-3.5.patch"
+  mkdir -p build
 }
 
 build() {
-	cd "$srcdir/$pkgname-$pkgver/build"
-	export CFLAGS="${CFLAGS} -ffile-prefix-map=${srcdir}=/usr/src"
-	export CXXFLAGS="${CXXFLAGS} -ffile-prefix-map=${srcdir}=/usr/src"
-	cmake .. \
-		-G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_BUILD_TYPE=None
-	ninja
+  cd "$_srcdir"
+  export CFLAGS="${CFLAGS} -ffile-prefix-map=${srcdir}=/usr/src"
+  export CXXFLAGS="${CXXFLAGS} -ffile-prefix-map=${srcdir}=/usr/src"
+  cd build
+  cmake .. \
+    -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release
+  ninja
 }
 
 package() {
-	cd "$srcdir/$pkgname-$pkgver/build"
-	DESTDIR="$pkgdir" ninja install
+  cd "$_srcdir/build"
+  DESTDIR="$pkgdir" ninja install
 
-	install -Dm644 "../COPYING" "$pkgdir/usr/share/licenses/$pkgname/COPYING"
-	for _file in ../licenses/*; do
-		install -Dm644 $_file "$pkgdir/usr/share/licenses/$pkgname/licenses/$(basename $_file)"
-	done
+  install -Dm644 "../COPYING" "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+  for _file in ../licenses/*; do
+    install -Dm644 $_file "$pkgdir/usr/share/licenses/$pkgname/licenses/$(basename $_file)"
+  done
 }

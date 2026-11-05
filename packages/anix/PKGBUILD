@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=anix
 pkgver=1.4.0
 pkgrel=1
@@ -33,5 +34,5 @@ sha256sums=('e482de92a82a87be390ebf8d3cb3aaec78db078e4924d53282c5f4fe19df8f14'
 
 package() {
   bsdtar -xf data.tar.* -C "$pkgdir"
-  install -Dm0644 "LICENSE-${pkgver}" "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 "LICENSE-${pkgver}" "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
 }

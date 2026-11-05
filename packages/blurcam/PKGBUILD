@@ -1,3 +1,4 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=blurcam
 pkgver=0.1.0
 pkgrel=1
@@ -23,14 +24,16 @@ makedepends=(
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('29fa2e896b9631de62e948a179c0b4b10e3e9274652ad685d31c4c81cdb64ba0')
 
+_srcdir="${pkgname}-${pkgver}"
+
 prepare() {
-  cd "${pkgname}-${pkgver}"
+  cd "$_srcdir"
   sed -i 's/find_package(OpenCV 4\.8 REQUIRED COMPONENTS core imgproc imgcodecs objdetect video dnn/find_package(OpenCV 5.0 REQUIRED COMPONENTS core imgproc imgcodecs objdetect video dnn features/' CMakeLists.txt
   sed -i 's|#include <opencv2/video/tracking.hpp>|#include <opencv2/video/tracking.hpp>\n#include <opencv2/features.hpp>|' src/tracking.cpp
 }
 
 build() {
-  cd "${pkgname}-${pkgver}"
+  cd "$_srcdir"
 
   cmake -S . -B build \
     -DCMAKE_BUILD_TYPE=Release \
@@ -42,10 +45,10 @@ build() {
 }
 
 package() {
-  cd "${pkgname}-${pkgver}"
+  cd "$_srcdir"
 
   DESTDIR="$pkgdir" cmake --install build
 
-  install -Dm0644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
-  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
 }
