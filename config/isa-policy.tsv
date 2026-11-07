@@ -16,6 +16,7 @@ chromium-widevine-helper|any||Python helper and extension assets; arch=any.
 cressida|required||Meson/C++ source build with x86-64-v3 compiler and linker flags.
 frame|required||Rust source build with x86-64-v3 target and linker flags.
 hibiki|required||Rust source build with x86-64-v3 target and linker flags.
+ie-r|required||Rust source build with x86-64-v3 target and linker flags.
 isocast|required||Rust source build with x86-64-v3 target; LTO is disabled by its recipe.
 kavita|review||.NET ReadyToRun build; v3 managed tuning and runtime audit pending.
 kernwatch|required||Rust source build with x86-64-v3 target and linker flags.

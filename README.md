@@ -52,6 +52,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | cressida | Meson/C++ | Enforced by CI (ELF ISA note) |
 | frame | Rust | Enforced by CI (ELF ISA note) |
 | hibiki | Rust | Enforced by CI (ELF ISA note) |
+| ie-r | Rust | Enforced by CI (ELF ISA note) |
 | isocast | Rust | Enforced by CI (ELF ISA note) |
 | kavita | .NET ReadyToRun | Review required; ISA audit/tuning pending |
 | kernwatch | Rust | Enforced by CI (ELF ISA note) |

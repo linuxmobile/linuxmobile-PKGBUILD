@@ -25,6 +25,7 @@ PAYLOADS = {
     "cressida": "Meson/C++",
     "frame": "Rust",
     "hibiki": "Rust",
+    "ie-r": "Rust",
     "isocast": "Rust",
     "kavita": ".NET ReadyToRun",
     "kernwatch": "Rust",
