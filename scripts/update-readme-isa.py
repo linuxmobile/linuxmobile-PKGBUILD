@@ -31,6 +31,7 @@ PAYLOADS = {
     "lui": "Zig",
     "mdrs": "Rust",
     "microsoft-edge-beta": "Upstream Debian package",
+    "monocode": "Rust",
     "multiviewer": "Upstream Electron archive",
     "netwatch": "Rust",
     "obs-pipewire-audio-capture": "CMake/C++",

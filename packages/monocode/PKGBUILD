@@ -1,0 +1,122 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
+pkgname=monocode-git
+pkgver=0.16.0.preview.14
+pkgrel=1
+pkgdesc='MonoCode GUI for coding agents (GPUI build)'
+arch=('x86_64')
+url='https://github.com/hardbeat920/monocode'
+license=('MIT' 'Apache-2.0' 'custom')
+provides=('monocode')
+conflicts=('monocode')
+depends=(
+  'glibc'
+  'gcc-libs'
+  'alsa-lib'
+  'fontconfig'
+  'freetype2'
+  'libxkbcommon'
+  'libxkbcommon-x11'
+  'wayland'
+  'libx11'
+  'libxcb'
+  'libglvnd'
+  'mesa'
+  'vulkan-icd-loader'
+  'dbus'
+  'polkit'
+)
+makedepends=(
+  'cargo'
+  'clang'
+  'cmake'
+  'ninja'
+  'pkgconf'
+  'vulkan-headers'
+)
+optdepends=(
+  'xdg-utils: opening external links with the system browser'
+  'vulkan-intel: Vulkan driver for Intel GPUs'
+  'vulkan-radeon: Vulkan driver for AMD GPUs'
+  'nvidia-utils: Vulkan driver for NVIDIA GPUs'
+)
+options=('!lto')
+
+_nativever='0.16.0-preview.14'
+_tag="native-v${_nativever}"
+_srcdir="monocode-${_tag}"
+source=(
+  "${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${_tag}.tar.gz"
+  'monocode.desktop'
+)
+sha256sums=('SKIP' '21930b339c14092db4608a6db6fd863ff367f0733f6ffcaa55a1404f794f745b')
+
+prepare() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+
+  cargo fetch \
+    --locked \
+    --manifest-path crates/monocode-gpui/Cargo.toml \
+    --target "$(rustc -vV | sed -n 's/^host: //p')"
+}
+
+build() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR="${srcdir}/target"
+  export CARGO_BUILD_JOBS="${CARGO_BUILD_JOBS:-1}"
+  export MONOCODE_NATIVE_VERSION="${_nativever}"
+  # Updates must be managed by pacman, not by the application's self-updater.
+  unset MONOCODE_NATIVE_UPDATER_ENDPOINT MONOCODE_NATIVE_UPDATER_PUBKEY
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src/debug/${pkgname}"
+
+  cargo build \
+    --frozen \
+    --manifest-path crates/monocode-gpui/Cargo.toml \
+    --package monocode-gpui \
+    --release
+}
+
+package() {
+  cd "$_srcdir"
+
+  install -Dm755 "${srcdir}/target/release/monocode-gpui" \
+    "${pkgdir}/usr/lib/monocode/monocode-gpui"
+
+  install -d "${pkgdir}/usr/bin"
+  cat > "${pkgdir}/usr/bin/monocode" <<'LAUNCHER'
+#!/bin/sh
+exec /usr/lib/monocode/monocode-gpui "$@"
+LAUNCHER
+  chmod 755 "${pkgdir}/usr/bin/monocode"
+
+  # Install marker consumed by the GPUI build's install/update integration.
+  install -d "${pkgdir}/usr/lib/monocode"
+  printf '%s\n' '{"app_id":"dev.usemono.gpui","kind":"arch"}' \
+    > "${pkgdir}/usr/lib/monocode/native-install.json"
+
+  install -Dm644 README.md \
+    "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 docs/native/README.md \
+    "${pkgdir}/usr/share/doc/${pkgname}/GPUI-README.md"
+  install -Dm644 public/monocode.png \
+    "${pkgdir}/usr/share/icons/hicolor/256x256/apps/monocode.png"
+  install -Dm644 "${srcdir}/monocode.desktop" \
+    "${pkgdir}/usr/share/applications/monocode.desktop"
+
+  local license_dir="${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm644 LICENSE "${license_dir}/LICENSE"
+  install -Dm644 NOTICE "${license_dir}/NOTICE"
+  install -Dm644 docs/native/LICENSE-GPUI-APACHE \
+    "${license_dir}/LICENSE-GPUI-APACHE"
+  install -Dm644 docs/native/LICENSE-MERMAID-MIT \
+    "${license_dir}/LICENSE-MERMAID-MIT"
+  install -Dm644 crates/monocode-gpui/assets/hugeicons.LICENSE \
+    "${license_dir}/hugeicons.LICENSE"
+  install -Dm644 crates/monocode-gpui/assets/dark-plus.LICENSE \
+    "${license_dir}/dark-plus.LICENSE"
+  install -Dm644 crates/monocode-gpui/assets/native-editor.LICENSE.txt \
+    "${license_dir}/native-editor.LICENSE.txt"
+  install -Dm644 crates/monocode-gpui/assets/material/LICENSE \
+    "${license_dir}/material-icons.LICENSE"
+}

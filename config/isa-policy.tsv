@@ -22,6 +22,7 @@ kernwatch|required||Rust source build with x86-64-v3 target and linker flags.
 lui|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
 mdrs|required||Rust source build with x86-64-v3 target and linker flags.
 microsoft-edge-beta|upstream||Upstream Debian binary; not rebuilt by this repository.
+monocode|required||Rust source build with x86-64-v3 target and linker flags.
 multiviewer|upstream||Upstream Electron binary archive; not rebuilt by this repository.
 netwatch|required||Rust source build with x86-64-v3 target and linker flags.
 obs-pipewire-audio-capture|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.

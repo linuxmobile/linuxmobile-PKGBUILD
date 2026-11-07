@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=MonoCode
+Comment=A GUI for your coding agents
+Exec=monocode %F
+Icon=monocode
+Categories=Development;IDE;
+Terminal=false
+StartupWMClass=dev.usemono.gpui
