@@ -59,7 +59,9 @@ jobs:
               sed -n 's#^packages/\([^/]*\)/.*#\1#p' | \
               sort -u | \
               while read -r p; do
-                [ -d "packages/$p" ] && printf '%s\n' "$p"
+                if [ -d "packages/$p" ]; then
+                  printf '%s\n' "$p"
+                fi
               done)"
           else
             full=true
@@ -78,6 +80,9 @@ jobs:
       image: archlinux:latest
     strategy:
       fail-fast: false
+      # Avoid throttling the release-asset CDN and tiring the GitHub API when a
+      # full rebuild fans out dozens of dependency downloads at once.
+      max-parallel: 8
       matrix:
         package: ${{ fromJson(needs.discover.outputs.packages) }}
     env:
@@ -95,7 +100,21 @@ jobs:
       - name: Prepare Arch environment
         run: |
           printf "\n[linuxmobile]\nSigLevel = Optional DatabaseOptional\nServer = https://github.com/linuxmobile/linuxmobile-PKGBUILD/releases/download/repo\n" >> /etc/pacman.conf
-          pacman -Syu --noconfirm --needed base-devel binutils libarchive git sudo ccache sccache
+          # GitHub release assets can be very slow under parallel load. Keep
+          # pacman from aborting a download at the default 10-second low-speed
+          # threshold; makepkg's dependency installation inherits this config.
+          sed -i 's/^#DisableDownloadTimeout/DisableDownloadTimeout/' /etc/pacman.conf
+          attempt=1
+          while ! pacman -Syu --noconfirm --needed base-devel binutils libarchive git sudo ccache sccache; do
+            if [ "$attempt" -ge 3 ]; then
+              echo "::warning::package sync failed; retrying without the linuxmobile repo"
+              sed -i '/^\[linuxmobile\]$/,/^Server = .*linuxmobile-PKGBUILD/d' /etc/pacman.conf
+              pacman -Syu --noconfirm --needed base-devel binutils libarchive git sudo ccache sccache
+              break
+            fi
+            attempt=$((attempt + 1))
+            sleep $((attempt * 10))
+          done
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/builder
 

@@ -2,7 +2,7 @@
 pkgname=nuvio-desktop-git
 _pkgname=nuvio-desktop
 pkgver=r4053.g00e50ef2c0aa
-pkgrel=1
+pkgrel=2
 pkgdesc='Nuvio desktop media player'
 arch=('x86_64')
 url='https://github.com/NuvioMedia/NuvioDesktop'
