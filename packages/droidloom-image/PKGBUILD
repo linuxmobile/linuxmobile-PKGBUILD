@@ -1,0 +1,17 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
+pkgname=droidloom-image
+pkgver=0.1.0
+pkgrel=30
+pkgdesc='Android system and Droidloom Android components'
+arch=('x86_64')
+url='https://github.com/denialwm/droidloom'
+license=('GPL-3.0-or-later' 'LicenseRef-Android' 'LicenseRef-Mesa')
+options=('!strip' '!debug' '!lto' '!purge')
+source=("${pkgname}-${pkgver}-${pkgrel}-x86_64-upstream.pkg.tar.zst::https://github.com/denialwm/droidloom/releases/download/packages/${pkgname}-${pkgver}-${pkgrel}-x86_64.pkg.tar.zst")
+noextract=("${pkgname}-${pkgver}-${pkgrel}-x86_64-upstream.pkg.tar.zst")
+sha256sums=('b469e066fd8744c0eb2e87a32b8c774183245a5010f4269b9740f11719172c00')
+
+package() {
+  bsdtar -xf "$srcdir/${pkgname}-${pkgver}-${pkgrel}-x86_64-upstream.pkg.tar.zst" \
+    -C "$pkgdir" --exclude='.PKGINFO' --exclude='.BUILDINFO' --exclude='.MTREE'
+}

@@ -50,6 +50,8 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | blurcam | CMake/C++ | Enforced by CI (ELF ISA note) |
 | chromium-widevine-helper | Python / assets | n/a (`any`) |
 | cressida | Meson/C++ | Enforced by CI (ELF ISA note) |
+| droidloom-image | Upstream pacman package | Upstream binary; not guaranteed |
+| droidloom-runtime | Upstream pacman package | Upstream binary; not guaranteed |
 | frame | Rust | Enforced by CI (ELF ISA note) |
 | hibiki | Rust | Enforced by CI (ELF ISA note) |
 | ie-r | Rust | Enforced by CI (ELF ISA note) |
@@ -107,7 +109,7 @@ The script uses `config/makepkg.conf` and targets x86-64-v3. After building, run
 ./scripts/update --dry-run all
 ```
 
-The script requires `git`, `python`, `makepkg`, and `updpkgsums` (from `pacman-contrib`). Upstream locations and per-package rules live in `config/update-sources.tsv`. Git packages are cloned and their `pkgver()` function is evaluated, while release packages use tags or the vendor's download manifest. Auxiliary versions such as Rawmakase's ONNX Runtime, MultiViewer's build id, Monocode's native version, and Lui's pinned commit are updated alongside `pkgver`.
+The script requires `git`, `python`, `makepkg`, and `updpkgsums` (from `pacman-contrib`). Upstream locations and per-package rules live in `config/update-sources.tsv`. Git packages are cloned and their `pkgver()` function is evaluated, while release packages use tags or the vendor's download manifest. Auxiliary versions such as Rawmakase's ONNX Runtime, MultiViewer's build id, Monocode's native version, Droidloom's package release, and Lui's pinned commit are updated alongside `pkgver`.
 
 ## Publishing
 

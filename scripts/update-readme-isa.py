@@ -23,6 +23,8 @@ PAYLOADS = {
     "blurcam": "CMake/C++",
     "chromium-widevine-helper": "Python / assets",
     "cressida": "Meson/C++",
+    "droidloom-image": "Upstream pacman package",
+    "droidloom-runtime": "Upstream pacman package",
     "frame": "Rust",
     "hibiki": "Rust",
     "ie-r": "Rust",

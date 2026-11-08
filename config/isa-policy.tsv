@@ -14,6 +14,8 @@ antigravity-cli|upstream||Upstream binary archive; not rebuilt by this repositor
 blurcam|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
 chromium-widevine-helper|any||Python helper and extension assets; arch=any.
 cressida|required||Meson/C++ source build with x86-64-v3 compiler and linker flags.
+droidloom-image|upstream||Upstream prebuilt Android image pacman package; not rebuilt by this repository.
+droidloom-runtime|upstream||Upstream prebuilt host runtime pacman package; not rebuilt by this repository.
 frame|required||Rust source build with x86-64-v3 target and linker flags.
 hibiki|required||Rust source build with x86-64-v3 target and linker flags.
 ie-r|required||Rust source build with x86-64-v3 target and linker flags.
