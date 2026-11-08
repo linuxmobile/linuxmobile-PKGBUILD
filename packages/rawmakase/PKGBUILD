@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=rawmakase
-pkgver=0.4.10
+pkgver=0.4.12
 pkgrel=1
 pkgdesc='Fast, non-destructive RAW photo developer'
 arch=('x86_64')
@@ -11,12 +11,12 @@ depends=('gcc-libs' 'glibc' 'hicolor-icon-theme' 'libxkbcommon'
 optdepends=('xdg-desktop-portal: native file dialogs')
 makedepends=('cargo' 'pkgconf')
 options=('!lto' '!debug')
-_ortver=1.23.2
+_ortver=1.31.1
 _ortbase="https://github.com/microsoft/onnxruntime/releases/download/v${_ortver}"
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 source_x86_64=("${_ortbase}/onnxruntime-linux-x64-${_ortver}.tgz")
-sha256sums=('4dddaadb506a3c03272c0bf2a15272462a35e4665b7d6ca261507a442298e56b')
-sha256sums_x86_64=('1fa4dcaef22f6f7d5cd81b28c2800414350c10116f5fdd46a2160082551c5f9b')
+sha256sums=('928647724cdf0d05aea730a0eefc67fe6c55462f7b6218e1700cf1ffac70a5e5')
+sha256sums_x86_64=('c849e36a1ef3e22d4ff217b9d1ce4a3cf5b9467b975610913ae959ad5b16bdc9')
 
 _srcdir="${pkgname}-${pkgver}"
 

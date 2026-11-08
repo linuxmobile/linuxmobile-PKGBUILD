@@ -1,6 +1,6 @@
 pkgbase = rawmakase
 	pkgdesc = Fast, non-destructive RAW photo developer
-	pkgver = 0.4.10
+	pkgver = 0.4.12
 	pkgrel = 1
 	url = https://github.com/pch/rawmakase
 	arch = x86_64
@@ -17,9 +17,9 @@ pkgbase = rawmakase
 	optdepends = xdg-desktop-portal: native file dialogs
 	options = !lto
 	options = !debug
-	source = rawmakase-0.4.10.tar.gz::https://github.com/pch/rawmakase/archive/refs/tags/v0.4.10.tar.gz
-	sha256sums = 4dddaadb506a3c03272c0bf2a15272462a35e4665b7d6ca261507a442298e56b
-	source_x86_64 = https://github.com/microsoft/onnxruntime/releases/download/v1.23.2/onnxruntime-linux-x64-1.23.2.tgz
-	sha256sums_x86_64 = 1fa4dcaef22f6f7d5cd81b28c2800414350c10116f5fdd46a2160082551c5f9b
+	source = rawmakase-0.4.12.tar.gz::https://github.com/pch/rawmakase/archive/refs/tags/v0.4.12.tar.gz
+	sha256sums = 928647724cdf0d05aea730a0eefc67fe6c55462f7b6218e1700cf1ffac70a5e5
+	source_x86_64 = https://github.com/microsoft/onnxruntime/releases/download/v1.31.1/onnxruntime-linux-x64-1.31.1.tgz
+	sha256sums_x86_64 = c849e36a1ef3e22d4ff217b9d1ce4a3cf5b9467b975610913ae959ad5b16bdc9
 
 pkgname = rawmakase

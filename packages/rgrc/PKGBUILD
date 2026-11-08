@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=rgrc
-pkgver=0.6.35.r0.g14c596c
+pkgver=0.6.35.r2.gb3e3126
 pkgrel=1
 pkgdesc='Rusty Generic Colouriser - like grc but faster and with more features'
 arch=('x86_64')

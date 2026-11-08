@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=cressida
-pkgver=0.1.0.r186.gbf6c2ad
+pkgver=0.1.0.r203.ge86275c
 pkgrel=1
 pkgdesc='Native Discord client written in C++ (Cressida)'
 url='https://github.com/Ly-sec/Cressida'

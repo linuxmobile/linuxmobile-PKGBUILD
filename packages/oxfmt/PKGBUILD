@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=oxfmt
-pkgver=0.75.0
+pkgver=0.77.0
 pkgrel=1
 pkgdesc='High-performance formatter for the JavaScript ecosystem'
 arch=('x86_64')
@@ -14,7 +14,7 @@ conflicts=('oxfmt-bin')
 replaces=('oxfmt-bin')
 options=('!lto')
 source=("oxc-${pkgname}_v${pkgver}.tar.gz::https://github.com/oxc-project/oxc/archive/refs/tags/${pkgname}_v${pkgver}.tar.gz")
-sha256sums=('f268e2a0410a9c4f48ab91be0d439698181142825f3b5054c8cf52e905e4c803')
+sha256sums=('aeb24985defc49d4635407d4659c805a42dc44408d9cc0f4d187e8d9b7f3e672')
 
 _srcdir="oxc-${pkgname}_v${pkgver}"
 

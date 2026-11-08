@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=quill-git
-pkgver=r5008.141878c
+pkgver=r5108.7861f39
 pkgrel=1
 pkgdesc='Independent, unofficial Telegram desktop client written in Rust with GPUI and TDLib'
 arch=('x86_64')

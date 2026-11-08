@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=strata
-pkgver=1.1.1
+pkgver=1.2.0
 pkgrel=1
 pkgdesc='A fast, keyboard-first file manager for Linux'
 arch=('x86_64')
@@ -51,7 +51,7 @@ makedepends=(
 )
 options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/lgse/strata/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('1a65e931a53cc83182d7b7138b8fd5f5697387f31e5f104f6671e245107a9665')
+sha256sums=('69f28876c18198707117927a33f39a00fc262e2def1536e38c4edb82c4b8f6ca')
 
 _srcdir="${pkgname}-${pkgver}"
 

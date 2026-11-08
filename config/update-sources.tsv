@@ -1,0 +1,58 @@
+# Upstream sources used by scripts/update.
+#
+# Columns (tab separated):
+#   package  kind  source  tag-prefix  options
+#
+# kind:
+#   github       newest tag in a GitHub repository
+#   vcs          clone the PKGBUILD's git+ source and run its pkgver() function
+#   antigravity  read the official Antigravity CLI release manifest
+#   edge         read the Microsoft Edge beta package directory
+#   multiviewer  read the official MultiViewer download page
+#   widevine     read chromium-widevine-helper's RPM spec on master
+#   lui          read Codeberg main branch and build.zig.zon
+#
+# source:
+#   GitHub owner/repo for github and widevine, Codeberg owner/repo for lui.
+#   Use "-" when the updater knows the location itself.
+#
+# tag-prefix:
+#   Prefix removed from upstream tags before comparing versions. Use "-" for none.
+#
+# options (comma separated):
+#   prerelease       consider pre-release tags (rc, beta, preview, ...)
+#   transform=dots   replace dashes in the upstream version with dots
+#
+# package	kind	source	tag-prefix	options
+anix	github	MaidLover69/Anix	v	-
+antigravity-cli	antigravity	-	-	-
+blurcam	github	r3dg0d/blurcam	v	-
+chromium-widevine-helper	widevine	GloriousEggroll/chromium-widevine-helper	-	-
+cressida	vcs	-	-	-
+frame	github	66HEX/frame	-	-
+hibiki	github	linuxmobile/hibiki	v	-
+ie-r	github	miaupaw/ie-r	v	-
+isocast	vcs	-	-	-
+kavita	github	Kareadita/Kavita	v	-
+kernwatch	github	matthart1983/kernwatch	v	-
+lui	lui	lukeflo/lui	-	-
+mdrs	github	NicKoehler/mediafire_rs	v	-
+microsoft-edge-beta	edge	-	-	-
+monocode	github	hardbeat920/monocode	native-v	prerelease,transform=dots
+multiviewer	multiviewer	-	-	-
+netwatch	github	matthart1983/netwatch	v	-
+obs-pipewire-audio-capture	github	dimtpap/obs-pipewire-audio-capture	-	-
+omalive	github	kierangraham/omalive	v	-
+omatuner	github	rthoms334/omatuner	v	-
+oxfmt	github	oxc-project/oxc	oxfmt_v	-
+ps_mem	github	pixelb/ps_mem	v	-
+quill	vcs	-	-	-
+rawmakase	github	pch/rawmakase	v	-
+rgrc	vcs	-	-	-
+rhun	github	vshvedov/rhun	v	-
+rlottie	github	Samsung/rlottie	v	-
+sonora	github	sonorahq/sonora	v	-
+strata	github	lgse/strata	v	-
+syswatch	github	matthart1983/syswatch	v	-
+twitch-hls-client	github	2bc4/twitch-hls-client	-	-
+zapfast	github	crmne/zapfast	v	-

@@ -97,6 +97,18 @@ CI checks the GNU `x86 ISA needed` property on every x86-64 ELF in packages mark
 
 The script uses `config/makepkg.conf` and targets x86-64-v3. After building, run `./scripts/validate-package-isa.sh <package>` to check the package against `config/isa-policy.tsv`.
 
+## Updating packages
+
+`scripts/update` checks upstream versions and refreshes the PKGBUILDs, checksums, and tracked `.SRCINFO` files:
+
+```bash
+./scripts/update all
+./scripts/update cressida,isocast
+./scripts/update --dry-run all
+```
+
+The script requires `git`, `python`, `makepkg`, and `updpkgsums` (from `pacman-contrib`). Upstream locations and per-package rules live in `config/update-sources.tsv`. Git packages are cloned and their `pkgver()` function is evaluated, while release packages use tags or the vendor's download manifest. Auxiliary versions such as Rawmakase's ONNX Runtime, MultiViewer's build id, Monocode's native version, and Lui's pinned commit are updated alongside `pkgver`.
+
 ## Publishing
 
 Every push to `main` builds only the packages changed under `packages/` by that push.

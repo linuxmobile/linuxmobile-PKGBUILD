@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=syswatch
-pkgver=0.14.4
+pkgver=0.14.5
 pkgrel=1
 pkgdesc='Read-only system diagnostics TUI covering CPU, memory, disks, processes, GPU, power and network'
 arch=('x86_64')
@@ -10,7 +10,7 @@ depends=('glibc' 'gcc-libs' 'libpcap')
 makedepends=('cargo' 'pkgconf')
 options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('390c0bf558e8c1859ffb77e05dcce47f7af073b26a38fc8800129c2d550ff44a')
+sha256sums=('660855f2d03dbc5cea6921a0ebd66b97d55eac3b83c27bef525802c9f189668d')
 
 _srcdir="${pkgname}-${pkgver}"
 

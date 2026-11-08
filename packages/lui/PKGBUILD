@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=lui
-pkgver=0.10.3
+pkgver=0.11.8
 pkgrel=1
 pkgdesc='TUI file manager written in Zig'
 arch=('x86_64')
@@ -8,8 +8,8 @@ url='https://codeberg.org/lukeflo/lui'
 license=('GPL-3.0-or-later')
 depends=('glibc')
 makedepends=('zig')
-source=("${pkgname}-${pkgver}.tar.gz::https://codeberg.org/lukeflo/lui/archive/73486a5b3911d5590a15655bc810067252f0f6b1.tar.gz")
-sha256sums=('1d219643d1cb5955d13e44e1616184a833929a53576e84aa58d463f394fb6f17')
+source=("${pkgname}-${pkgver}.tar.gz::https://codeberg.org/lukeflo/lui/archive/c1253db4c35713365a94ce5ee9b39d0d397989e3.tar.gz")
+sha256sums=('13e80116bcd805992fd31fb8fa947e8ffd74faa530bee2652be16e9f967b0407')
 
 _srcdir='lui'
 

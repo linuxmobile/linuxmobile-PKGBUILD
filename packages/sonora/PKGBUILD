@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=sonora
-pkgver=0.47.0
+pkgver=0.48.0
 pkgrel=1
 pkgdesc='A native music streaming client, built with Rust and GPUI'
 arch=('x86_64')
@@ -20,7 +20,7 @@ replaces=('sonora-bin')
 makedepends=('rust' 'cmake')
 options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('98dc495f0cf94e032de758cb85d61dbde820a23d2fd90e9230907f9ab265a085')
+sha256sums=('fddb245bd602a02b5049c30a3a77ec43c9c7bccdbd078bd515b2ef52132fc842')
 
 _srcdir="${pkgname}-${pkgver}"
 

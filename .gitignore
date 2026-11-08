@@ -26,3 +26,7 @@ packages/*/sonora-*-x86_64
 
 repo/
 artifacts/
+
+# Python bytecode
+scripts/__pycache__/
+*.pyc

@@ -1,0 +1,691 @@
+#!/usr/bin/env python3
+"""Update PKGBUILD package versions from their upstream sources.
+
+Usage:
+    ./scripts/update all
+    ./scripts/update cressida,isocast
+    ./scripts/update --dry-run all
+
+Per-package upstream information lives in config/update-sources.tsv.  The
+script updates pkgver, resets pkgrel when the version changes, refreshes
+checksums with updpkgsums, and regenerates .SRCINFO for packages that already
+track one.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib.request
+from dataclasses import dataclass, field
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+PACKAGES = ROOT / "packages"
+CONFIG = ROOT / "config" / "update-sources.tsv"
+USER_AGENT = "linuxmobile-pkgbuild-updater/1.0"
+
+SUMS_RE = re.compile(
+    r"^((?:b2|md5|sha1|sha224|sha256|sha384|sha512)sums(?:_[A-Za-z0-9_]+)?)"
+    r"=\((.*?)\)",
+    re.MULTILINE | re.DOTALL,
+)
+PRE_RELEASE_RE = re.compile(
+    r"(?i)(?:^|[._-])(alpha|beta|preview|pre|rc|dev|nightly|snapshot|canary)\d*(?:[._-]|$)"
+)
+
+
+class UpdateError(Exception):
+    """A package could not be checked or updated."""
+
+
+@dataclass
+class Entry:
+    package: str
+    kind: str
+    source: str
+    prefix: str
+    options: set[str] = field(default_factory=set)
+
+    def has(self, option: str) -> bool:
+        return option in self.options
+
+
+@dataclass
+class Latest:
+    version: str | None = None
+    raw_version: str | None = None
+    vars: dict[str, str] = field(default_factory=dict)
+    source_replacements: list[tuple[str, str]] = field(default_factory=list)
+    note: str = ""
+
+
+def log(message: str) -> None:
+    print(message, flush=True)
+
+
+def run(
+    args: list[str],
+    *,
+    cwd: Path | None = None,
+    check: bool = True,
+    capture: bool = True,
+    retries: int = 1,
+    timeout: int | None = None,
+) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    env.setdefault("GIT_TERMINAL_PROMPT", "0")
+    last_error: subprocess.CalledProcessError | None = None
+    for attempt in range(retries):
+        try:
+            return subprocess.run(
+                args,
+                cwd=cwd,
+                check=check,
+                text=True,
+                capture_output=capture,
+                env=env,
+                timeout=timeout,
+            )
+        except subprocess.CalledProcessError as exc:
+            last_error = exc
+            if attempt + 1 == retries:
+                raise
+    assert last_error is not None
+    raise last_error
+
+
+def http_get(url: str, timeout: int = 60) -> str:
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return response.read().decode("utf-8", "replace")
+    except Exception as exc:  # urllib raises several unrelated exception types
+        raise UpdateError(f"failed to fetch {url}: {exc}") from exc
+
+
+def version_key(value: str) -> tuple[tuple[int, object], ...]:
+    """A natural-sort key that handles versions such as 1.2.3 and r5008.abc."""
+    parts: list[tuple[int, object]] = []
+    for part in re.split(r"(\d+)", value):
+        if not part:
+            continue
+        if part.isdigit():
+            parts.append((1, int(part)))
+        else:
+            parts.append((0, part.lower()))
+    return tuple(parts)
+
+
+def is_newer(candidate: str, current: str) -> bool:
+    return version_key(candidate) > version_key(current)
+
+
+def read_config() -> dict[str, Entry]:
+    entries: dict[str, Entry] = {}
+    try:
+        lines = CONFIG.read_text().splitlines()
+    except OSError as exc:
+        raise SystemExit(f"cannot read {CONFIG}: {exc}") from exc
+
+    for number, line in enumerate(lines, 1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        fields = line.split("\t")
+        if len(fields) != 5:
+            raise SystemExit(
+                f"{CONFIG}:{number}: expected 5 tab-separated columns, got {len(fields)}"
+            )
+        package, kind, source, prefix, options = (field.strip() for field in fields)
+        if prefix == "-":
+            prefix = ""
+        entries[package] = Entry(
+            package=package,
+            kind=kind,
+            source=source,
+            prefix=prefix,
+            options={option for option in options.split(",") if option and option != "-"},
+        )
+    return entries
+
+
+def pkgbuild_path(package: str) -> Path:
+    return PACKAGES / package / "PKGBUILD"
+
+
+def get_var(text: str, name: str) -> str | None:
+    match = re.search(rf"^{re.escape(name)}=(.*)$", text, re.MULTILINE)
+    if not match:
+        return None
+    value = match.group(1).strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+        value = value[1:-1]
+    return value
+
+
+def set_var(text: str, name: str, value: str) -> str:
+    pattern = re.compile(rf"^{re.escape(name)}=.*$", re.MULTILINE)
+    replacement = f"{name}={value}"
+    if pattern.search(text):
+        return pattern.sub(replacement, text, count=1)
+    raise UpdateError(f"PKGBUILD has no {name}= assignment")
+
+
+def update_pkgrel(text: str, bump: bool) -> str:
+    current = get_var(text, "pkgrel")
+    if current is None:
+        return text
+    if bump:
+        try:
+            value = str(int(current) + 1)
+        except ValueError:
+            value = current
+    else:
+        value = "1"
+    return set_var(text, "pkgrel", value)
+
+
+def github_url(repo: str) -> str:
+    if "://" in repo:
+        return repo
+    return f"https://github.com/{repo}.git"
+
+
+def git_remote_tags(repo: str) -> list[str]:
+    result = run(
+        ["git", "ls-remote", "--tags", "--refs", github_url(repo)],
+        timeout=120,
+        retries=3,
+    )
+    tags: list[str] = []
+    for line in result.stdout.splitlines():
+        if "\trefs/tags/" not in line:
+            continue
+        tags.append(line.split("\trefs/tags/", 1)[1])
+    return tags
+
+
+def git_remote_head(repo: str, branch: str | None = None) -> str:
+    ref = f"refs/heads/{branch}" if branch else "HEAD"
+    result = run(
+        ["git", "ls-remote", github_url(repo), ref],
+        timeout=120,
+        retries=3,
+    )
+    lines = [line for line in result.stdout.splitlines() if line.strip()]
+    if not lines:
+        raise UpdateError(f"no remote ref {ref} in {repo}")
+    return lines[0].split("\t", 1)[0]
+
+
+def transform_version(version: str, entry: Entry) -> str:
+    transform = "none"
+    for option in entry.options:
+        if option.startswith("transform="):
+            transform = option.split("=", 1)[1]
+    if transform == "dots":
+        return version.replace("-", ".")
+    if transform == "underscore":
+        return version.replace("-", "_")
+    return version.replace("-", "_")
+
+
+def latest_github(entry: Entry) -> Latest:
+    tags = git_remote_tags(entry.source)
+    candidates: list[tuple[tuple[tuple[int, object], ...], str, str]] = []
+    allow_pre = entry.has("prerelease")
+    for tag in tags:
+        if entry.prefix and not tag.startswith(entry.prefix):
+            continue
+        version = tag[len(entry.prefix) :]
+        if not version:
+            continue
+        if not allow_pre and PRE_RELEASE_RE.search(version):
+            continue
+        candidates.append((version_key(version), version, tag))
+    if not candidates:
+        raise UpdateError(
+            f"no matching tags in {entry.source} (prefix={entry.prefix!r})"
+        )
+    _, version, _tag = max(candidates)
+    return Latest(version=transform_version(version, entry), raw_version=version)
+
+
+def source_array(pkgbuild: Path) -> list[str]:
+    result = run(
+        [
+            "bash",
+            "-c",
+            'source "$1"; printf "%s\\n" "${source[@]}"',
+            "_",
+            str(pkgbuild),
+        ],
+        timeout=30,
+    )
+    return [line for line in result.stdout.splitlines() if line]
+
+
+def pkgbuild_variable(pkgbuild: Path, name: str) -> str:
+    result = run(
+        [
+            "bash",
+            "-c",
+            f'source "$1"; printf "%s" "${{{name}:-}}"',
+            "_",
+            str(pkgbuild),
+        ],
+        timeout=30,
+    )
+    return result.stdout.strip()
+
+
+def latest_vcs(entry: Entry, pkgbuild: Path) -> Latest:
+    sources = source_array(pkgbuild)
+    git_source = next((item for item in sources if "git+" in item), "")
+    match = re.search(r"git\+([^#\s]+)", git_source)
+    if not match:
+        raise UpdateError("cannot find a git+ source entry")
+    repo = match.group(1)
+    fragment = git_source.split("#", 1)[1] if "#" in git_source else ""
+    branch_match = re.search(r"(?:^|&)branch=([^&]+)", fragment)
+    branch = branch_match.group(1) if branch_match else None
+
+    current = get_var(pkgbuild.read_text(), "pkgver")
+    if not current:
+        raise UpdateError("PKGBUILD has no pkgver")
+
+    head = git_remote_head(repo, branch)
+    local_hash = re.search(r"\.g?([0-9a-f]{7,40})$", current)
+    if local_hash and head.startswith(local_hash.group(1)):
+        return Latest(version=current, note="remote HEAD unchanged")
+
+    srcdir = pkgbuild_variable(pkgbuild, "_srcdir") or entry.package
+    with tempfile.TemporaryDirectory(prefix=f"update-{entry.package}-") as temp:
+        destination = Path(temp) / srcdir
+        clone = ["git", "clone", "--quiet", "--filter=blob:none"]
+        if branch:
+            clone += ["--branch", branch]
+        clone += [repo, str(destination)]
+        try:
+            run(clone, timeout=600, retries=1)
+        except subprocess.CalledProcessError:
+            # Some servers do not support partial clones.
+            shutil.rmtree(destination, ignore_errors=True)
+            clone = ["git", "clone", "--quiet"]
+            if branch:
+                clone += ["--branch", branch]
+            clone += [repo, str(destination)]
+            run(clone, timeout=600, retries=1)
+
+        result = run(
+            [
+                "bash",
+                "-c",
+                'source "$1"; cd "$2"; pkgver',
+                "_",
+                str(pkgbuild),
+                temp,
+            ],
+            timeout=120,
+        )
+        version = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
+        if not version:
+            raise UpdateError("pkgver() produced no output")
+        return Latest(version=version, note="cloned upstream")
+
+
+def latest_antigravity(entry: Entry) -> Latest:
+    del entry
+    manifest_url = (
+        "https://antigravity-cli-auto-updater-974169037036.us-central1.run.app"
+        "/manifests/linux_amd64.json"
+    )
+    try:
+        manifest = json.loads(http_get(manifest_url))
+        version = manifest["version"]
+        url = manifest["url"]
+    except (KeyError, json.JSONDecodeError) as exc:
+        raise UpdateError(f"invalid Antigravity manifest: {exc}") from exc
+
+    # Newer manifests omit the build id from "version"; it remains in the URL.
+    if "-" not in version:
+        match = re.search(r"/antigravity-cli/([0-9.]+-[0-9]+)/", url)
+        if not match:
+            raise UpdateError("build id missing from Antigravity manifest")
+        version = match.group(1)
+    return Latest(version=version.replace("-", "_", 1))
+
+
+def latest_edge(entry: Entry) -> Latest:
+    del entry
+    listing = "https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-beta/"
+    html = http_get(listing)
+    versions = re.findall(r"microsoft-edge-beta_([0-9][^_\"<>]*)_amd64\.deb", html)
+    versions = [re.sub(r"-\d+$", "", version) for version in versions]
+    versions = [version for version in versions if version]
+    if not versions:
+        raise UpdateError("no microsoft-edge-beta package found")
+    return Latest(version=max(versions, key=version_key))
+
+
+def latest_multiviewer(entry: Entry) -> Latest:
+    del entry
+    html = http_get("https://multiviewer.app/download")
+    matches = re.findall(
+        r"releases\.multiviewer\.app/v/([^/\"'\\]+)/([^/\"'\\]+)/([^/\"'\\]+)/"
+        r"MultiViewer-linux-x64-([^/\"'\\]+)\.zip",
+        html,
+    )
+    if not matches:
+        raise UpdateError("no Linux x64 download link found")
+    version, build_number, build_hash, filename_version = max(
+        matches, key=lambda item: version_key(item[3])
+    )
+    version = filename_version
+    return Latest(
+        version=version,
+        vars={"_build": f"{version}/{build_number}/{build_hash}"},
+    )
+
+
+def latest_widevine(entry: Entry) -> Latest:
+    pkgbuild = pkgbuild_path(entry.package)
+    current = get_var(pkgbuild.read_text(), "pkgver")
+    if not current:
+        raise UpdateError("PKGBUILD has no pkgver")
+    head = git_remote_head(entry.source)
+    spec_url = (
+        f"https://raw.githubusercontent.com/{entry.source}/master/"
+        "Packaging/rpm/chromium-widevine-helper.spec"
+    )
+    spec = http_get(spec_url)
+    match = re.search(r"^%global helper_version\s+([0-9.]+)\s*$", spec, re.MULTILINE)
+    if not match:
+        raise UpdateError("helper_version not found in upstream spec")
+    version = match.group(1)
+    if not is_newer(version, current):
+        return Latest(version=current)
+    return Latest(version=version, vars={"_commit": head})
+
+
+def latest_lui(entry: Entry) -> Latest:
+    repo = entry.source
+    branches = json.loads(
+        http_get(f"https://codeberg.org/api/v1/repos/{repo}/branches")
+    )
+    branch = next((item for item in branches if item.get("name") == "main"), None)
+    if not branch:
+        raise UpdateError("Codeberg repository has no main branch")
+    commit = branch["commit"]["id"]
+
+    zon = http_get(
+        f"https://codeberg.org/{repo}/raw/commit/{commit}/build.zig.zon"
+    )
+    match = re.search(r'\.version\s*=\s*"([^"]+)"', zon)
+    if not match:
+        raise UpdateError("version not found in build.zig.zon")
+    version = match.group(1)
+    return Latest(
+        version=version,
+        source_replacements=[
+            (
+                rf"(https://codeberg\.org/{re.escape(repo)}/archive/)[0-9a-f]{{40}}"
+                r"(\.tar\.gz)",
+                rf"\g<1>{commit}\g<2>",
+            )
+        ],
+    )
+
+
+def latest_for(entry: Entry) -> Latest:
+    pkgbuild = pkgbuild_path(entry.package)
+    if entry.kind == "github":
+        return latest_github(entry)
+    if entry.kind == "vcs":
+        return latest_vcs(entry, pkgbuild)
+    if entry.kind == "antigravity":
+        return latest_antigravity(entry)
+    if entry.kind == "edge":
+        return latest_edge(entry)
+    if entry.kind == "multiviewer":
+        return latest_multiviewer(entry)
+    if entry.kind == "widevine":
+        return latest_widevine(entry)
+    if entry.kind == "lui":
+        return latest_lui(entry)
+    raise UpdateError(f"unknown update kind: {entry.kind}")
+
+
+def apply_auxiliary(entry: Entry, latest: Latest, text: str) -> tuple[str, bool]:
+    changed = False
+
+    # Keep rawmakase's bundled ONNX Runtime in sync with upstream stable tags.
+    if entry.package == "rawmakase":
+        current_ort = get_var(text, "_ortver")
+        if current_ort:
+            base_entry = Entry("onnxruntime", "github", "microsoft/onnxruntime", "v")
+            ort = latest_github(base_entry)
+            if ort.version and is_newer(ort.version, current_ort):
+                latest.vars.setdefault("_ortver", ort.version)
+
+    # monocode uses native-v<version> tags where dashes become dots in pkgver.
+    if entry.package == "monocode" and latest.raw_version:
+        latest.vars.setdefault("_nativever", latest.raw_version)
+
+    for name, value in latest.vars.items():
+        current = get_var(text, name)
+        if current != value:
+            text = set_var(text, name, value)
+            changed = True
+
+    for pattern, replacement in latest.source_replacements:
+        new_text, count = re.subn(pattern, replacement, text, count=1)
+        if count and new_text != text:
+            text = new_text
+            changed = True
+
+    return text, changed
+
+
+def all_sums_are_skip(text: str) -> bool:
+    matches = SUMS_RE.findall(text)
+    if not matches:
+        return True
+    for _name, body in matches:
+        values = re.findall(r"'([^']*)'|\"([^\"]*)\"", body)
+        flat = [left or right for left, right in values]
+        if any(value != "SKIP" for value in flat):
+            return False
+    return True
+
+
+def set_array(text: str, name: str, value: str) -> str:
+    pattern = re.compile(rf"^{re.escape(name)}=\(.*?\)", re.MULTILINE | re.DOTALL)
+    if not pattern.search(text):
+        raise UpdateError(f"PKGBUILD has no {name}= array")
+    return pattern.sub(f"{name}=({value})", text, count=1)
+
+
+def update_checksums(package: str) -> None:
+    pkgdir = PACKAGES / package
+    text = (pkgdir / "PKGBUILD").read_text()
+    if all_sums_are_skip(text):
+        return
+
+    if shutil.which("updpkgsums"):
+        run(["updpkgsums"], cwd=pkgdir, capture=False, timeout=1800)
+    elif shutil.which("makepkg"):
+        update_checksums_with_makepkg(pkgdir)
+    else:
+        raise UpdateError("neither updpkgsums nor makepkg is installed")
+
+
+def refresh_srcinfo(package: str, dry_run: bool) -> None:
+    pkgdir = PACKAGES / package
+    srcinfo = pkgdir / ".SRCINFO"
+    if not srcinfo.exists():
+        return
+    if dry_run:
+        log(f"       would refresh packages/{package}/.SRCINFO")
+        return
+    if not shutil.which("makepkg"):
+        raise UpdateError("makepkg is required to refresh .SRCINFO")
+    result = run(["makepkg", "--printsrcinfo"], cwd=pkgdir, timeout=120)
+    srcinfo.write_text(result.stdout)
+
+
+def update_checksums_with_makepkg(pkgdir: Path) -> None:
+    result = run(["makepkg", "-g"], cwd=pkgdir, timeout=1800)
+    generated: dict[str, str] = {}
+    for line in result.stdout.splitlines():
+        match = re.match(
+            r"^((?:b2|md5|sha1|sha224|sha256|sha384|sha512)sums(?:_[A-Za-z0-9_]+)?)=\((.*)\)$",
+            line,
+        )
+        if match:
+            generated[match.group(1)] = match.group(2)
+
+    text = (pkgdir / "PKGBUILD").read_text()
+    for name, value in generated.items():
+        text = set_array(text, name, value)
+    (pkgdir / "PKGBUILD").write_text(text)
+
+
+def update_package(entry: Entry, dry_run: bool) -> tuple[bool, str]:
+    pkgbuild = pkgbuild_path(entry.package)
+    if not pkgbuild.is_file():
+        raise UpdateError(f"missing {pkgbuild}")
+
+    original = pkgbuild.read_text()
+    current = get_var(original, "pkgver")
+    if not current:
+        raise UpdateError("PKGBUILD has no pkgver")
+
+    latest = latest_for(entry)
+    text = original
+    version_changed = False
+    aux_changed = False
+
+    if latest.version and is_newer(latest.version, current):
+        text = set_var(text, "pkgver", latest.version)
+        text = update_pkgrel(text, bump=False)
+        version_changed = True
+    elif latest.version and latest.version != current:
+        # Upstream is not newer (for example a tag was normalised differently).
+        latest.version = current
+
+    text, aux_changed = apply_auxiliary(entry, latest, text)
+
+    if not version_changed and aux_changed:
+        text = update_pkgrel(text, bump=True)
+
+    if text == original:
+        detail = latest.note or "up to date"
+        log(f"[ok]   {entry.package}: {current} ({detail})")
+        return False, detail
+
+    new_version = get_var(text, "pkgver") or current
+    if version_changed:
+        detail = f"{current} -> {new_version}"
+    else:
+        detail = f"refreshed {', '.join(latest.vars) or 'source'} for {current}"
+    log(f"[new]  {entry.package}: {detail}")
+
+    if dry_run:
+        for name, value in latest.vars.items():
+            log(f"       would set {name}={value}")
+        if not all_sums_are_skip(text):
+            log("       would refresh checksums")
+        if (PACKAGES / entry.package / ".SRCINFO").exists():
+            log(f"       would refresh packages/{entry.package}/.SRCINFO")
+        return True, detail
+
+    pkgbuild.write_text(text)
+    try:
+        update_checksums(entry.package)
+        refresh_srcinfo(entry.package, dry_run=False)
+    except Exception:
+        pkgbuild.write_text(original)
+        raise
+
+    return True, detail
+
+
+def parse_packages(arguments: list[str]) -> list[str]:
+    names: list[str] = []
+    for argument in arguments:
+        for name in argument.split(","):
+            name = name.strip()
+            if name and name not in names:
+                names.append(name)
+
+    if not names:
+        raise SystemExit("no packages selected")
+    if names == ["all"]:
+        return sorted(path.name for path in PACKAGES.iterdir() if path.is_dir())
+    if "all" in names:
+        raise SystemExit('"all" cannot be combined with other package names')
+    return names
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        prog="scripts/update",
+        description="Check upstream versions and update PKGBUILDs.",
+    )
+    parser.add_argument(
+        "packages",
+        nargs="+",
+        help='package names, comma separated, or "all"',
+    )
+    parser.add_argument(
+        "-n",
+        "--dry-run",
+        action="store_true",
+        help="show changes without writing files",
+    )
+    args = parser.parse_args()
+
+    entries = read_config()
+    names = parse_packages(args.packages)
+    unknown = [name for name in names if name not in entries]
+    if unknown and args.packages == ["all"]:
+        log("[warn] no update source configured for: " + ", ".join(unknown))
+        names = [name for name in names if name in entries]
+    elif unknown:
+        parser.error("unknown package(s): " + ", ".join(unknown))
+
+    updated: list[str] = []
+    failures: list[str] = []
+
+    for name in names:
+        try:
+            changed, _detail = update_package(entries[name], args.dry_run)
+            if changed:
+                updated.append(name)
+        except (UpdateError, subprocess.CalledProcessError, OSError) as exc:
+            failures.append(name)
+            log(f"[FAIL] {name}: {exc}")
+        except KeyboardInterrupt:
+            log("interrupted")
+            return 130
+
+    log("")
+    log(
+        f"Summary: {len(names)} checked, {len(updated)} "
+        f"{'would be updated' if args.dry_run else 'updated'}, "
+        f"{len(names) - len(updated) - len(failures)} unchanged, "
+        f"{len(failures)} failed"
+    )
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
