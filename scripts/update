@@ -61,7 +61,6 @@ class Entry:
 class Latest:
     version: str | None = None
     raw_version: str | None = None
-    pkgrel: str | None = None
     vars: dict[str, str] = field(default_factory=dict)
     source_replacements: list[tuple[str, str]] = field(default_factory=list)
     note: str = ""
@@ -416,21 +415,6 @@ def latest_widevine(entry: Entry) -> Latest:
     return Latest(version=version, vars={"_commit": head})
 
 
-def latest_droidloom(entry: Entry) -> Latest:
-    manifest = json.loads(
-        http_get(
-            f"https://raw.githubusercontent.com/{entry.source}/main/"
-            "packaging/arch/version.json"
-        )
-    )
-    try:
-        version = str(manifest["version"])
-        release = int(manifest["release"])
-    except (KeyError, TypeError, ValueError) as exc:
-        raise UpdateError(f"invalid Droidloom version.json: {exc}") from exc
-    return Latest(version=version, pkgrel=str(release))
-
-
 def latest_lui(entry: Entry) -> Latest:
     repo = entry.source
     branches = json.loads(
@@ -474,8 +458,6 @@ def latest_for(entry: Entry) -> Latest:
         return latest_multiviewer(entry)
     if entry.kind == "widevine":
         return latest_widevine(entry)
-    if entry.kind == "droidloom":
-        return latest_droidloom(entry)
     if entry.kind == "lui":
         return latest_lui(entry)
     raise UpdateError(f"unknown update kind: {entry.kind}")
@@ -589,26 +571,19 @@ def update_package(entry: Entry, dry_run: bool) -> tuple[bool, str]:
     latest = latest_for(entry)
     text = original
     version_changed = False
-    release_changed = False
     aux_changed = False
-    current_rel = get_var(original, "pkgrel")
 
     if latest.version and is_newer(latest.version, current):
         text = set_var(text, "pkgver", latest.version)
-        if latest.pkgrel is None:
-            text = update_pkgrel(text, bump=False)
+        text = update_pkgrel(text, bump=False)
         version_changed = True
     elif latest.version and latest.version != current:
         # Upstream is not newer (for example a tag was normalised differently).
         latest.version = current
 
-    if latest.pkgrel is not None and get_var(text, "pkgrel") != latest.pkgrel:
-        text = set_var(text, "pkgrel", latest.pkgrel)
-        release_changed = True
-
     text, aux_changed = apply_auxiliary(entry, latest, text)
 
-    if not version_changed and not release_changed and aux_changed:
+    if not version_changed and aux_changed:
         text = update_pkgrel(text, bump=True)
 
     if text == original:
@@ -619,8 +594,6 @@ def update_package(entry: Entry, dry_run: bool) -> tuple[bool, str]:
     new_version = get_var(text, "pkgver") or current
     if version_changed:
         detail = f"{current} -> {new_version}"
-    elif release_changed:
-        detail = f"release {current_rel} -> {get_var(text, 'pkgrel')}"
     else:
         detail = f"refreshed {', '.join(latest.vars) or 'source'} for {current}"
     log(f"[new]  {entry.package}: {detail}")
@@ -628,8 +601,6 @@ def update_package(entry: Entry, dry_run: bool) -> tuple[bool, str]:
     if dry_run:
         for name, value in latest.vars.items():
             log(f"       would set {name}={value}")
-        if release_changed:
-            log(f"       would set pkgrel={get_var(text, 'pkgrel')}")
         if not all_sums_are_skip(text):
             log("       would refresh checksums")
         if (PACKAGES / entry.package / ".SRCINFO").exists():

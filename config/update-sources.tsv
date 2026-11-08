@@ -7,7 +7,6 @@
 #   github       newest tag in a GitHub repository
 #   vcs          clone the PKGBUILD's git+ source and run its pkgver() function
 #   antigravity  read the official Antigravity CLI release manifest
-#   droidloom    read packaging/arch/version.json from the Droidloom main branch
 #   edge         read the Microsoft Edge beta package directory
 #   multiviewer  read the official MultiViewer download page
 #   widevine     read chromium-widevine-helper's RPM spec on master
@@ -25,16 +24,12 @@
 #   transform=dots   replace dashes in the upstream version with dots
 #
 # package	kind	source	tag-prefix	options
-anix	github	MaidLover69/Anix	v	-
 antigravity-cli	antigravity	-	-	-
 blurcam	github	r3dg0d/blurcam	v	-
 chromium-widevine-helper	widevine	GloriousEggroll/chromium-widevine-helper	-	-
 cressida	vcs	-	-	-
-droidloom-image	droidloom	denialwm/droidloom	-	-
-droidloom-runtime	droidloom	denialwm/droidloom	-	-
 frame	github	66HEX/frame	-	-
 hibiki	github	linuxmobile/hibiki	v	-
-ie-r	github	miaupaw/ie-r	v	-
 isocast	vcs	-	-	-
 kavita	github	Kareadita/Kavita	v	-
 kernwatch	github	matthart1983/kernwatch	v	-
@@ -44,12 +39,12 @@ microsoft-edge-beta	edge	-	-	-
 monocode	github	hardbeat920/monocode	native-v	prerelease,transform=dots
 multiviewer	multiviewer	-	-	-
 netwatch	github	matthart1983/netwatch	v	-
+nuvio-desktop	vcs	-	-	-
 obs-pipewire-audio-capture	github	dimtpap/obs-pipewire-audio-capture	-	-
 omalive	github	kierangraham/omalive	v	-
 omatuner	github	rthoms334/omatuner	v	-
 oxfmt	github	oxc-project/oxc	oxfmt_v	-
 ps_mem	github	pixelb/ps_mem	v	-
-quill	vcs	-	-	-
 rawmakase	github	pch/rawmakase	v	-
 rgrc	vcs	-	-	-
 rhun	github	vshvedov/rhun	v	-
