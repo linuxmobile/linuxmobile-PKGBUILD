@@ -65,7 +65,7 @@ install_local_dependencies() {
     pacman -T "$dep" >/dev/null 2>&1 && continue
 
     depdir="$(find_local_provider "$name")" || continue
-    if [[ ":$PACKAGE_BUILD_STACK:" == *":$depdir:"* ]]; then
+    if [[ ":${PACKAGE_BUILD_STACK:-}:" == *":$depdir:"* ]]; then
       echo "==> Skipping circular local dependency: $depdir"
       continue
     fi
