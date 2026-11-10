@@ -78,9 +78,12 @@ def run(
     capture: bool = True,
     retries: int = 1,
     timeout: int | None = None,
+    env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    env = os.environ.copy()
-    env.setdefault("GIT_TERMINAL_PROMPT", "0")
+    process_env = os.environ.copy()
+    process_env.setdefault("GIT_TERMINAL_PROMPT", "0")
+    if env:
+        process_env.update(env)
     last_error: subprocess.CalledProcessError | None = None
     for attempt in range(retries):
         try:
@@ -90,7 +93,7 @@ def run(
                 check=check,
                 text=True,
                 capture_output=capture,
-                env=env,
+                env=process_env,
                 timeout=timeout,
             )
         except subprocess.CalledProcessError as exc:
@@ -434,13 +437,7 @@ def latest_lui(entry: Entry) -> Latest:
     version = match.group(1)
     return Latest(
         version=version,
-        source_replacements=[
-            (
-                rf"(https://codeberg\.org/{re.escape(repo)}/archive/)[0-9a-f]{{40}}"
-                r"(\.tar\.gz)",
-                rf"\g<1>{commit}\g<2>",
-            )
-        ],
+        vars={"_commit": commit},
     )
 
 
@@ -513,18 +510,57 @@ def set_array(text: str, name: str, value: str) -> str:
     return pattern.sub(f"{name}=({value})", text, count=1)
 
 
+def remove_cached_remote_sources(pkgdir: Path) -> None:
+    """Delete downloaded remote sources so makepkg re-fetches the current URL.
+
+    makepkg -g prefers a source file that already exists in the package
+    directory over downloading the URL again. When an upstream revision changes
+    but the source filename stays the same, that silently preserves the old
+    checksum. Local sources (for example a bundled LICENSE) are left untouched.
+    """
+    remote_protocols = ("http://", "https://", "ftp://", "ftps://")
+    for item in source_array(pkgdir / "PKGBUILD"):
+        if "::" in item:
+            filename, url = item.split("::", 1)
+        else:
+            filename, url = item, item
+        if not url.startswith(remote_protocols):
+            continue
+        if "::" not in item:
+            filename = os.path.basename(url.split("?", 1)[0].split("#", 1)[0])
+        if not filename:
+            continue
+        cached = pkgdir / filename
+        if cached.is_file():
+            cached.unlink()
+
+
 def update_checksums(package: str) -> None:
     pkgdir = PACKAGES / package
     text = (pkgdir / "PKGBUILD").read_text()
     if all_sums_are_skip(text):
         return
 
-    if shutil.which("updpkgsums"):
-        run(["updpkgsums"], cwd=pkgdir, capture=False, timeout=1800)
-    elif shutil.which("makepkg"):
-        update_checksums_with_makepkg(pkgdir)
-    else:
-        raise UpdateError("neither updpkgsums nor makepkg is installed")
+    remove_cached_remote_sources(pkgdir)
+
+    # Download into a pristine SRCDEST so a previous checksum run cannot reuse
+    # a cached archive either.
+    with tempfile.TemporaryDirectory(
+        prefix=f"update-{package}-sources-"
+    ) as srcdest:
+        checksum_env = {"SRCDEST": srcdest}
+        if shutil.which("updpkgsums"):
+            run(
+                ["updpkgsums"],
+                cwd=pkgdir,
+                capture=False,
+                timeout=1800,
+                env=checksum_env,
+            )
+        elif shutil.which("makepkg"):
+            update_checksums_with_makepkg(pkgdir, env=checksum_env)
+        else:
+            raise UpdateError("neither updpkgsums nor makepkg is installed")
 
 
 def refresh_srcinfo(package: str, dry_run: bool) -> None:
@@ -541,8 +577,10 @@ def refresh_srcinfo(package: str, dry_run: bool) -> None:
     srcinfo.write_text(result.stdout)
 
 
-def update_checksums_with_makepkg(pkgdir: Path) -> None:
-    result = run(["makepkg", "-g"], cwd=pkgdir, timeout=1800)
+def update_checksums_with_makepkg(
+    pkgdir: Path, env: dict[str, str] | None = None
+) -> None:
+    result = run(["makepkg", "-g"], cwd=pkgdir, timeout=1800, env=env)
     generated: dict[str, str] = {}
     for line in result.stdout.splitlines():
         match = re.match(

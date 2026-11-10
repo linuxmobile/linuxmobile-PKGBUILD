@@ -8,8 +8,9 @@ url='https://codeberg.org/lukeflo/lui'
 license=('GPL-3.0-or-later')
 depends=('glibc')
 makedepends=('zig')
-source=("${pkgname}-${pkgver}.tar.gz::https://codeberg.org/lukeflo/lui/archive/5062dc090c6eaf6aec5ffad5fdce6b467d941814.tar.gz")
-sha256sums=('13e80116bcd805992fd31fb8fa947e8ffd74faa530bee2652be16e9f967b0407')
+_commit=5062dc090c6eaf6aec5ffad5fdce6b467d941814
+source=("${pkgname}-${pkgver}-${_commit}.tar.gz::https://codeberg.org/lukeflo/lui/archive/${_commit}.tar.gz")
+sha256sums=('f95052d2668b0fec792db258359269919ab8a1ca953f1f7fcb728c4ec4e8d984')
 
 _srcdir='lui'
 
