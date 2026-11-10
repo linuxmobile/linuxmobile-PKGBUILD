@@ -60,7 +60,6 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | monocode | Rust | Enforced by CI (ELF ISA note) |
 | multiviewer | Upstream Electron archive | Upstream binary; not guaranteed |
 | netwatch | Rust | Enforced by CI (ELF ISA note) |
-| nuvio-desktop | Gradle / jpackage runtime | Review required; ISA audit/tuning pending |
 | obs-pipewire-audio-capture | CMake/C++ | Enforced by CI (ELF ISA note) |
 | omalive | Rust | Enforced by CI (ELF ISA note) |
 | omatuner | Rust | Enforced by CI (ELF ISA note) |

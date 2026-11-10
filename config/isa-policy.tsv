@@ -24,7 +24,6 @@ microsoft-edge-beta|upstream||Upstream Debian binary; not rebuilt by this reposi
 monocode|required||Rust source build with x86-64-v3 target and linker flags.
 multiviewer|upstream||Upstream Electron binary archive; not rebuilt by this repository.
 netwatch|required||Rust source build with x86-64-v3 target and linker flags.
-nuvio-desktop|review||Gradle/jpackage build bundles a baseline x86-64 JDK runtime; v3 audit pending.
 obs-pipewire-audio-capture|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
 omalive|required||Rust source build with x86-64-v3 target and linker flags.
 omatuner|required||Rust source build with x86-64-v3 target and linker flags.

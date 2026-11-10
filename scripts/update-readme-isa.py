@@ -33,7 +33,6 @@ PAYLOADS = {
     "monocode": "Rust",
     "multiviewer": "Upstream Electron archive",
     "netwatch": "Rust",
-    "nuvio-desktop": "Gradle / jpackage runtime",
     "obs-pipewire-audio-capture": "CMake/C++",
     "omalive": "Rust",
     "omatuner": "Rust",
