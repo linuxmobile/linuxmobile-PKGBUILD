@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=antigravity-cli
-pkgver=1.5.3_6604829099950080
+pkgver=1.5.4_5037094733742080
 pkgrel=1
 pkgdesc="Google's agentic development platform (CLI companion)"
 arch=('x86_64')

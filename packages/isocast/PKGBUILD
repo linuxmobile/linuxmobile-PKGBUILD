@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=isocast
-pkgver=0.0.10.r42.ga951d6a
+pkgver=0.0.10.r54.gdd2d103
 pkgrel=1
 url='https://github.com/anomalyco/isocast'
 pkgdesc='Screen and camera recorder that records every source as its own file'
