@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=frame
-pkgver=0.33.1
+pkgver=0.34.0
 pkgrel=1
 pkgdesc='Native desktop interface for FFmpeg media conversion'
 arch=('x86_64')
@@ -26,7 +26,7 @@ makedepends=(
 )
 options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
-sha256sums=('4a89cfc5c63170ee7107189e017faa3015980a3377d8d61b25882b8b01ac1ce7')
+sha256sums=('0b5515612166cd83e81d720d611b6dd7e71b4ade836b14240df4c8526f545b32')
 
 _srcdir="frame-${pkgver}"
 

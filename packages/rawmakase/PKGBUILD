@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=rawmakase
-pkgver=0.4.12
+pkgver=0.5.0
 pkgrel=1
 pkgdesc='Fast, non-destructive RAW photo developer'
 arch=('x86_64')
@@ -15,7 +15,7 @@ _ortver=1.31.1
 _ortbase="https://github.com/microsoft/onnxruntime/releases/download/v${_ortver}"
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 source_x86_64=("${_ortbase}/onnxruntime-linux-x64-${_ortver}.tgz")
-sha256sums=('928647724cdf0d05aea730a0eefc67fe6c55462f7b6218e1700cf1ffac70a5e5')
+sha256sums=('da86516ab45050db4f6bdc2c1997315464a01b6d9cddf0a5833c60b80b9efb1e')
 sha256sums_x86_64=('c849e36a1ef3e22d4ff217b9d1ce4a3cf5b9467b975610913ae959ad5b16bdc9')
 
 _srcdir="${pkgname}-${pkgver}"

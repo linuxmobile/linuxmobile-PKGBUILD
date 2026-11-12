@@ -1,6 +1,6 @@
 pkgbase = frame
 	pkgdesc = Native desktop interface for FFmpeg media conversion
-	pkgver = 0.33.1
+	pkgver = 0.34.0
 	pkgrel = 1
 	url = https://github.com/66HEX/frame
 	arch = x86_64
@@ -20,7 +20,7 @@ pkgbase = frame
 	depends = vulkan-icd-loader
 	depends = wayland
 	options = !lto
-	source = frame-0.33.1.tar.gz::https://github.com/66HEX/frame/archive/refs/tags/0.33.1.tar.gz
-	sha256sums = 4a89cfc5c63170ee7107189e017faa3015980a3377d8d61b25882b8b01ac1ce7
+	source = frame-0.34.0.tar.gz::https://github.com/66HEX/frame/archive/refs/tags/0.34.0.tar.gz
+	sha256sums = 0b5515612166cd83e81d720d611b6dd7e71b4ade836b14240df4c8526f545b32
 
 pkgname = frame

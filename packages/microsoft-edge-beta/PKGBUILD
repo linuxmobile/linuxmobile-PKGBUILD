@@ -1,7 +1,7 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=microsoft-edge-beta
 _pkgshortname=msedge-beta
-pkgver=158.0.4370.12
+pkgver=158.0.4370.16
 pkgrel=1
 pkgdesc="A browser that combines a minimal design with sophisticated technology to make the web faster, safer, and easier"
 arch=('x86_64')
@@ -25,7 +25,7 @@ _channel=beta
 source=("https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-beta/${pkgname}_${pkgver}-1_amd64.deb"
         "microsoft-edge-beta.sh"
         "Microsoft Standard Application License Terms - Standalone (free) Use Terms.pdf")
-sha256sums=('20096907a22ca7116a5485e76783e29152bac5bebfce27b25602917dcea4fe19'
+sha256sums=('c784428229c41fb3245693e02bffbcfd6cea49a0c3e3a3a1295a7d13977feb1b'
             'a0f7870fad06211c7d3e0aca859411ddbc60374a1b348978c905cb8a8560a461'
             'edf2ed596eb068f168287fc76aa713ad5e0afb59f0a0a47a4f29c0c124ade15e')
 
