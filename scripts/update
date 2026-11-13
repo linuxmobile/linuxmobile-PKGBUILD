@@ -463,15 +463,6 @@ def latest_for(entry: Entry) -> Latest:
 def apply_auxiliary(entry: Entry, latest: Latest, text: str) -> tuple[str, bool]:
     changed = False
 
-    # Keep rawmakase's bundled ONNX Runtime in sync with upstream stable tags.
-    if entry.package == "rawmakase":
-        current_ort = get_var(text, "_ortver")
-        if current_ort:
-            base_entry = Entry("onnxruntime", "github", "microsoft/onnxruntime", "v")
-            ort = latest_github(base_entry)
-            if ort.version and is_newer(ort.version, current_ort):
-                latest.vars.setdefault("_ortver", ort.version)
-
     # monocode uses native-v<version> tags where dashes become dots in pkgver.
     if entry.package == "monocode" and latest.raw_version:
         latest.vars.setdefault("_nativever", latest.raw_version)

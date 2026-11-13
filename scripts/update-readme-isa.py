@@ -38,7 +38,6 @@ PAYLOADS = {
     "omatuner": "Rust",
     "oxfmt": "Rust",
     "ps_mem": "Python",
-    "rawmakase": "Rust + ONNX Runtime",
     "rgrc": "Rust",
     "rhun": "Assembly",
     "rlottie": "CMake/C++",

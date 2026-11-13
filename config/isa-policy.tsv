@@ -29,7 +29,6 @@ omalive|required||Rust source build with x86-64-v3 target and linker flags.
 omatuner|required||Rust source build with x86-64-v3 target and linker flags.
 oxfmt|required||Rust source build with x86-64-v3 target and linker flags.
 ps_mem|any||Python script; arch=any.
-rawmakase|partial|usr/lib/rawmakase/libonnxruntime.so|Rust app is built for v3; bundled ONNX Runtime is an upstream prebuilt library.
 rgrc|required||Rust source build with x86-64-v3 target and linker flags.
 rhun|review||Hand-written assembly build; instruction-set usage is not audited or pinned here.
 rlottie|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.

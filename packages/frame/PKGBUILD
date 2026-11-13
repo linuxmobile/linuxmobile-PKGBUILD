@@ -14,7 +14,9 @@ depends=(
   'libdrm'
   'libglvnd'
   'libpulse'
+  'libxcb'
   'libxkbcommon'
+  'libxkbcommon-x11'
   'vulkan-driver'
   'vulkan-icd-loader'
   'wayland'
@@ -32,14 +34,8 @@ _srcdir="frame-${pkgver}"
 
 prepare() {
   cd "$_srcdir"
-  sed -i 's/^default = \["wayland", "x11"\]$/default = ["wayland"]/' \
-    vendor/gpui-ce/crates/gpui_linux/Cargo.toml
-  sed -i '/^xkbcommon = { version = "0.8.0", features = \[/,/^\]/ { /"x11",/d }' \
-    vendor/gpui-ce/crates/gpui_linux/Cargo.toml
-  sed -i 's|^gpui = { package = "gpui", git = "https://github.com/gpui-ce/gpui-ce" }$|gpui = { package = "gpui", git = "https://github.com/gpui-ce/gpui-ce", default-features = false, features = ["font-kit", "wayland"] }|' \
-    frame-app/Cargo.toml
-  sed -i 's|^gpui_platform = { git = "https://github.com/gpui-ce/gpui-ce", features = \["font-kit"\] }$|gpui_platform = { git = "https://github.com/gpui-ce/gpui-ce", default-features = false, features = ["font-kit", "wayland"] }|' \
-    frame-app/Cargo.toml
+  # Upstream 0.34.0 vendors GPUI-CE in-tree and enables its X11 backend by
+  # default, so the binary links against libxcb and libxkbcommon-x11.
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch
 }
