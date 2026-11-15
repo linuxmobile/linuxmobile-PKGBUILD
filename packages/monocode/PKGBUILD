@@ -1,10 +1,10 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=monocode-git
-pkgver=0.16.0.preview.14
+pkgver=0.16.0.r1594.g072f26d
 pkgrel=1
 pkgdesc='MonoCode GUI for coding agents (GPUI build)'
 arch=('x86_64')
-url='https://github.com/hardbeat920/monocode'
+url='https://github.com/linuxmobile/monocode'
 license=('MIT' 'Apache-2.0' 'custom')
 provides=('monocode')
 conflicts=('monocode')
@@ -29,6 +29,7 @@ makedepends=(
   'cargo'
   'clang'
   'cmake'
+  'git'
   'ninja'
   'pkgconf'
   'vulkan-headers'
@@ -41,14 +42,33 @@ optdepends=(
 )
 options=('!lto')
 
-_nativever='0.16.0-preview.14'
-_tag="native-v${_nativever}"
-_srcdir="monocode-${_tag}"
-source=(
-  "${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${_tag}.tar.gz"
-  'monocode.desktop'
-)
-sha256sums=('SKIP' '21930b339c14092db4608a6db6fd863ff367f0733f6ffcaa55a1404f794f745b')
+# makepkg names the git clone after the source alias, which defaults to pkgname.
+_srcdir="${pkgname}"
+source=("${pkgname}::git+${url}.git#branch=linux"
+        'monocode.desktop')
+sha256sums=('SKIP'
+            '21930b339c14092db4608a6db6fd863ff367f0733f6ffcaa55a1404f794f745b')
+
+pkgver() {
+  # A checkout is only present once makepkg has extracted the source. Without
+  # this guard a failed cd leaves the shell in this PKGBUILD's own repository,
+  # and `git describe` would silently report *its* commits as the version.
+  cd "$_srcdir" || return 1
+  if [ ! -d .git ]; then
+    printf 'pkgver() needs the %s source checkout\n' "$_srcdir" >&2
+    return 1
+  fi
+  # The fork carries no release tags yet, so a bare `git describe` fails. Test
+  # it first: piping into sed would mask the failure behind sed's exit code
+  # and leave pkgver empty.
+  local described
+  if described=$(git describe --long --tags --abbrev=7 --match='native-v*' HEAD 2>/dev/null); then
+    printf '%s\n' "$described" | sed 's/^native-v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+  else
+    printf '0.16.0.r%s.g%s\n' \
+      "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+  fi
+}
 
 prepare() {
   cd "$_srcdir"
@@ -65,7 +85,9 @@ build() {
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR="${srcdir}/target"
   export CARGO_BUILD_JOBS="${CARGO_BUILD_JOBS:-1}"
-  export MONOCODE_NATIVE_VERSION="${_nativever}"
+  # Both binaries report the same release identity, so the remote host's
+  # `--version` matches the desktop that installed it.
+  export MONOCODE_NATIVE_VERSION="${pkgver}"
   # Updates must be managed by pacman, not by the application's self-updater.
   unset MONOCODE_NATIVE_UPDATER_ENDPOINT MONOCODE_NATIVE_UPDATER_PUBKEY
   export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src/debug/${pkgname}"
@@ -74,6 +96,7 @@ build() {
     --frozen \
     --manifest-path crates/monocode-gpui/Cargo.toml \
     --package monocode-gpui \
+    --package monocode-host \
     --release
 }
 
@@ -83,12 +106,19 @@ package() {
   install -Dm755 "${srcdir}/target/release/monocode-gpui" \
     "${pkgdir}/usr/lib/monocode/monocode-gpui"
 
+  # The remote host runs on machines the desktop connects to. It ships here
+  # too, so remote access needs no separate checkout.
+  install -Dm755 "${srcdir}/target/release/monocode-host" \
+    "${pkgdir}/usr/lib/monocode/monocode-host"
+
   install -d "${pkgdir}/usr/bin"
   cat > "${pkgdir}/usr/bin/monocode" <<'LAUNCHER'
 #!/bin/sh
 exec /usr/lib/monocode/monocode-gpui "$@"
 LAUNCHER
   chmod 755 "${pkgdir}/usr/bin/monocode"
+
+  ln -s /usr/lib/monocode/monocode-host "${pkgdir}/usr/bin/monocode-host"
 
   # Install marker consumed by the GPUI build's install/update integration.
   install -d "${pkgdir}/usr/lib/monocode"
@@ -99,7 +129,7 @@ LAUNCHER
     "${pkgdir}/usr/share/doc/${pkgname}/README.md"
   install -Dm644 docs/native/README.md \
     "${pkgdir}/usr/share/doc/${pkgname}/GPUI-README.md"
-  install -Dm644 public/monocode.png \
+  install -Dm644 assets/icons/monocode.png \
     "${pkgdir}/usr/share/icons/hicolor/256x256/apps/monocode.png"
   install -Dm644 "${srcdir}/monocode.desktop" \
     "${pkgdir}/usr/share/applications/monocode.desktop"

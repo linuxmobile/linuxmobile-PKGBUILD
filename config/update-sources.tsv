@@ -36,7 +36,7 @@ kernwatch	github	matthart1983/kernwatch	v	-
 lui	lui	lukeflo/lui	-	-
 mdrs	github	NicKoehler/mediafire_rs	v	-
 microsoft-edge-beta	edge	-	-	-
-monocode	github	hardbeat920/monocode	native-v	prerelease,transform=dots
+monocode	vcs	-	-	-
 multiviewer	multiviewer	-	-	-
 netwatch	github	matthart1983/netwatch	v	-
 obs-pipewire-audio-capture	github	dimtpap/obs-pipewire-audio-capture	-	-

@@ -1,8 +1,8 @@
 pkgbase = monocode-git
 	pkgdesc = MonoCode GUI for coding agents (GPUI build)
-	pkgver = 0.16.0.preview.14
+	pkgver = 0.16.0.r1594.g072f26d
 	pkgrel = 1
-	url = https://github.com/hardbeat920/monocode
+	url = https://github.com/linuxmobile/monocode
 	arch = x86_64
 	license = MIT
 	license = Apache-2.0
@@ -10,6 +10,7 @@ pkgbase = monocode-git
 	makedepends = cargo
 	makedepends = clang
 	makedepends = cmake
+	makedepends = git
 	makedepends = ninja
 	makedepends = pkgconf
 	makedepends = vulkan-headers
@@ -35,7 +36,7 @@ pkgbase = monocode-git
 	provides = monocode
 	conflicts = monocode
 	options = !lto
-	source = monocode-git-0.16.0.preview.14.tar.gz::https://github.com/hardbeat920/monocode/archive/refs/tags/native-v0.16.0-preview.14.tar.gz
+	source = monocode-git::git+https://github.com/linuxmobile/monocode.git#branch=linux
 	source = monocode.desktop
 	sha256sums = SKIP
 	sha256sums = 21930b339c14092db4608a6db6fd863ff367f0733f6ffcaa55a1404f794f745b
