@@ -1,0 +1,163 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
+pkgname=ardia
+pkgver=0.2.47_nightly.3.r5070.g271f7bb
+pkgrel=1
+pkgdesc="Ardia, a Chromium-based browser with Arc's sidebar and Dia's polish"
+arch=('x86_64')
+url='https://ardia.dev'
+license=('Apache-2.0')
+
+provides=('ardia')
+conflicts=('ardia')
+
+options=('!strip' '!debug')
+
+_srcdir='ardia'
+_giturl='https://github.com/ardia-browser/ardia.git'
+source=("${_srcdir}::git+${_giturl}#branch=main")
+sha256sums=('SKIP')
+
+depends=(
+  'alsa-lib'
+  'dbus'
+  'gtk3'
+  'hicolor-icon-theme'
+  'libcups'
+  'libxss'
+  'libxtst'
+  'nss'
+  'polkit'
+  'ttf-liberation'
+  'xdg-utils'
+)
+makedepends=(
+  'clang'
+  'curl'
+  'git'
+  'nodejs>=24'
+  'openssl'
+  'patch'
+  'pkgconf'
+  'pnpm'
+  'python'
+  'unzip'
+  'util-linux'
+  'uv'
+  'xz'
+)
+optdepends=(
+  'libsecret: encrypt saved passwords with the Secret Service keyring'
+  'kwallet: encrypt saved passwords with KWallet'
+  'polkit-gnome: a polkit agent to confirm it is you before secrets are shown'
+)
+
+_upstream_version() {
+  local -a versions=()
+
+  mapfile -t versions < <(
+    sed -n 's/.*MARKETING_VERSION = "\{0,1\}\([^";]*\)"\{0,1\};/\1/p' \
+      apps/browser/macos/Ardia.xcodeproj/project.pbxproj | sort -u
+  )
+
+  if (( ${#versions[@]} != 1 )); then
+    printf '%s\n' 'PKGBUILD: could not determine one unique Ardia MARKETING_VERSION' >&2
+    return 1
+  fi
+
+  printf '%s\n' "${versions[0]}"
+}
+
+pkgver() {
+  cd "${_srcdir}" || return 1
+  [[ -d .git ]] || {
+    printf "PKGBUILD: pkgver() needs the %s source checkout\n" "${_srcdir}" >&2
+    return 1
+  }
+
+  local version commit_count commit
+  version=$(_upstream_version) || return 1
+  [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?$ ]] || {
+    printf "PKGBUILD: unexpected upstream version: %s\n" "${version}" >&2
+    return 1
+  }
+
+  version=${version//-/_}
+  commit_count=$(git rev-list --count HEAD)
+  commit=$(git rev-parse --short=7 HEAD)
+  printf '%s.r%s.g%s\n' "${version}" "${commit_count}" "${commit}"
+}
+
+prepare() {
+  cd "${_srcdir}"
+
+  # Use the exact pnpm version pinned by the upstream packageManager field.
+  pnpm install --frozen-lockfile
+}
+
+build() {
+  cd "${_srcdir}"
+
+  local version engine blocker dist cli_archive package_archive
+  version=$(_upstream_version) || return 1
+  [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?$ ]] || {
+    printf "PKGBUILD: unexpected upstream version: %s\n" "${version}" >&2
+    return 1
+  }
+
+  dist="${srcdir}/dist"
+  mkdir -p "${dist}"
+  export XDG_CACHE_HOME="${srcdir}/cache"
+  export UV_CACHE_DIR="${XDG_CACHE_HOME}/uv"
+
+  msg2 'Fetching the exact prebuilt Linux ArdiaCore engine'
+  engine=$(packages/ardiacore/scripts/fetch-engine.sh --arch linux-x86_64) || return 1
+
+  msg2 'Building the Linux UI'
+  pnpm --filter @ardia/linux build
+
+  msg2 'Building the bundled Ardia CLI'
+  apps/cli/scripts/build.sh "${version}" "${dist}" --platform linux-x64
+  cli_archive="${dist}/ardia-cli-${version}-linux-x64.tar.gz"
+  [[ -s "${cli_archive}" ]] || {
+    error "CLI build did not produce ${cli_archive}"
+    return 1
+  }
+
+  msg2 'Preparing the bundled uBlock Origin extension'
+  blocker=$(scripts/linux/fetch-ubo.sh) || return 1
+
+  msg2 'Packaging the upstream Linux runtime for pacman'
+  package_archive="${dist}/Ardia-${version}-linux-x64.tar.xz"
+  python3 scripts/linux/package.py \
+    --out "${engine}" \
+    --ui apps/linux/dist \
+    --content-blocker "${blocker}" \
+    --version "${version}" \
+    --cli "${cli_archive}" \
+    --destination "${package_archive}"
+
+  [[ -s "${package_archive}" ]] || {
+    error "Ardia package archive was not created: ${package_archive}"
+    return 1
+  }
+}
+
+package() {
+  cd "${_srcdir}"
+
+  local version package_archive staging
+  version=$(_upstream_version) || return 1
+  package_archive="${srcdir}/dist/Ardia-${version}-linux-x64.tar.xz"
+  staging="${srcdir}/package-root"
+
+  [[ -s "${package_archive}" ]] || {
+    error "missing Ardia package archive: ${package_archive}"
+    return 1
+  }
+
+  rm -rf "${staging}"
+  install -d "${staging}"
+  tar -xJf "${package_archive}" -C "${staging}"
+
+  "${staging}/ardia/install.sh" --prefix /usr --destdir "${pkgdir}"
+}

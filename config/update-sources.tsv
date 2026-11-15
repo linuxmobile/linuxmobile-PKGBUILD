@@ -25,6 +25,7 @@
 #
 # package	kind	source	tag-prefix	options
 antigravity-cli	antigravity	-	-	-
+ardia	vcs	-	-	-
 blurcam	github	r3dg0d/blurcam	v	-
 chromium-widevine-helper	widevine	GloriousEggroll/chromium-widevine-helper	-	-
 cressida	vcs	-	-	-

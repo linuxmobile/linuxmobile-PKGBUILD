@@ -19,6 +19,7 @@ NOTE_END = "<!-- END GENERATED PACKAGE ISA NOTE -->"
 
 PAYLOADS = {
     "antigravity-cli": "Upstream binary archive",
+    "ardia": "Upstream binary archive",
     "blurcam": "CMake/C++",
     "chromium-widevine-helper": "Python / assets",
     "cressida": "Meson/C++",
