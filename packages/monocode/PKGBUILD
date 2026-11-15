@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=monocode-git
-pkgver=0.16.0.r1594.g072f26d
+pkgver=0.16.0.r1595.gbeb2b4e
 pkgrel=1
 pkgdesc='MonoCode GUI for coding agents (GPUI build)'
 arch=('x86_64')
@@ -129,8 +129,20 @@ LAUNCHER
     "${pkgdir}/usr/share/doc/${pkgname}/README.md"
   install -Dm644 docs/native/README.md \
     "${pkgdir}/usr/share/doc/${pkgname}/GPUI-README.md"
-  install -Dm644 assets/icons/monocode.png \
-    "${pkgdir}/usr/share/icons/hicolor/256x256/apps/monocode.png"
+
+  local icon size icons_found=0
+  for icon in assets/icons/hicolor/*/apps/monocode-native.png; do
+    if [ ! -f "$icon" ]; then
+      error "no hicolor icons found under assets/icons/hicolor"
+      return 1
+    fi
+    size="$(basename "$(dirname "$(dirname "$icon")")")"
+    install -Dm644 "$icon" \
+      "${pkgdir}/usr/share/icons/hicolor/${size}/apps/monocode.png"
+    icons_found=$((icons_found + 1))
+  done
+  msg2 "installed %d icon sizes" "$icons_found"
+
   install -Dm644 "${srcdir}/monocode.desktop" \
     "${pkgdir}/usr/share/applications/monocode.desktop"
 
