@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=monocode-git
-pkgver=0.16.0.r1595.gbeb2b4e
+pkgver=0.16.0.r1595.g42b2d14
 pkgrel=1
 pkgdesc='MonoCode GUI for coding agents (GPUI build)'
 arch=('x86_64')

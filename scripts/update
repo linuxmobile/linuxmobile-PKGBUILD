@@ -64,6 +64,10 @@ class Latest:
     vars: dict[str, str] = field(default_factory=dict)
     source_replacements: list[tuple[str, str]] = field(default_factory=list)
     note: str = ""
+    # VCS pkgver embeds a git hash, which natural-sort ordering cannot compare
+    # reliably (e.g. r1595.g42b2d14 vs r1595.gbeb2b4e). When the remote HEAD
+    # differs from the hash in pkgver the version has changed, period.
+    force: bool = False
 
 
 def log(message: str) -> None:
@@ -341,7 +345,7 @@ def latest_vcs(entry: Entry, pkgbuild: Path) -> Latest:
         version = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
         if not version:
             raise UpdateError("pkgver() produced no output")
-        return Latest(version=version, note="cloned upstream")
+        return Latest(version=version, note="cloned upstream", force=True)
 
 
 def latest_antigravity(entry: Entry) -> Latest:
@@ -602,7 +606,7 @@ def update_package(entry: Entry, dry_run: bool) -> tuple[bool, str]:
     version_changed = False
     aux_changed = False
 
-    if latest.version and is_newer(latest.version, current):
+    if latest.version and (latest.force or is_newer(latest.version, current)):
         text = set_var(text, "pkgver", latest.version)
         text = update_pkgrel(text, bump=False)
         version_changed = True
