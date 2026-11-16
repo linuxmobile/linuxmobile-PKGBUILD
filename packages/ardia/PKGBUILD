@@ -110,7 +110,10 @@ build() {
   export UV_CACHE_DIR="${XDG_CACHE_HOME}/uv"
 
   msg2 'Fetching the exact prebuilt Linux ArdiaCore engine'
-  engine=$(packages/ardiacore/scripts/fetch-engine.sh --arch linux-x86_64) || return 1
+  # -git-style package: track upstream main, not a published release. Use the
+  # nearest published prebuilt Linux engine when this commit's exact engine
+  # key has not been uploaded yet.
+  engine=$(packages/ardiacore/scripts/fetch-engine.sh --arch linux-x86_64 --nearest) || return 1
 
   msg2 'Building the Linux UI'
   pnpm --filter @ardia/linux build
