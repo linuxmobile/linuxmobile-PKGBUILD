@@ -201,6 +201,29 @@ jobs:
 
           mkdir -p repo
           cp artifacts/*.pkg.tar.zst repo/
+          # Partial rebuilds re-add every previously published package to the
+          # db. repo-add keeps a single version per package name and the last
+          # one processed (glob order) wins, which could resurrect an older
+          # build over the one we just built. Drop published packages whose
+          # name matches a freshly built artifact but is a different file.
+          superseded=()
+          pkgname_of() {
+            local base="${1%.pkg.tar.zst}" namever
+            base="${base%-*}"              # drop arch
+            namever="${base%-*}"           # drop pkgrel
+            printf '%s\n' "${namever%-*}"  # drop pkgver
+          }
+          for artifact in artifacts/*.pkg.tar.zst; do
+            name="$(pkgname_of "$(basename "$artifact")")"
+            for published in repo/*.pkg.tar.zst; do
+              [ "$published" = "repo/$(basename "$artifact")" ] && continue
+              if [ "$(pkgname_of "$(basename "$published")")" = "$name" ]; then
+                superseded+=("$(basename "$published")")
+                rm -f "$published"
+              fi
+            done
+          done
+          printf '%s\n' "${superseded[@]}" > superseded.txt
           docker run --rm -v "$PWD/repo:/repo" archlinux:latest bash -c '
             cd /repo
             repo-add linuxmobile.db.tar.zst *.pkg.tar.zst
@@ -222,6 +245,12 @@ jobs:
                 gh release delete-asset repo "$asset" -y
               fi
             done
+          else
+            # Delete assets superseded by this build (see Create database).
+            while IFS= read -r asset; do
+              [ -z "$asset" ] && continue
+              gh release delete-asset repo "$asset" -y || true
+            done < superseded.txt
           fi
           gh release upload repo repo/* --clobber
       - name: Assert all packages built

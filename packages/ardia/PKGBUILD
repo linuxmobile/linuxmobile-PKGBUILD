@@ -90,6 +90,14 @@ pkgver() {
 prepare() {
   cd "${_srcdir}"
 
+  # Upstream bug at this commit: the Linux syncEngine shim does not re-export
+  # takeOpenTabSyncCounts and setOpenTabsSynced, which browser code compiled
+  # into the Linux bundle imports. Add the missing re-exports.
+  if ! grep -q 'takeOpenTabSyncCounts' apps/linux/src/syncEngine.ts; then
+    sed -i 's/^export const takeSnapshotWrites = engine\.takeSnapshotWrites;/&\nexport const takeOpenTabSyncCounts = engine.takeOpenTabSyncCounts;\nexport const setOpenTabsSynced = engine.setOpenTabsSynced;/' \
+      apps/linux/src/syncEngine.ts
+  fi
+
   # Use the exact pnpm version pinned by the upstream packageManager field.
   pnpm install --frozen-lockfile
 }
