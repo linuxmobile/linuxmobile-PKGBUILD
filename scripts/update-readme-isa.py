@@ -47,6 +47,7 @@ PAYLOADS = {
     "syswatch": "Rust",
     "twitch-hls-client": "Rust",
     "zapfast": "Rust",
+    "zinc": "Zig",
 }
 
 

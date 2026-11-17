@@ -38,3 +38,4 @@ strata|required||Rust source build with x86-64-v3 target and linker flags.
 syswatch|required||Rust source build with x86-64-v3 target and linker flags.
 twitch-hls-client|required||Rust source build with x86-64-v3 target and linker flags.
 zapfast|required||Rust source build with x86-64-v3 target and linker flags; LTO is disabled by its recipe.
+zinc|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.

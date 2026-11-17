@@ -74,6 +74,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | syswatch | Rust | Enforced by CI (ELF ISA note) |
 | twitch-hls-client | Rust | Enforced by CI (ELF ISA note) |
 | zapfast | Rust | Enforced by CI (ELF ISA note) |
+| zinc | Zig | v3 target selected; GNU ISA note not asserted |
 <!-- END GENERATED PACKAGE ISA STATUS -->
 
 <!-- BEGIN GENERATED PACKAGE ISA NOTE -->
@@ -81,7 +82,7 @@ The ISA status table is generated from `config/isa-policy.tsv` during repository
 <!-- END GENERATED PACKAGE ISA NOTE -->
 
 
-C/C++ builds receive `-march=x86-64-v3` and the linker requirement `-Wl,-z,x86-64-v3`. Rust builds receive `-C target-cpu=x86-64-v3` and the equivalent linker argument. `lui` pins Zig's CPU target directly in its PKGBUILD. Rawmakase bundles an upstream ONNX Runtime library, while Kavita and Rhun need separate work before they can be described as fully v3-targeted.
+C/C++ builds receive `-march=x86-64-v3` and the linker requirement `-Wl,-z,x86-64-v3`. Rust builds receive `-C target-cpu=x86-64-v3` and the equivalent linker argument. `lui` and `zinc` pin Zig's CPU target directly in their PKGBUILDs. Rawmakase bundles an upstream ONNX Runtime library, while Kavita and Rhun need separate work before they can be described as fully v3-targeted.
 
 CI checks the GNU `x86 ISA needed` property on every x86-64 ELF in packages marked `required`, with a documented exception for Rawmakase's bundled ONNX Runtime. Upstream binaries and architecture-independent packages are explicitly exempt from this check; the policy lives in `config/isa-policy.tsv`.
 
