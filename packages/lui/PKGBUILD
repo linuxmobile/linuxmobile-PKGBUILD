@@ -10,7 +10,7 @@ depends=('glibc')
 makedepends=('zig')
 _commit=90ec5ac30512910f42d5151b0ffdbd16cdea4431
 source=("${pkgname}-${pkgver}-${_commit}.tar.gz::https://codeberg.org/lukeflo/lui/archive/${_commit}.tar.gz")
-sha256sums=('f95052d2668b0fec792db258359269919ab8a1ca953f1f7fcb728c4ec4e8d984')
+sha256sums=('8f998ce272243486a73c3c6fd7d73c9433a2279db67918348a3f4541f81b4441')
 
 _srcdir='lui'
 
