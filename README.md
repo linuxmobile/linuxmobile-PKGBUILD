@@ -53,6 +53,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | frame | Rust | Enforced by CI (ELF ISA note) |
 | hibiki | Rust | Enforced by CI (ELF ISA note) |
 | isocast | Rust | Enforced by CI (ELF ISA note) |
+| jcode | Rust | Enforced by CI (ELF ISA note) |
 | kavita | .NET ReadyToRun | Review required; ISA audit/tuning pending |
 | kernwatch | Rust | Enforced by CI (ELF ISA note) |
 | lui | Zig | v3 target selected; GNU ISA note not asserted |

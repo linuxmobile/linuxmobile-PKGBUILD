@@ -17,6 +17,7 @@ cressida|required||Meson/C++ source build with x86-64-v3 compiler and linker fla
 frame|required||Rust source build with x86-64-v3 target and linker flags.
 hibiki|required||Rust source build with x86-64-v3 target and linker flags.
 isocast|required||Rust source build with x86-64-v3 target; LTO is disabled by its recipe.
+jcode|required||Rust source build with x86-64-v3 target and linker flags.
 kavita|review||.NET ReadyToRun build; v3 managed tuning and runtime audit pending.
 kernwatch|required||Rust source build with x86-64-v3 target and linker flags.
 lui|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.

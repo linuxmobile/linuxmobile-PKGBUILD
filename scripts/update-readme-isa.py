@@ -26,6 +26,7 @@ PAYLOADS = {
     "frame": "Rust",
     "hibiki": "Rust",
     "isocast": "Rust",
+    "jcode": "Rust",
     "kavita": ".NET ReadyToRun",
     "kernwatch": "Rust",
     "lui": "Zig",
