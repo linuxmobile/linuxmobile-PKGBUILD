@@ -98,6 +98,21 @@ prepare() {
       apps/linux/src/syncEngine.ts
   fi
 
+  # The upstream uBO seeder launches the staged Chrome with the normal
+  # user-namespace sandbox. GitHub's Arch container blocks unprivileged user
+  # namespaces, so Chrome exits with SIGTRAP and package.py fails. The seeder
+  # starts a throwaway profile and only reads the bundled filter lists, so
+  # disable the sandbox for that one headless run. This does not affect the
+  # sandbox of the packaged browser.
+  if ! grep -q '"--no-sandbox"' scripts/linux/ubo-seed.mjs; then
+    grep -q '"--lang=en-US"\],' scripts/linux/ubo-seed.mjs || {
+      error 'PKGBUILD: could not find the ubo-seed launch arguments to patch'
+      return 1
+    }
+    sed -i 's/"--lang=en-US"\],/"--lang=en-US", "--no-sandbox"],/' \
+      scripts/linux/ubo-seed.mjs
+  fi
+
   # Use the exact pnpm version pinned by the upstream packageManager field.
   pnpm install --frozen-lockfile
 }
