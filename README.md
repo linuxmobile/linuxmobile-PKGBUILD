@@ -47,6 +47,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | -------------------------- | --------------- | ---------------- |
 | antigravity-cli | Upstream binary archive | Upstream binary; not guaranteed |
 | ardia | Upstream binary archive | Upstream binary; not guaranteed |
+| agentty | CMake/C++ | Enforced by CI (ELF ISA note) |
 | blurcam | CMake/C++ | Enforced by CI (ELF ISA note) |
 | chromium-widevine-helper | Python / assets | n/a (`any`) |
 | cressida | Meson/C++ | Enforced by CI (ELF ISA note) |
