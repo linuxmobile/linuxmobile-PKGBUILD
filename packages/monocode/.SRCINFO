@@ -1,6 +1,6 @@
 pkgbase = monocode-git
 	pkgdesc = MonoCode GUI for coding agents (GPUI build)
-	pkgver = 0.16.0.r1597.gc1a4f08
+	pkgver = 0.16.0.r1599.ge7e6ba8
 	pkgrel = 1
 	url = https://github.com/linuxmobile/monocode
 	arch = x86_64
