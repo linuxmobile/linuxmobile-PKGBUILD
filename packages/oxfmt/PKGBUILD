@@ -29,7 +29,9 @@ build() {
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR=target
   export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
-  cargo build --frozen --release -p oxfmt
+  # The default `napi` feature is only for the Node.js binding; the CLI
+  # panics at startup when it is compiled in (no external services are set).
+  cargo build --frozen --release -p oxfmt --no-default-features
 }
 
 package() {

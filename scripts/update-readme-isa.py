@@ -28,7 +28,6 @@ PAYLOADS = {
     "hibiki": "Rust",
     "isocast": "Rust",
     "jcode": "Rust",
-    "kavita": ".NET ReadyToRun",
     "kernwatch": "Rust",
     "lui": "Zig",
     "mdrs": "Rust",
@@ -47,8 +46,6 @@ PAYLOADS = {
     "sonora": "Rust",
     "strata": "Rust",
     "syswatch": "Rust",
-    "twitch-hls-client": "Rust",
-    "zapfast": "Rust",
     "zinc": "Zig",
 }
 
@@ -86,8 +83,6 @@ def status_for(policy: str, package: str) -> str:
         return "v3 target selected; GNU ISA note not asserted"
     if policy == "review":
         return "Review required; ISA audit/tuning pending"
-    if policy == "r2r":
-        return "Partial; .NET 10 application ReadyToRun targets v3; bundled native runtime is not certified"
     raise ValueError(f"{package}: unknown ISA policy {policy!r}")
 
 
@@ -132,10 +127,8 @@ def replace_note(lines: list[str]) -> list[str]:
     note = (
         NOTE_START + "\n"
         + "The ISA status table is generated from `config/isa-policy.tsv` during repository publication. "
-        + "`required` packages are checked for the GNU `x86 ISA needed` property. Kavita's .NET 10 "
-        + "application ReadyToRun is configured with the x86-64-v3 instruction-set baseline; bundled native runtime files "
-        + "are not certified as v3. Rhun remains under review until its hand-written assembly is audited "
-        + "and tuned.\n"
+        + "`required` packages are checked for the GNU `x86 ISA needed` property. Rhun remains under "
+        + "review until its hand-written assembly is audited and tuned.\n"
         + NOTE_END + "\n"
     ).splitlines(keepends=True)
 

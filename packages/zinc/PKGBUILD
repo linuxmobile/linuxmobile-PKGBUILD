@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=zinc
-pkgver=0.2.1.r124.g8799619
+pkgver=0.2.1.r128.g5997fb1
 pkgrel=1
 pkgdesc='High-performance Wayland terminal emulator written in Zig'
 arch=('x86_64')
@@ -31,7 +31,7 @@ makedepends=(
 
 # makepkg names the git clone after the source alias.
 _srcdir='zinc'
-source=("${_srcdir}::git+https://github.com/linuxmobile/zinc.git#branch=linuxmobile-build")
+source=("${_srcdir}::git+https://github.com/Mvkweb/zinc.git")
 sha256sums=('SKIP')
 
 pkgver() {

@@ -7,7 +7,6 @@
 # upstream: executable payloads are shipped prebuilt by upstream and are not rebuilt here.
 # any: architecture-independent package (for example, Python scripts only).
 # review: source is built locally, but this repository does not currently guarantee v3.
-# r2r: .NET ReadyToRun managed code uses the x86-64-v3 instruction-set baseline; bundled native runtime components are not certified.
 
 antigravity-cli|upstream||Upstream binary archive; not rebuilt by this repository.
 ardia|upstream||ArdiaCore Chromium and bundled CLI runtimes are supplied as upstream prebuilt binaries; this package does not rebuild them.
@@ -19,7 +18,6 @@ frame|required||Rust source build with x86-64-v3 target and linker flags.
 hibiki|required||Rust source build with x86-64-v3 target and linker flags.
 isocast|required||Rust source build with x86-64-v3 target; LTO is disabled by its recipe.
 jcode|required||Rust source build with x86-64-v3 target and linker flags.
-kavita|review||.NET ReadyToRun build; v3 managed tuning and runtime audit pending.
 kernwatch|required||Rust source build with x86-64-v3 target and linker flags.
 lui|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
 mdrs|required||Rust source build with x86-64-v3 target and linker flags.
@@ -38,6 +36,4 @@ rlottie|required||CMake/C++ source build with x86-64-v3 compiler and linker flag
 sonora|required||Rust source build with x86-64-v3 target and linker flags.
 strata|required||Rust source build with x86-64-v3 target and linker flags.
 syswatch|required||Rust source build with x86-64-v3 target and linker flags.
-twitch-hls-client|required||Rust source build with x86-64-v3 target and linker flags.
-zapfast|required||Rust source build with x86-64-v3 target and linker flags; LTO is disabled by its recipe.
 zinc|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
