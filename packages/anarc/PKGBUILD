@@ -19,6 +19,7 @@ depends=(
   'freetype2'
   'gcc-libs'
   'glibc'
+  'hicolor-icon-theme'
   'libcups'
   'libx11'
   'libxcb'
@@ -39,14 +40,17 @@ optdepends=(
   'pipewire-alsa: audio output through PipeWire'
   'pulseaudio-alsa: audio output through PulseAudio'
   'xdg-utils: opening external links with the system browser'
+  'xorg-xwayland: X11 backend required by CEF on Wayland sessions'
 )
 makedepends=('cargo' 'cmake' 'git' 'ninja' 'pkgconf' 'rust')
 options=('!lto' '!strip')
 
 # makepkg names the git clone after the source alias, which defaults to pkgname.
 _srcdir="${pkgname}"
-source=("${_srcdir}::git+${url}.git#branch=main")
-sha256sums=('SKIP')
+source=("${_srcdir}::git+${url}.git#branch=main"
+        'anarc.desktop')
+sha256sums=('SKIP'
+            '2ea3ff9e58ef276e7810d9ce61bb3b99a08b1afba1617584622bc84539f61d3f')
 
 pkgver() {
   cd "$_srcdir" || return 1
@@ -112,6 +116,9 @@ package() {
 #!/bin/sh
 export PATH="/opt/anarc/bin:/opt/anarc-cef:$PATH"
 export LD_LIBRARY_PATH="/opt/anarc-cef${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+if [ -z "${DISPLAY:-}" ]; then
+    echo 'anarc: CEF requires an X11 display; set DISPLAY (use Xwayland on Wayland)' >&2
+fi
 # Several Anarc windows can run side by side. Each launch claims a slot: slot 1
 # uses the default CEF profile, slots 2-9 get their own profile root so no two
 # processes ever open the same cookie/cache database. Everything else (settings,
@@ -143,6 +150,12 @@ exec /opt/anarc/bin/anarc "$@"
 LAUNCHER
   chmod 755 "$pkgdir/usr/bin/anarc"
   ln -s anarc "$pkgdir/usr/bin/lumen"
+
+  install -Dm644 "${srcdir}/anarc.desktop" \
+    "$pkgdir/usr/share/applications/anarc.desktop"
+  install -Dm644 assets/anarc_logo.png "$pkgdir/usr/share/pixmaps/anarc.png"
+  install -Dm644 assets/anarc_logo.png \
+    "$pkgdir/usr/share/icons/hicolor/256x256/apps/anarc.png"
 
   install -Dm644 assets/Apache-2.0.txt "$pkgdir/usr/share/licenses/$pkgname/Apache-2.0.txt"
   install -Dm644 assets/Readability-LICENSE.md "$pkgdir/usr/share/licenses/$pkgname/Readability-LICENSE.md"

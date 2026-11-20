@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Anarc
+Comment=Anarc browser
+Exec=/usr/bin/anarc %U
+TryExec=/usr/bin/anarc
+Icon=anarc
+Terminal=false
+Categories=Network;WebBrowser;
+StartupWMClass=anarc
+StartupNotify=true
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/rss+xml;application/rdf+xml;x-scheme-handler/http;x-scheme-handler/https;
