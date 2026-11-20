@@ -9,6 +9,8 @@ license=('Apache-2.0')
 depends=(
   'alsa-lib'
   'dbus'
+  'fontconfig'
+  'freetype2'
   'gcc-libs'
   'glibc'
   'libx11'
