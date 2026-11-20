@@ -78,12 +78,15 @@ build() {
 package() {
   cd "$_srcdir"
 
-  local _cef
-  _cef="$(find target/release/build -maxdepth 3 -type d -name cef_linux_x86_64 -print -quit)"
-  if [[ -z "$_cef" || ! -f "$_cef/libcef.so" ]]; then
+  local _cef_lib
+  # cef-dll-sys extracts its runtime into OUT_DIR, nested under the build
+  # script's hash. Locate libcef.so directly instead of assuming a depth.
+  _cef_lib="$(find target/release/build -type f -name libcef.so -print -quit)"
+  if [[ -z "$_cef_lib" ]]; then
     error 'CEF runtime directory not found in the build output'
     return 1
   fi
+  local _cef="${_cef_lib%/libcef.so}"
 
   install -d "$pkgdir/opt/anarc/bin" "$pkgdir/opt/anarc-cef"
   install -Dm755 target/release/anarc "$pkgdir/opt/anarc/bin/anarc"
