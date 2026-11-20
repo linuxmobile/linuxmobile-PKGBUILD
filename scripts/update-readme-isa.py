@@ -18,7 +18,6 @@ NOTE_START = "<!-- BEGIN GENERATED PACKAGE ISA NOTE -->"
 NOTE_END = "<!-- END GENERATED PACKAGE ISA NOTE -->"
 
 PAYLOADS = {
-    "anarc": "Rust / CEF",
     "antigravity-cli": "Upstream binary archive",
     "agentty": "CMake/C++",
     "ardia": "Upstream binary archive",
@@ -78,7 +77,7 @@ def status_for(policy: str, package: str) -> str:
     if policy == "required":
         return "Enforced by CI (ELF ISA note)"
     if policy == "partial":
-        return "Partial; bundled upstream ELFs excluded"
+        return "Partial; bundled upstream ELF excluded"
     if policy == "upstream":
         return "Upstream binary; not guaranteed"
     if policy == "any":

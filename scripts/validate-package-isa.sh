@@ -54,22 +54,6 @@ tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 bsdtar -xf "$pkgfile" -C "$tmpdir"
 
-# exception_path is comma-separated; a trailing slash exempts a whole
-# directory, which is how bundled upstream runtimes (CEF) are handled.
-is_exception() {
-  local relpath="$1" raw="$2" exc
-  local -a exceptions=()
-  IFS=',' read -r -a exceptions <<< "$raw"
-  for exc in "${exceptions[@]}"; do
-    if [[ "$exc" == */ ]]; then
-      [[ "$relpath" == "$exc"* ]] && return 0
-    elif [[ "$relpath" == "$exc" ]]; then
-      return 0
-    fi
-  done
-  return 1
-}
-
 elf_count=0
 checked_count=0
 exception_seen=0
@@ -89,7 +73,7 @@ while IFS= read -r -d '' file; do
     continue
   fi
 
-  if [[ "$policy" == partial ]] && is_exception "$relpath" "$exception_path"; then
+  if [[ "$policy" == partial && "$relpath" == "$exception_path" ]]; then
     exception_seen=1
     printf '  EXCEPTION %s (upstream ELF, not required to be v3)\n' "$relpath"
     continue
