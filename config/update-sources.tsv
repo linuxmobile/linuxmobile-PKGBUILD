@@ -24,6 +24,7 @@
 #   transform=dots   replace dashes in the upstream version with dots
 #
 # package	kind	source	tag-prefix	options
+anarc	vcs	-	-	-
 antigravity-cli	antigravity	-	-	-
 ardia	vcs	-	-	-
 agentty	github	agentty-org/agentty	v	-

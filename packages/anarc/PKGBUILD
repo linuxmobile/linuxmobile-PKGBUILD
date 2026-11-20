@@ -1,0 +1,136 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
+pkgname=anarc
+pkgver=0.1.0.r1.g44aefbd
+pkgrel=1
+pkgdesc='Keyboard-first Linux browser with spaces, split view, and a command palette'
+arch=('x86_64')
+url='https://github.com/rover-001/anarc'
+license=('Apache-2.0')
+depends=(
+  'alsa-lib'
+  'dbus'
+  'gcc-libs'
+  'glibc'
+  'libx11'
+  'libxcb'
+  'libxcursor'
+  'libxext'
+  'libxi'
+  'libxkbcommon'
+  'libxkbcommon-x11'
+  'libxrandr'
+  'nss'
+  'util-linux'
+)
+optdepends=(
+  'pipewire-alsa: audio output through PipeWire'
+  'pulseaudio-alsa: audio output through PulseAudio'
+  'xdg-utils: opening external links with the system browser'
+)
+makedepends=('cargo' 'cmake' 'git' 'ninja' 'pkgconf' 'rust')
+options=('!lto' '!strip')
+
+# makepkg names the git clone after the source alias, which defaults to pkgname.
+_srcdir="${pkgname}"
+source=("${_srcdir}::git+${url}.git#branch=main")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$_srcdir" || return 1
+  printf '%s.r%s.g%s' \
+    "$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n1)" \
+    "$(git rev-list --count HEAD)" \
+    "$(git rev-parse --short=7 HEAD)"
+}
+
+prepare() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+
+  # The checkout pins target-cpu=native in .cargo/config.toml. RUSTFLAGS from
+  # config/makepkg.conf takes precedence and keeps this repository's x86-64-v3
+  # baseline; re-add the rpath that the override would otherwise drop.
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/usr/src/debug/${pkgname} -C link-arg=-Wl,-rpath,\$ORIGIN:\$ORIGIN/../../anarc-cef:\$ORIGIN/../anarc-cef"
+
+  cargo build --frozen --release
+}
+
+package() {
+  cd "$_srcdir"
+
+  local _cef
+  _cef="$(find target/release/build -maxdepth 3 -type d -name cef_linux_x86_64 -print -quit)"
+  if [[ -z "$_cef" || ! -f "$_cef/libcef.so" ]]; then
+    error 'CEF runtime directory not found in the build output'
+    return 1
+  fi
+
+  install -d "$pkgdir/opt/anarc/bin" "$pkgdir/opt/anarc-cef"
+  install -Dm755 target/release/anarc "$pkgdir/opt/anarc/bin/anarc"
+  ln -s anarc "$pkgdir/opt/anarc/bin/lumen"
+
+  # Copy only CEF runtime payload; skip headers, CMake sources and build files.
+  local item
+  for item in libcef.so libcef_dll chrome-sandbox chrome_100_percent.pak \
+              chrome_200_percent.pak icudtl.dat resources.pak \
+              v8_context_snapshot.bin vk_swiftshader_icd.json \
+              libvk_swiftshader.so libvulkan.so.1 locales; do
+    [[ -e "$_cef/$item" ]] || continue
+    cp -a "$_cef/$item" "$pkgdir/opt/anarc-cef/"
+  done
+
+  # CEF child processes resolve their host binary from this directory.
+  ln -s /opt/anarc/bin/anarc "$pkgdir/opt/anarc-cef/anarc"
+  ln -s /opt/anarc/bin/anarc "$pkgdir/opt/anarc-cef/chrome"
+  ln -s /opt/anarc/bin/anarc "$pkgdir/opt/anarc-cef/chromium"
+
+  install -d "$pkgdir/usr/bin"
+  cat > "$pkgdir/usr/bin/anarc" <<'LAUNCHER'
+#!/bin/sh
+export PATH="/opt/anarc/bin:/opt/anarc-cef:$PATH"
+export LD_LIBRARY_PATH="/opt/anarc-cef${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+# Several Anarc windows can run side by side. Each launch claims a slot: slot 1
+# uses the default CEF profile, slots 2-9 get their own profile root so no two
+# processes ever open the same cookie/cache database. Everything else (settings,
+# spaces, history) stays shared.
+if command -v flock >/dev/null 2>&1; then
+    LOCK_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+    SLOT=1
+    while [ "$SLOT" -le 9 ]; do
+        if [ "$SLOT" -eq 1 ]; then
+            LOCK="$LOCK_DIR/anarc.lock"
+        else
+            LOCK="$LOCK_DIR/anarc-$SLOT.lock"
+        fi
+        exec 9>"$LOCK"
+        if flock -n 9; then
+            break
+        fi
+        SLOT=$((SLOT + 1))
+    done
+    if [ "$SLOT" -gt 9 ]; then
+        echo "anarc: 9 windows are already running" >&2
+        exit 1
+    fi
+    if [ "$SLOT" -gt 1 ]; then
+        export ANARC_INSTANCE_SLOT="$SLOT"
+    fi
+fi
+exec /opt/anarc/bin/anarc "$@"
+LAUNCHER
+  chmod 755 "$pkgdir/usr/bin/anarc"
+  ln -s anarc "$pkgdir/usr/bin/lumen"
+
+  install -Dm644 assets/Apache-2.0.txt "$pkgdir/usr/share/licenses/$pkgname/Apache-2.0.txt"
+  install -Dm644 assets/Readability-LICENSE.md "$pkgdir/usr/share/licenses/$pkgname/Readability-LICENSE.md"
+  install -Dm644 assets/filters/LICENSE.md "$pkgdir/usr/share/licenses/$pkgname/filters-LICENSE.md"
+  install -Dm644 assets/filters/EASYLIST-LICENSE.md "$pkgdir/usr/share/licenses/$pkgname/EASYLIST-LICENSE.md"
+  install -Dm644 assets/filters/LICENSES.md "$pkgdir/usr/share/licenses/$pkgname/filters-LICENSES.md"
+}

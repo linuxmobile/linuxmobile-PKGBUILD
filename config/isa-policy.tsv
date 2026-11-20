@@ -1,7 +1,8 @@
 # Package ISA policy used by scripts/validate-package-isa.sh
 # Format: package|policy|exception path|reason
 # required: every ELF in the package must declare x86-64-v3 in GNU ISA_1_NEEDED.
-# partial: same check, except for the exact bundled upstream ELF path.
+# partial: same check, except for the exact bundled upstream ELF path(s).
+#          Comma-separate paths; a trailing slash exempts a whole directory.
 # target: the PKGBUILD must explicitly pin the compiler target to x86-64-v3;
 #         GNU ISA_1_NEEDED is not asserted for this toolchain/project build system.
 # upstream: executable payloads are shipped prebuilt by upstream and are not rebuilt here.
@@ -9,6 +10,7 @@
 # review: source is built locally, but this repository does not currently guarantee v3.
 # r2r: .NET ReadyToRun managed code uses the x86-64-v3 instruction-set baseline; bundled native runtime components are not certified.
 
+anarc|partial|opt/anarc-cef/|Anarc binary is built with x86-64-v3 flags; bundled CEF runtime is upstream prebuilt.
 antigravity-cli|upstream||Upstream binary archive; not rebuilt by this repository.
 ardia|upstream||ArdiaCore Chromium and bundled CLI runtimes are supplied as upstream prebuilt binaries; this package does not rebuild them.
 agentty|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
