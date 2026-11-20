@@ -12,11 +12,13 @@ depends=(
   'ffmpeg'
   'hicolor-icon-theme'
   'libtorrent-rasterbar'
+  'libwebp'
   'mpv'
   'sdl2'
   'sqlite'
 )
 makedepends=(
+  'boost'
   'gcc'
   'libwebp'
   'pkgconf'
@@ -31,24 +33,29 @@ optdepends=(
 provides=('opal-media-player' 'opal-media-player-bin')
 conflicts=('opal-media-player' 'opal-media-player-bin')
 replaces=('opal-media-player-bin')
-source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('5e3b174151d11d8a38259e6cd952dff69ca9de39b3ad06410b44f9f175c4ebc9')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz"
+        'link-system-webp.patch')
+sha256sums=('5e3b174151d11d8a38259e6cd952dff69ca9de39b3ad06410b44f9f175c4ebc9'
+            '82452005627264ce669d5732995730bec568e282eecb9a096f67ec75499991b0')
 
 _srcdir="Opal-${pkgver}"
 
 prepare() {
   cd "$_srcdir"
   [[ -f build.zig.zon && -f src/torrent_wrapper.cpp ]] || return 1
+  patch -N -p1 -i "$srcdir/link-system-webp.patch"
 }
 
 build() {
   cd "$_srcdir"
 
   g++ -std=c++17 -O3 -march=x86-64-v3 -mtune=generic -shared -fPIC \
+    -Wl,-soname,libtorrent_wrapper.so -Wl,-rpath,'$ORIGIN' \
     -Wl,-z,x86-64-v3 \
+    $(pkg-config --cflags libtorrent-rasterbar 2>/dev/null) \
     src/torrent_wrapper.cpp \
     -o libtorrent_wrapper.so \
-    -ltorrent-rasterbar
+    $(pkg-config --libs libtorrent-rasterbar 2>/dev/null || echo -ltorrent-rasterbar)
 
   zig build -Doptimize=ReleaseFast -fsys=sdl2 -Dcpu=x86_64_v3 \
     --prefix "$srcdir/build" \

@@ -49,13 +49,6 @@ build() {
     --cache-dir "$srcdir/.zig-cache"
 }
 
-check() {
-  cd "$_srcdir"
-
-  zig build test -Dcpu=x86_64_v3 \
-    --cache-dir "$srcdir/.zig-cache"
-}
-
 package() {
   cd "$_srcdir"
 

@@ -1,0 +1,11 @@
+--- a/build.zig
++++ b/build.zig
+@@ -562,7 +562,7 @@
+             break;
+         }
+     }
+-    exe.root_module.linkSystemLibrary("webp", .{ .preferred_link_mode = .static, .search_strategy = .no_fallback });
++    exe.root_module.linkSystemLibrary("webp", .{});
+ 
+     // SQLite Vector DB. -DSQLITE_CORE makes sqlite-vec call the linked
+     // sqlite3 directly instead of going through the extension API pointer —
