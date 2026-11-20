@@ -6,22 +6,33 @@ pkgdesc='Keyboard-first Linux browser with spaces, split view, and a command pal
 arch=('x86_64')
 url='https://github.com/rover-001/anarc'
 license=('Apache-2.0')
+# libcef.so carries DT_NEEDED entries for the full desktop stack; those
+# libraries must be installed before the final link, not only at runtime.
 depends=(
   'alsa-lib'
+  'at-spi2-atk'
+  'at-spi2-core'
+  'atk'
+  'cairo'
   'dbus'
   'fontconfig'
   'freetype2'
   'gcc-libs'
   'glibc'
+  'libcups'
   'libx11'
   'libxcb'
+  'libxcomposite'
   'libxcursor'
+  'libxdamage'
   'libxext'
   'libxi'
   'libxkbcommon'
   'libxkbcommon-x11'
   'libxrandr'
+  'mesa'
   'nss'
+  'pango'
   'util-linux'
 )
 optdepends=(
