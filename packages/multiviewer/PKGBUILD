@@ -1,7 +1,7 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=multiviewer
-pkgver=2.16.1
-_build=2.16.1/1/WcUNYPS4SxcavmPzmsSw6kx6eiFRxIli
+pkgver=2.17.1
+_build=2.17.1/1/ziC8el67TwD_khD-Em8Ispk1TIx6St2_
 pkgrel=1
 pkgdesc="Unofficial motorsports desktop client"
 arch=('x86_64')
@@ -15,7 +15,7 @@ replaces=('f1multiviewer-bin')
 install=multiviewer.install
 source=("https://releases.multiviewer.app/v/$_build/MultiViewer-linux-x64-$pkgver.zip"
         "f1multiviewer.desktop")
-sha256sums=('c93956c169e4828557f4ed48603fb8d759f0091687314f255a43ffa550b8a95c'
+sha256sums=('5075d7e4d8d39050a2d3250ebb058c461aec22de952e3404418fff950676b478'
             'bd2b11e7efe75cc8fd77884c5c47648da6280b9e3e363c2dcfda91f07f6d7f1b')
 
 package() {

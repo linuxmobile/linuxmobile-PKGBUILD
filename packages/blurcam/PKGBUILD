@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=blurcam
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
 pkgdesc='Real-time face and licence plate blurring for video and webcams'
 arch=('x86_64')
@@ -22,7 +22,7 @@ makedepends=(
   'tomlplusplus'
 )
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('29fa2e896b9631de62e948a179c0b4b10e3e9274652ad685d31c4c81cdb64ba0')
+sha256sums=('c93caf01c2ffbb9719c73f3d0cb027d59f0d8c8167540cba7d73a82696e76eea')
 
 _srcdir="${pkgname}-${pkgver}"
 

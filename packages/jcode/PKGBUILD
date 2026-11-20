@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=jcode
-pkgver=1.0.0
+pkgver=1.0.2
 pkgrel=1
 pkgdesc='High-performance coding agent harness for parallel multi-agent workflows'
 arch=('x86_64')
@@ -23,7 +23,7 @@ makedepends=(
 )
 options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('2de28d606ecd3b43c918694d1fb390da93b9e574412b1572e43bbda2621e3dc4')
+sha256sums=('c1e09e34ca0f3bd4d179326fe151cf03c85c6fc843096f454b8383a7eb6e0383')
 
 _srcdir="${pkgname}-${pkgver}"
 

@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=netwatch
-pkgver=0.40.1
+pkgver=1.0.0
 pkgrel=1
 pkgdesc='Real-time network diagnostics in your terminal'
 arch=('x86_64')
@@ -10,7 +10,7 @@ depends=('glibc' 'gcc-libs' 'libpcap' 'iproute2')
 makedepends=('cargo' 'pkgconf')
 options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('0a8cccd31d1ffff41f6ab832731e4de02885078d8475750fd1a9baafb894d727')
+sha256sums=('3cf1616c734b51864f16d2672c3f53a983af9055a58a153584ad4ab98cdb55ec')
 
 _srcdir="${pkgname}-${pkgver}"
 
