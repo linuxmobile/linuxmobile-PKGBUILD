@@ -1,0 +1,19 @@
+pkgbase = zmon
+	pkgdesc = Native Linux system monitor that groups processes by app
+	pkgver = 0.0.1.r102.gee90f62
+	pkgrel = 1
+	url = https://github.com/dagimg-dot/zmon
+	arch = x86_64
+	license = MIT
+	makedepends = git
+	makedepends = zig>=0.17.0
+	depends = desktop-file-utils
+	depends = gtk4
+	depends = hicolor-icon-theme
+	depends = libglvnd
+	depends = mesa
+	optdepends = gtk3: fallback GTK 3 backend
+	source = zmon::git+https://github.com/dagimg-dot/zmon.git
+	sha256sums = SKIP
+
+pkgname = zmon

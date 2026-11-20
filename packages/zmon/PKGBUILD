@@ -1,0 +1,67 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
+pkgname=zmon
+pkgver=0.0.1.r102.gee90f62
+pkgrel=1
+pkgdesc='Native Linux system monitor that groups processes by app'
+arch=('x86_64')
+url='https://github.com/dagimg-dot/zmon'
+license=('MIT')
+depends=(
+  'desktop-file-utils'
+  'gtk4'
+  'hicolor-icon-theme'
+  'libglvnd'
+  'mesa'
+)
+optdepends=('gtk3: fallback GTK 3 backend')
+makedepends=(
+  'git'
+  'zig>=0.17.0'
+)
+source=("${pkgname}::git+${url}.git")
+sha256sums=('SKIP')
+
+_srcdir="$pkgname"
+
+pkgver() {
+  cd "$_srcdir" || return 1
+  if [[ ! -d .git ]]; then
+    printf 'pkgver() needs the %s source checkout\n' "$_srcdir" >&2
+    return 1
+  fi
+
+  local version commit_count commit
+  version=$(sed -n 's/^[[:space:]]*\.version[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' build.zig.zon | head -n1)
+  if [[ -z "$version" ]]; then
+    printf 'pkgver() could not read the version from build.zig.zon\n' >&2
+    return 1
+  fi
+  commit_count=$(git rev-list --count HEAD)
+  commit=$(git rev-parse --short=7 HEAD)
+  printf '%s.r%s.g%s\n' "$version" "$commit_count" "$commit"
+}
+
+build() {
+  cd "$_srcdir"
+
+  zig build -Doptimize=ReleaseFast -Dcpu=x86_64_v3 \
+    --prefix "$srcdir/build" \
+    --cache-dir "$srcdir/.zig-cache"
+}
+
+check() {
+  cd "$_srcdir"
+
+  zig build test -Dcpu=x86_64_v3 \
+    --cache-dir "$srcdir/.zig-cache"
+}
+
+package() {
+  cd "$_srcdir"
+
+  cp -a "$srcdir/build/." "$pkgdir/usr/"
+
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+  install -Dm644 THEMES.md "$pkgdir/usr/share/doc/$pkgname/THEMES.md"
+}
