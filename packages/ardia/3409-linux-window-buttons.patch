@@ -347,13 +347,13 @@ index 5c523b7b10..53be11320e 100644
        section: "Size and text",
        rows: {
 diff --git a/apps/browser/src/components/settings/settingsSearch.test.mjs b/apps/browser/src/components/settings/settingsSearch.test.mjs
-index 54e5cda14c..621f91db72 100644
+index 12c1064483..e36e1c69cf 100644
 --- a/apps/browser/src/components/settings/settingsSearch.test.mjs
 +++ b/apps/browser/src/components/settings/settingsSearch.test.mjs
-@@ -309,6 +309,7 @@ test("a row its pane doesn't draw is left out of search, by the same rule the pa
-   assert.ok(unshown({}, { top: false }).has("profiles.profileDownloadsFolder"));
-   assert.ok(unshown({ addressBar: "sidebar" }, { top: false }).has("appearance.compactToolbar"));
-   assert.ok(!unshown({ addressBar: "sidebar" }, { top: true }).has("appearance.compactToolbar"));
+@@ -323,6 +323,7 @@ test("a row its pane doesn't draw is left out of search, by the same rule the pa
+   const webkitOnly = unshown({ engineMode: "webkit" }, { top: false });
+   for (const id of ["advanced.pageEngine", "advanced.websiteEngines", "advanced.offerWebKitForProtectedVideo"]) assert.ok(webkitOnly.has(id), id);
+   for (const id of ["general.engineMode", "advanced.enginesDiffer", "advanced.webKitFraudWarnings"]) assert.ok(!webkitOnly.has(id), id);
 +  assert.ok(unshown({}, { top: false }).has("appearance.windowButtons"), "the Mac and Windows have no choice of window buttons");
  });
  
@@ -708,20 +708,20 @@ index 9459fd4830..97ba72041c 100644
  
  export const BROWSER_WINDOW_BUTTONS = 4;
 diff --git a/apps/browser/src/state/session/sessionSettings.test.mjs b/apps/browser/src/state/session/sessionSettings.test.mjs
-index 262e3bc3ed..7163bf9e35 100644
+index e6c87f3876..b31dfe67f7 100644
 --- a/apps/browser/src/state/session/sessionSettings.test.mjs
 +++ b/apps/browser/src/state/session/sessionSettings.test.mjs
 @@ -17,7 +17,7 @@ const CASES = {
    linkKeys: { peekModifier: "alt", splitLinkModifier: "alt", chosen: ["peekModifier", "splitLinkModifier"], inferred: [] },
    empty: {},
  };
--const BEFORE = {"legacyTrue":{"chosen":["newTabPosition","newTabButtonPosition"],"inferred":["newTabPosition","newTabButtonPosition"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"top","newTabPosition":"top","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":120},"legacyFalse":{"chosen":["newTabPosition","batterySaverWhen","newTabButtonPosition"],"inferred":["newTabPosition","batterySaverWhen","newTabButtonPosition"],"batterySaverWhen":"never","newTabButtonPosition":"top","newTabPosition":"top","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":120},"legacyTrueChosen":{"chosen":["tabLayout","batterySaverWhen"],"inferred":[],"batterySaverWhen":"unplugged","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":120},"legacyTrueInferred":{"chosen":[],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":120},"missingMeta":{"chosen":["tabLayout","sidebarWidth"],"inferred":["tabLayout","sidebarWidth"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":120},"chosen":{"chosen":["tabLayout"],"inferred":["appearance"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":120},"migrated":{"chosen":["tabLayout","newTabPosition","newTabButtonPosition"],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"top","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":120},"linkKeys":{"chosen":["peekModifier","splitLinkModifier"],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"alt","splitLinkModifier":"altShift","keys":120},"empty":{"chosen":[],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":120}};
-+const BEFORE = {"legacyTrue":{"chosen":["newTabPosition","newTabButtonPosition"],"inferred":["newTabPosition","newTabButtonPosition"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"top","newTabPosition":"top","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":121},"legacyFalse":{"chosen":["newTabPosition","batterySaverWhen","newTabButtonPosition"],"inferred":["newTabPosition","batterySaverWhen","newTabButtonPosition"],"batterySaverWhen":"never","newTabButtonPosition":"top","newTabPosition":"top","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":121},"legacyTrueChosen":{"chosen":["tabLayout","batterySaverWhen"],"inferred":[],"batterySaverWhen":"unplugged","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":121},"legacyTrueInferred":{"chosen":[],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":121},"missingMeta":{"chosen":["tabLayout","sidebarWidth"],"inferred":["tabLayout","sidebarWidth"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":121},"chosen":{"chosen":["tabLayout"],"inferred":["appearance"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":121},"migrated":{"chosen":["tabLayout","newTabPosition","newTabButtonPosition"],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"top","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":121},"linkKeys":{"chosen":["peekModifier","splitLinkModifier"],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"alt","splitLinkModifier":"altShift","keys":121},"empty":{"chosen":[],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":121}};
+-const BEFORE = {"legacyTrue":{"chosen":["newTabPosition","newTabButtonPosition"],"inferred":["newTabPosition","newTabButtonPosition"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"top","newTabPosition":"top","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":125},"legacyFalse":{"chosen":["newTabPosition","batterySaverWhen","newTabButtonPosition"],"inferred":["newTabPosition","batterySaverWhen","newTabButtonPosition"],"batterySaverWhen":"never","newTabButtonPosition":"top","newTabPosition":"top","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":125},"legacyTrueChosen":{"chosen":["tabLayout","batterySaverWhen"],"inferred":[],"batterySaverWhen":"unplugged","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":125},"legacyTrueInferred":{"chosen":[],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":125},"missingMeta":{"chosen":["tabLayout","sidebarWidth"],"inferred":["tabLayout","sidebarWidth"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":125},"chosen":{"chosen":["tabLayout"],"inferred":["appearance"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":125},"migrated":{"chosen":["tabLayout","newTabPosition","newTabButtonPosition"],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"top","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":125},"linkKeys":{"chosen":["peekModifier","splitLinkModifier"],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"alt","splitLinkModifier":"altShift","keys":125},"empty":{"chosen":[],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":125}};
++const BEFORE = {"legacyTrue":{"chosen":["newTabPosition","newTabButtonPosition"],"inferred":["newTabPosition","newTabButtonPosition"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"top","newTabPosition":"top","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":126},"legacyFalse":{"chosen":["newTabPosition","batterySaverWhen","newTabButtonPosition"],"inferred":["newTabPosition","batterySaverWhen","newTabButtonPosition"],"batterySaverWhen":"never","newTabButtonPosition":"top","newTabPosition":"top","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":126},"legacyTrueChosen":{"chosen":["tabLayout","batterySaverWhen"],"inferred":[],"batterySaverWhen":"unplugged","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":126},"legacyTrueInferred":{"chosen":[],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":126},"missingMeta":{"chosen":["tabLayout","sidebarWidth"],"inferred":["tabLayout","sidebarWidth"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":126},"chosen":{"chosen":["tabLayout"],"inferred":["appearance"],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":126},"migrated":{"chosen":["tabLayout","newTabPosition","newTabButtonPosition"],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"top","tabLayout":"top","peekModifier":"shift","splitLinkModifier":"altShift","keys":126},"linkKeys":{"chosen":["peekModifier","splitLinkModifier"],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"alt","splitLinkModifier":"altShift","keys":126},"empty":{"chosen":[],"inferred":[],"batterySaverWhen":"lowBattery","newTabButtonPosition":"bottom","newTabPosition":"bottom","tabLayout":"sidebar","peekModifier":"shift","splitLinkModifier":"altShift","keys":126}};
  
  const doc = (version, settings) => ({ version, profiles: { default: PROFILE }, profileOrder: ["default"], settings, windows: [], windowOrder: [], tabs: [], groups: [], splits: [], closedTabs: [], closedWindows: [] });
  const loaded = () => {
 diff --git a/apps/browser/src/state/settings/configAllowlist.ts b/apps/browser/src/state/settings/configAllowlist.ts
-index 4eb58c46f1..75e69674ef 100644
+index 1792be1818..0ae14c1105 100644
 --- a/apps/browser/src/state/settings/configAllowlist.ts
 +++ b/apps/browser/src/state/settings/configAllowlist.ts
 @@ -7,7 +7,7 @@ export const CONFIG_SETTING_KEYS: readonly SettingKey[] = [
@@ -734,10 +734,10 @@ index 4eb58c46f1..75e69674ef 100644
    "memorySaverMode", "loadProfilesWhenOpened", "unloadProfilesAfter", "keepActiveSites", "extensionSidePanelWidth", "showFullUrl", "showBookmarks", "bookmarksBar",
    "bookmarksImportDismissed", "appearance", "addressBar", "compactToolbar", "addressBarButtons", "borderlessMode", "tabCornerRadius", "minimalismMode", "pageFrame", "pageFrameZeroInFullScreen", "pageFrameZeroWhenTabsHidden", "commandBarPlacement", "spacesFollowAppearance", "adaptTextToColor",
 diff --git a/apps/browser/src/state/settings/settings.ts b/apps/browser/src/state/settings/settings.ts
-index 19baa9bfcc..64361aa721 100644
+index ea095d750c..a352cf072b 100644
 --- a/apps/browser/src/state/settings/settings.ts
 +++ b/apps/browser/src/state/settings/settings.ts
-@@ -134,6 +134,7 @@ export const SETTING_SPECS = {
+@@ -130,6 +130,7 @@ export const SETTING_SPECS = {
    selectedTopApp: oneOf(["ring", "fill", "outline"], "ring", SYNCED),
    elementOutlines: flag(true, SYNCED),
    interfaceStyle: oneOf(["glass", "classic"], "glass", SYNCED),
@@ -840,15 +840,15 @@ index 0000000000..e9e6bee2f4
 +  assert.equal(subscribed, false);
 +});
 diff --git a/apps/browser/src/state/telemetry/copy.ts b/apps/browser/src/state/telemetry/copy.ts
-index 3c43ad84ae..be05a338a4 100644
+index 78b21156dc..48e0fa612b 100644
 --- a/apps/browser/src/state/telemetry/copy.ts
 +++ b/apps/browser/src/state/telemetry/copy.ts
-@@ -184,7 +184,7 @@ export const WHATS_SENT: { title: string; items: string[] }[] = [
+@@ -199,7 +199,7 @@ export const WHATS_SENT: { title: string; items: string[] }[] = [
        "How many times Connect Another Device showed its code, and how many times it didn't because the Touch ID or password request before it was declined, summed up once an hour. Never the code or the words",
        "Opening Report a Problem and whether it brought back a saved draft (and its recording), when Send was pressed before the report was ready, which field held it back (title, description or contact) and the report's kind, and whether sending worked: at which step it failed, why (no connection, the server's storage, the server, too many reports, an expired upload or a refused report), the server's status code, how many tries it took, and whether it resumed or restarted an earlier attempt. Never what you wrote",
        "Whether a sent problem report's recording showed its window's Picture in Picture, and how many of Ardia's other windows over it the recording left out. Never what was in them",
--      "Once a day, your on/off, pick-one and number settings (like light or dark, glass or classic, borderless mode, minimalism mode, how much tint, and the sidebar's text size and contrast), the interface size as a whole percentage, whether macOS Increase Contrast is on, the corner radius your windows are drawn with, which app icon you picked, each with its default, how many of your profiles use Ardia's password manager, none or a password manager plugin, how many of your profiles show a theme colour you edited, how many theme colours you edited across all profiles and whether your default profile's theme colour is edited, how many of your windows that aren't full screen are narrower than 720 points and how many are too narrow for the sidebar width you set, how many sites you hid unread counts for, how many keyboard shortcuts you changed, how many of those use an arrow, Home, End, Page or F key and how many use ⌥ without ⌘ or ⌃, how many commands you gave a mouse button, how many Air Traffic Control rules are on, how many of those use a wildcard pattern, how many send links into a tab group, and whether Everything Else is set, whether new tabs open an address you chose instead of the New Tab page, and whether a theme file is on, which of its type, metrics, layout and icons parts it uses, how many parts of the sidebar it hides or moves and how many icons it swaps. Never theme names, fonts, addresses, names, colours, search engines or anything you typed",
-+      "Once a day, your on/off, pick-one and number settings (like light or dark, glass or classic, native window buttons, traffic lights or none, borderless mode, minimalism mode, how much tint, and the sidebar's text size and contrast), the interface size as a whole percentage, whether macOS Increase Contrast is on, the corner radius your windows are drawn with, which app icon you picked, each with its default, how many of your profiles use Ardia's password manager, none or a password manager plugin, how many of your profiles show a theme colour you edited, how many theme colours you edited across all profiles and whether your default profile's theme colour is edited, how many of your windows that aren't full screen are narrower than 720 points and how many are too narrow for the sidebar width you set, how many sites you hid unread counts for, how many keyboard shortcuts you changed, how many of those use an arrow, Home, End, Page or F key and how many use ⌥ without ⌘ or ⌃, how many commands you gave a mouse button, how many Air Traffic Control rules are on, how many of those use a wildcard pattern, how many send links into a tab group, and whether Everything Else is set, whether new tabs open an address you chose instead of the New Tab page, and whether a theme file is on, which of its type, metrics, layout and icons parts it uses, how many parts of the sidebar it hides or moves and how many icons it swaps. Never theme names, fonts, addresses, names, colours, search engines or anything you typed",
+-      "Once a day, your on/off, pick-one and number settings (like light or dark, glass or classic, borderless mode, minimalism mode, how much tint, the sidebar's text size and contrast, whether pages open in Chromium, WebKit or either, and the Web engine settings for switching pages, protected video and fraud warnings in WebKit), the interface size as a whole percentage, whether macOS Increase Contrast is on, the corner radius your windows are drawn with, which app icon you picked, each with its default, how many of your profiles use Ardia's password manager, none or a password manager plugin, how many of your profiles show a theme colour you edited, how many theme colours you edited across all profiles and whether your default profile's theme colour is edited, how many of your windows that aren't full screen are narrower than 720 points and how many are too narrow for the sidebar width you set, how many sites you hid unread counts for, how many keyboard shortcuts you changed, how many of those use an arrow, Home, End, Page or F key and how many use ⌥ without ⌘ or ⌃, how many commands you gave a mouse button, how many Air Traffic Control rules are on, how many of those use a wildcard pattern, how many send links into a tab group, and whether Everything Else is set, whether new tabs open an address you chose instead of the New Tab page, and whether a theme file is on, which of its type, metrics, layout and icons parts it uses, how many parts of the sidebar it hides or moves and how many icons it swaps. Never theme names, fonts, addresses, names, colours, search engines or anything you typed",
++      "Once a day, your on/off, pick-one and number settings (like light or dark, glass or classic, native window buttons, traffic lights or none, borderless mode, minimalism mode, how much tint, the sidebar's text size and contrast, whether pages open in Chromium, WebKit or either, and the Web engine settings for switching pages, protected video and fraud warnings in WebKit), the interface size as a whole percentage, whether macOS Increase Contrast is on, the corner radius your windows are drawn with, which app icon you picked, each with its default, how many of your profiles use Ardia's password manager, none or a password manager plugin, how many of your profiles show a theme colour you edited, how many theme colours you edited across all profiles and whether your default profile's theme colour is edited, how many of your windows that aren't full screen are narrower than 720 points and how many are too narrow for the sidebar width you set, how many sites you hid unread counts for, how many keyboard shortcuts you changed, how many of those use an arrow, Home, End, Page or F key and how many use ⌥ without ⌘ or ⌃, how many commands you gave a mouse button, how many Air Traffic Control rules are on, how many of those use a wildcard pattern, how many send links into a tab group, and whether Everything Else is set, whether new tabs open an address you chose instead of the New Tab page, and whether a theme file is on, which of its type, metrics, layout and icons parts it uses, how many parts of the sidebar it hides or moves and how many icons it swaps. Never theme names, fonts, addresses, names, colours, search engines or anything you typed",
        "How many times ⌘W closed several selected sidebar tabs at once and how many tabs that closed, summed up once an hour. Never which tabs",
        "How many times a mouse button you made a shortcut ran its command, by which button (middle, 4 or 5), summed up once an hour. Never which command, page or where you clicked",
        "Bringing your last window back from the Dock or at launch: how many tabs came back and how long it was closed, in rough ranges, and whether a pinned tab was showing",
@@ -1061,7 +1061,7 @@ index 0000000000..9caefee642
 +  );
 +}
 diff --git a/apps/linux/src/WindowControls.tsx b/apps/linux/src/WindowControls.tsx
-index 9532ee7edf..58eefa85ac 100644
+index 9532ee7edf..2cc99096bf 100644
 --- a/apps/linux/src/WindowControls.tsx
 +++ b/apps/linux/src/WindowControls.tsx
 @@ -1,5 +1,5 @@
@@ -1071,7 +1071,7 @@ index 9532ee7edf..58eefa85ac 100644
  import { useFullscreenTab } from "../../browser/src/state/tabs/pageState";
  import { reportHostError } from "./host";
  import { inputRegions } from "./shellAbove";
-@@ -7,7 +7,7 @@ import { isLinuxUtility } from "./session";
+@@ -7,16 +7,15 @@ import { isLinuxUtility } from "./session";
  import { linuxWindowMenu } from "./linuxWindowMenu";
  import { linuxControlsBehaviour, pressKeepsFocusWhereItWas } from "./windowControlsRules";
  
@@ -1079,7 +1079,19 @@ index 9532ee7edf..58eefa85ac 100644
 +export { controlsShown, useControlsShown, type WindowControlsProps };
  
  export const WindowControls = memo(function WindowControls(props: WindowControlsProps) {
-   const behaviour = linuxControlsBehaviour({ pageFullScreen: !!useFullscreenTab(props.windowId), hidden: !!props.hidden, utility: isLinuxUtility(props.windowId), windowMenu: !!linuxWindowMenu });
+-  const behaviour = linuxControlsBehaviour({ pageFullScreen: !!useFullscreenTab(props.windowId), hidden: !!props.hidden, utility: isLinuxUtility(props.windowId), windowMenu: !!linuxWindowMenu });
++  const behaviour = linuxControlsBehaviour({ pageFullScreen: !!useFullscreenTab(props.windowId), hidden: !!props.hidden, utility: isLinuxUtility(props.windowId), windowMenu: !!linuxWindowMenu, shown: useControlsShown() });
+   const wrapper = useRef<HTMLDivElement>(null);
+-  const takesInput = behaviour.rendered && !behaviour.inert;
+   useLayoutEffect(() => {
+     const controls = wrapper.current?.firstElementChild;
+-    return takesInput && controls ? inputRegions()?.addOverlay(controls) : undefined;
+-  }, [takesInput]);
++    return behaviour.takesInput && controls ? inputRegions()?.addOverlay(controls) : undefined;
++  }, [behaviour.takesInput]);
+   if (!behaviour.rendered) return null;
+   return (
+     <div
 diff --git a/apps/linux/src/main.tsx b/apps/linux/src/main.tsx
 index 873a12e941..44feccf145 100644
 --- a/apps/linux/src/main.tsx
@@ -1295,7 +1307,7 @@ index 8523e896ec..a3841df188 100644
  .ardia-window-controls [role="button"]:focus-visible {
    outline: 2px solid #5a9bff;
 diff --git a/apps/linux/src/windowControls.test.mjs b/apps/linux/src/windowControls.test.mjs
-index f67c8b5427..f5c804d96d 100644
+index f67c8b5427..d590d2368b 100644
 --- a/apps/linux/src/windowControls.test.mjs
 +++ b/apps/linux/src/windowControls.test.mjs
 @@ -13,9 +13,134 @@ function state(settings = {}, window = {}, extra = {}) {
@@ -1435,7 +1447,37 @@ index f67c8b5427..f5c804d96d 100644
  });
  
  test("minimize and maximize reach the Linux host's window calls; caption regions are the shell's own drag regions", async () => {
-@@ -350,6 +475,25 @@ test("a primary-button press on a window button leaves focus where it was; other
+@@ -332,14 +457,27 @@ test("without a frame, as on Wayland, the shell's outer size is compared with th
+ 
+ test("the Linux wrapper hides the buttons over a full-screen page, makes the hidden copy inert, and offers the window menu only in browser windows", async () => {
+   const { linuxControlsBehaviour } = await import("./windowControlsRules.ts");
+-  const base = { pageFullScreen: false, hidden: false, utility: false, windowMenu: true };
+-  assert.deepEqual(linuxControlsBehaviour(base), { rendered: true, inert: false, windowMenuOnRightClick: true });
++  const base = { pageFullScreen: false, hidden: false, utility: false, windowMenu: true, shown: true };
++  assert.deepEqual(linuxControlsBehaviour(base), { rendered: true, inert: false, takesInput: true, windowMenuOnRightClick: true });
+   assert.equal(linuxControlsBehaviour({ ...base, pageFullScreen: true }).rendered, false);
+   assert.equal(linuxControlsBehaviour({ ...base, hidden: true }).inert, true);
+   assert.equal(linuxControlsBehaviour({ ...base, utility: true }).windowMenuOnRightClick, false, "Settings and Import");
+   assert.equal(linuxControlsBehaviour({ ...base, windowMenu: false }).windowMenuOnRightClick, false);
+ });
+ 
++test("the wrapper's input region follows the live window-button style, so buttons drawn by a live switch to Native take input and none is left behind by a switch away", async () => {
++  const { readFileSync } = await import("node:fs");
++  const { linuxControlsBehaviour } = await import("./windowControlsRules.ts");
++  const base = { pageFullScreen: false, hidden: false, utility: false, windowMenu: true, shown: true };
++  assert.equal(linuxControlsBehaviour(base).takesInput, true);
++  assert.equal(linuxControlsBehaviour({ ...base, shown: false }).takesInput, false, "Traffic lights and Hidden draw no buttons");
++  assert.equal(linuxControlsBehaviour({ ...base, hidden: true }).takesInput, false);
++  assert.equal(linuxControlsBehaviour({ ...base, pageFullScreen: true }).takesInput, false);
++  const wrapper = readFileSync(new URL("./WindowControls.tsx", import.meta.url), "utf8");
++  assert.match(wrapper, /shown: useControlsShown\(\)/);
++  assert.match(wrapper, /\}, \[behaviour\.takesInput\]\);/);
++});
++
+ test("a primary-button press on a window button leaves focus where it was; other buttons and other targets are untouched", async () => {
+   const { pressKeepsFocusWhereItWas } = await import("./windowControlsRules.ts");
+   const button = { closest: (selector) => (selector === '[role="button"]' ? {} : null) };
+@@ -350,6 +488,25 @@ test("a primary-button press on a window button leaves focus where it was; other
    assert.equal(pressKeepsFocusWhereItWas({ button: 0, target: null }), false);
  });
  
@@ -1462,21 +1504,27 @@ index f67c8b5427..f5c804d96d 100644
    const h = clusterHarness();
    await h.load();
 diff --git a/apps/linux/src/windowControlsRules.ts b/apps/linux/src/windowControlsRules.ts
-index e261581ad6..fac1fba6e4 100644
+index e261581ad6..c4cdf9b3ab 100644
 --- a/apps/linux/src/windowControlsRules.ts
 +++ b/apps/linux/src/windowControlsRules.ts
-@@ -2,6 +2,9 @@ export type LinuxControlsState = { pageFullScreen: boolean; hidden: boolean; uti
+@@ -1,14 +1,21 @@
+-export type LinuxControlsState = { pageFullScreen: boolean; hidden: boolean; utility: boolean; windowMenu: boolean };
++export type LinuxControlsState = { pageFullScreen: boolean; hidden: boolean; utility: boolean; windowMenu: boolean; shown?: boolean };
  
  export const windowButtonsRendered = ({ placed, pageFullScreen }: { placed: boolean; pageFullScreen: boolean }): boolean => placed && !pageFullScreen;
  
+-export const linuxControlsBehaviour = ({ pageFullScreen, hidden, utility, windowMenu }: LinuxControlsState) => ({
+-  rendered: windowButtonsRendered({ placed: true, pageFullScreen }),
+-  inert: hidden,
+-  windowMenuOnRightClick: windowMenu && !utility,
+-});
 +export const trafficLightsShown = ({ style, pageFullScreen, windowFullScreen }: { style: string; pageFullScreen: boolean; windowFullScreen: boolean }): boolean =>
 +  style === "trafficLights" && !pageFullScreen && !windowFullScreen;
 +
- export const linuxControlsBehaviour = ({ pageFullScreen, hidden, utility, windowMenu }: LinuxControlsState) => ({
-   rendered: windowButtonsRendered({ placed: true, pageFullScreen }),
-   inert: hidden,
-@@ -9,6 +12,11 @@ export const linuxControlsBehaviour = ({ pageFullScreen, hidden, utility, window
- });
++export const linuxControlsBehaviour = ({ pageFullScreen, hidden, utility, windowMenu, shown = true }: LinuxControlsState) => {
++  const rendered = windowButtonsRendered({ placed: true, pageFullScreen });
++  return { rendered, inert: hidden, takesInput: rendered && !hidden && shown, windowMenuOnRightClick: windowMenu && !utility };
++};
  
  const CAPTION_BUTTON = '[role="button"]';
 +const TRAFFIC_LIGHT = ".ardia-window-control";
@@ -1490,10 +1538,10 @@ index e261581ad6..fac1fba6e4 100644
 -  event.button === 0 && !!event.target && typeof event.target === "object" && "closest" in event.target && !!(event.target as Element).closest(CAPTION_BUTTON);
 +export const lightPressKeepsFocusWhereItWas = primaryPressOn(TRAFFIC_LIGHT);
 diff --git a/docs/linux-port.md b/docs/linux-port.md
-index d29a5d392e..711007af99 100644
+index bf7a7dd5e2..1003c5f5dd 100644
 --- a/docs/linux-port.md
 +++ b/docs/linux-port.md
-@@ -848,9 +848,28 @@ pnpm --filter @ardia/linux acceptance -- <extracted>/ardia/bin/ardia
+@@ -856,9 +856,28 @@ pnpm --filter @ardia/linux acceptance -- <extracted>/ardia/bin/ardia
  - **Window controls.** Linux uses the Windows build's caption buttons on the right: `…`, minimize, maximize (restore
    while maximized) and close, drawn by the shared `WindowControls.tsx` in the places Windows puts them (the toolbar
    row, the end of the top strip, a right sidebar's header, atop a left sidebar with the address bar in it, Little
@@ -1525,7 +1573,7 @@ index d29a5d392e..711007af99 100644
      `hostWindowControls.ts`: minimize and maximize call `ArdiaShell.minimizeWindow` and `toggleMaximizeWindow`, and
      caption regions are a no-op because the shell's own drag regions move the window. Close goes straight to the
      shell's close coordinator (`captionControls.ts`, swapped in for `WindowControls.tsx`'s close), so a window with
-@@ -863,9 +882,13 @@ pnpm --filter @ardia/linux acceptance -- <extracted>/ardia/bin/ardia
+@@ -871,9 +890,13 @@ pnpm --filter @ardia/linux acceptance -- <extracted>/ardia/bin/ardia
      a menu is open closes the menu. The buttons take keyboard focus like any button (`focusable` on the shared
      `ControlButton`), and the `…` counts as a menu surface, so tabbing to it keeps the field Edit › Copy and Paste act
      on. There are never two menu buttons: the `…` while the window buttons are drawn, the header's hamburger
@@ -1542,7 +1590,7 @@ index d29a5d392e..711007af99 100644
    - Restore: the engine sends no `maximized` event, so each window reads `ArdiaShell.windowFrame` at start and once
      per animation frame of resizing, and marks itself maximized when the frame fills the work area, feeding the shared
      `useMaximizedWindows` through `captionRegions.ts`'s `noteMaximized` (`windowMaximized.ts`). Settings and Import
-@@ -878,7 +901,8 @@ pnpm --filter @ardia/linux acceptance -- <extracted>/ardia/bin/ardia
+@@ -886,7 +909,8 @@ pnpm --filter @ardia/linux acceptance -- <extracted>/ardia/bin/ardia
  - **Outer frame.** The host overlays Chromium's client view and doesn't replace its frame. Without the Wayland
    decoration protocol, Chromium draws its custom frame.
  - **Menu button.** Linux has no global menu bar, so a menu button stands in for the Mac one: usually the `…` beside the
@@ -1552,7 +1600,7 @@ index d29a5d392e..711007af99 100644
    File, Edit, View, Tabs, Bookmarks, History, Extensions, Window and Help as submenus built from the same menu
    state the Mac menu bar uses (checks, disabled commands, dynamic titles, bookmarks, recently closed entries, profiles
    and extensions), labelled with the effective Linux shortcuts (`apps/linux/src/appMenu.ts`). Items run through the
-@@ -1006,9 +1030,9 @@ pnpm --filter @ardia/linux acceptance -- <extracted>/ardia/bin/ardia
+@@ -1014,9 +1038,9 @@ pnpm --filter @ardia/linux acceptance -- <extracted>/ardia/bin/ardia
    stopped drawing while the sidebar peeked, in every window like `sidebar_peeks`; it should stay near 0 against it.
    It reads the same peek state that mounts the region, which is set in an effect after the commit that places the
    panel, so a hide in a frame between the two goes uncounted.

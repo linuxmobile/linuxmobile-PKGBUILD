@@ -17,7 +17,7 @@ _giturl='https://github.com/ardia-browser/ardia.git'
 source=("${_srcdir}::git+${_giturl}#branch=main"
         '3409-linux-window-buttons.patch')
 sha256sums=('SKIP'
-            'a46263f5e08ef618d5fe29c70f38510aed3e44bec90a9f04ddf40e892b06c67e')
+            '4a9753af9586df6a7c1267bbc5c327786dac71fc7ccb1470642ca3b8068364a6')
 
 depends=(
   'alsa-lib'
@@ -101,10 +101,21 @@ prepare() {
     msg2 'Upstream already includes the window buttons setting; skipping PR #3409 patch'
   else
     msg2 'Applying upstream PR #3409 (Linux window buttons setting)'
-    patch -N --no-backup-if-mismatch -p1 -i "${srcdir}/3409-linux-window-buttons.patch" || {
-      error 'PKGBUILD: could not apply the PR #3409 window buttons patch'
-      return 1
-    }
+    local patch_log
+    patch_log=$(mktemp)
+    if ! patch -N --no-backup-if-mismatch --reject-file=/dev/null -p1 \
+      -i "${srcdir}/3409-linux-window-buttons.patch" >"$patch_log" 2>&1; then
+      # Upstream main moves daily: a hunk can already be present there.
+      # patch -N skips those but still exits 1; only hard failures abort.
+      if grep -qE 'Hunk #[0-9]+ FAILED|Can.t find file|malformed patch|Only garbage' "$patch_log"; then
+        cat "$patch_log" >&2
+        rm -f "$patch_log"
+        error 'PKGBUILD: could not apply the PR #3409 window buttons patch'
+        return 1
+      fi
+      msg2 'Some PR #3409 hunks were already present upstream; continuing'
+    fi
+    rm -f "$patch_log"
   fi
 
   # Upstream bug at this commit: the Linux syncEngine shim does not re-export

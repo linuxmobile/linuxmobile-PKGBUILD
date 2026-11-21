@@ -204,9 +204,10 @@ jobs:
           # Partial rebuilds re-add every previously published package to the
           # db. repo-add keeps a single version per package name and the last
           # one processed (glob order) wins, which could resurrect an older
-          # build over the one we just built. Drop published packages whose
-          # name matches a freshly built artifact but is a different file.
-          superseded=()
+          # build over the one we just built. Drop old versions of rebuilt
+          # packages from the database; the publish step keeps their release
+          # archives for a grace period so clients holding the previous db can
+          # still download them.
           pkgname_of() {
             local base="${1%.pkg.tar.zst}" namever
             base="${base%-*}"              # drop arch
@@ -218,12 +219,10 @@ jobs:
             for published in repo/*.pkg.tar.zst; do
               [ "$published" = "repo/$(basename "$artifact")" ] && continue
               if [ "$(pkgname_of "$(basename "$published")")" = "$name" ]; then
-                superseded+=("$(basename "$published")")
                 rm -f "$published"
               fi
             done
           done
-          printf '%s\n' "${superseded[@]}" > superseded.txt
           docker run --rm -v "$PWD/repo:/repo" archlinux:latest bash -c '
             cd /repo
             repo-add linuxmobile.db.tar.zst *.pkg.tar.zst
@@ -236,23 +235,34 @@ jobs:
         if: steps.db.outputs.has_packages == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FULL: ${{ needs.discover.outputs.full }}
+          # A client can sync the old db just before a publish and only start
+          # downloading after we have replaced the assets. Keep the previous
+          # archives around briefly so those downloads do not 404.
+          ASSET_GRACE_HOURS: '24'
         run: |
           gh release view repo >/dev/null 2>&1 || gh release create repo --title "linuxmobile repository" --notes "Rolling pacman repository."
-          if [ "$FULL" = "true" ]; then
-            for asset in $(gh release view repo --json assets --jq '.assets[].name'); do
-              if [ ! -e "repo/$asset" ]; then
-                gh release delete-asset repo "$asset" -y
-              fi
-            done
-          else
-            # Delete assets superseded by this build (see Create database).
-            while IFS= read -r asset; do
-              [ -z "$asset" ] && continue
+
+          cutoff=$(date -u -d "-${ASSET_GRACE_HOURS} hours" +%s)
+          while IFS=$'\t' read -r asset updated; do
+            [ -n "$asset" ] || continue
+            if [ -e "repo/$asset" ]; then
+              continue
+            fi
+            case "$asset" in
+              linuxmobile.db|linuxmobile.files) continue ;;
+            esac
+            published_at=$(date -u -d "$updated" +%s 2>/dev/null) || continue
+            if [ "$published_at" -lt "$cutoff" ]; then
+              echo "Deleting stale release asset: $asset"
               gh release delete-asset repo "$asset" -y || true
-            done < superseded.txt
-          fi
-          gh release upload repo repo/* --clobber
+            fi
+          done < <(gh release view repo --json assets --jq '.assets[] | [.name, .updatedAt] | @tsv')
+
+          # Upload archives before the databases: a client that sees a new db
+          # must never ask for an archive that has not finished uploading.
+          mapfile -t archives < <(find repo -maxdepth 1 -name '*.pkg.tar.zst' -print | sort)
+          gh release upload repo "${archives[@]}" --clobber
+          gh release upload repo repo/linuxmobile.db repo/linuxmobile.files --clobber
       - name: Assert all packages built
         if: contains(needs.build.result, 'failure')
         run: |
