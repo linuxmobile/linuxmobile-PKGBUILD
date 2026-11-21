@@ -14,8 +14,10 @@ options=('!strip' '!debug')
 
 _srcdir='ardia'
 _giturl='https://github.com/ardia-browser/ardia.git'
-source=("${_srcdir}::git+${_giturl}#branch=main")
-sha256sums=('SKIP')
+source=("${_srcdir}::git+${_giturl}#branch=main"
+        '3409-linux-window-buttons.patch')
+sha256sums=('SKIP'
+            'a46263f5e08ef618d5fe29c70f38510aed3e44bec90a9f04ddf40e892b06c67e')
 
 depends=(
   'alsa-lib'
@@ -89,6 +91,21 @@ pkgver() {
 
 prepare() {
   cd "${_srcdir}"
+
+  # Upstream PR #3409 (still open): adds the Appearance > Window buttons
+  # setting on Linux (Native / Traffic lights / Hidden) so tiling window
+  # managers can hide the titlebar buttons. Vendored as a checked patch so the
+  # build does not depend on a mutable pull-request ref. Drop this once the PR
+  # lands in upstream main. The guard avoids a double apply after that merge.
+  if [[ -f apps/browser/src/state/windows/windowButtons.ts ]]; then
+    msg2 'Upstream already includes the window buttons setting; skipping PR #3409 patch'
+  else
+    msg2 'Applying upstream PR #3409 (Linux window buttons setting)'
+    patch -N --no-backup-if-mismatch -p1 -i "${srcdir}/3409-linux-window-buttons.patch" || {
+      error 'PKGBUILD: could not apply the PR #3409 window buttons patch'
+      return 1
+    }
+  fi
 
   # Upstream bug at this commit: the Linux syncEngine shim does not re-export
   # takeOpenTabSyncCounts and setOpenTabsSynced, which browser code compiled
