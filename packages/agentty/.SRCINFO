@@ -1,6 +1,6 @@
 pkgbase = agentty
 	pkgdesc = Fast native C++ coding agent harness for the terminal
-	pkgver = 0.9.60
+	pkgver = 0.9.61
 	pkgrel = 1
 	url = https://github.com/agentty-org/agentty
 	arch = x86_64
@@ -22,9 +22,9 @@ pkgbase = agentty
 	replaces = agentty-bin
 	replaces = agentty-git
 	options = !lto
-	source = agentty-0.9.60.tar.gz::https://github.com/agentty-org/agentty/releases/download/v0.9.60/agentty-0.9.60.tar.gz
+	source = agentty-0.9.61.tar.gz::https://github.com/agentty-org/agentty/releases/download/v0.9.61/agentty-0.9.61.tar.gz
 	source = simdjson-3.10.1.tar.gz::https://github.com/simdjson/simdjson/archive/refs/tags/v3.10.1.tar.gz
-	sha256sums = 3094f4a55c2df79f95ba4aebda104931502eb709ecd975e9d29a6d9fe84dbe66
+	sha256sums = ccfd18c4aa0f35e10c0382093f9f4883a19ace60eb202af38c57ec5e28d870c8
 	sha256sums = 1e8f881cb2c0f626c56cd3665832f1e97b9d4ffc648ad9e1067c134862bba060
 
 pkgname = agentty
