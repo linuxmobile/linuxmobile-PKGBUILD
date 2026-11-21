@@ -30,8 +30,10 @@ makedepends=(
 )
 
 # makepkg names the git clone after the source alias.
+# Track the linuxmobile fork's linux-build branch until the changes land upstream.
 _srcdir='zinc'
-source=("${_srcdir}::git+https://github.com/Mvkweb/zinc.git")
+_giturl='https://github.com/linuxmobile/zinc.git'
+source=("${_srcdir}::git+${_giturl}#branch=linux-build")
 sha256sums=('SKIP')
 
 pkgver() {
