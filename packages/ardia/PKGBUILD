@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=ardia
-pkgver=0.2.47_nightly.9.r7907.g5a4aa0a
+pkgver=0.2.47.r8028.gbabb32a
 pkgrel=1
 pkgdesc="Ardia, a Chromium-based browser with Arc's sidebar and Dia's polish"
 arch=('x86_64')
@@ -141,9 +141,12 @@ build() {
   msg2 'Building the Linux UI'
   pnpm --filter @ardia/linux build
 
-  msg2 'Building the bundled Ardia CLI'
-  apps/cli/scripts/build.sh "${version}" "${dist}" --platform linux-x64
+  msg2 'Fetching the pinned Linux Ardia CLI'
+  # Upstream moved the CLI to its own repository and now ships a versioned,
+  # SHA-256-pinned tarball; its helper verifies and renames that tarball for
+  # the Linux engine's installer.
   cli_archive="${dist}/ardia-cli-${version}-linux-x64.tar.gz"
+  python3 scripts/release/official-plugins.py linux-cli "${version}" "${cli_archive}"
   [[ -s "${cli_archive}" ]] || {
     error "CLI build did not produce ${cli_archive}"
     return 1
