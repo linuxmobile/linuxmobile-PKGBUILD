@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=agentty
-pkgver=0.9.61
+pkgver=0.9.62
 pkgrel=1
 pkgdesc='Fast native C++ coding agent harness for the terminal'
 _simdjson_ver=3.10.1
@@ -33,7 +33,7 @@ source=(
   "${pkgname}-${pkgver}.tar.gz::${url}/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
   "simdjson-${_simdjson_ver}.tar.gz::https://github.com/simdjson/simdjson/archive/refs/tags/v${_simdjson_ver}.tar.gz"
 )
-sha256sums=('ccfd18c4aa0f35e10c0382093f9f4883a19ace60eb202af38c57ec5e28d870c8'
+sha256sums=('cdca10c7ea35c5c06f8f65838245965e28627ffda21d7b057aec69eb0cc0bf79'
             '1e8f881cb2c0f626c56cd3665832f1e97b9d4ffc648ad9e1067c134862bba060')
 
 _srcdir="${pkgname}-${pkgver}"
