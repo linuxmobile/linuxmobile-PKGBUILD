@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=ardia
-pkgver=0.2.47.r8113.g968f48a
+pkgver=0.2.47.r8116.g88dafe4
 pkgrel=1
 pkgdesc="Ardia, a Chromium-based browser with Arc's sidebar and Dia's polish"
 arch=('x86_64')

@@ -51,7 +51,7 @@ jobs:
 
           if [ "$EVENT" = "schedule" ] || [ "$TARGET_PKG" = "all" ]; then
             full=true
-            packages="$(find packages -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)"
+            packages="$(find packages -mindepth 2 -maxdepth 2 -type f -name PKGBUILD -printf '%h\n' | sed 's#^packages/##' | sort)"
           elif [ -n "$TARGET_PKG" ]; then
             packages="$(tr ',' '\n' <<< "$TARGET_PKG" | tr -d ' ' | sed '/^$/d')"
           elif git rev-parse --verify "HEAD^" >/dev/null 2>&1; then
@@ -59,13 +59,13 @@ jobs:
               sed -n 's#^packages/\([^/]*\)/.*#\1#p' | \
               sort -u | \
               while read -r p; do
-                if [ -d "packages/$p" ]; then
+                if [ -f "packages/$p/PKGBUILD" ]; then
                   printf '%s\n' "$p"
                 fi
               done)"
           else
             full=true
-            packages="$(find packages -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)"
+            packages="$(find packages -mindepth 2 -maxdepth 2 -type f -name PKGBUILD -printf '%h\n' | sed 's#^packages/##' | sort)"
           fi
 
           json="$(printf '%s\n' "$packages" | jq -R -s -c 'split("\n") | map(select(length > 0))')"
