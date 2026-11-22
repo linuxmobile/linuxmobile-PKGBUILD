@@ -1,6 +1,6 @@
 pkgbase = opal
 	pkgdesc = Native media player, streaming client, torrent player and local AI assistant
-	pkgver = 0.9.6
+	pkgver = 0.9.8
 	pkgrel = 1
 	url = https://github.com/debpalash/Opal
 	arch = x86_64
@@ -28,9 +28,9 @@ pkgbase = opal
 	conflicts = opal-media-player
 	conflicts = opal-media-player-bin
 	replaces = opal-media-player-bin
-	source = opal-0.9.6.tar.gz::https://github.com/debpalash/Opal/archive/refs/tags/v0.9.6.tar.gz
+	source = opal-0.9.8.tar.gz::https://github.com/debpalash/Opal/archive/refs/tags/v0.9.8.tar.gz
 	source = link-system-webp.patch
-	sha256sums = 5e3b174151d11d8a38259e6cd952dff69ca9de39b3ad06410b44f9f175c4ebc9
+	sha256sums = 71f59372c9de2f63b024eda54f097280916c6b46d280bce8095a7afb4cf65414
 	sha256sums = 82452005627264ce669d5732995730bec568e282eecb9a096f67ec75499991b0
 
 pkgname = opal

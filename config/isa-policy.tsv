@@ -28,7 +28,6 @@ netwatch|required||Rust source build with x86-64-v3 target and linker flags.
 obs-pipewire-audio-capture|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
 omalive|required||Rust source build with x86-64-v3 target and linker flags.
 omatuner|required||Rust source build with x86-64-v3 target and linker flags.
-opal|target||Zig app pins -Dcpu=x86_64_v3; C++ wrapper pins and asserts v3, but the Zig ELF carries no GNU ISA note.
 oxfmt|required||Rust source build with x86-64-v3 target and linker flags.
 ps_mem|any||Python script; arch=any.
 rgrc|required||Rust source build with x86-64-v3 target and linker flags.

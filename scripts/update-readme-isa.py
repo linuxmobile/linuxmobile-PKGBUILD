@@ -38,7 +38,6 @@ PAYLOADS = {
     "obs-pipewire-audio-capture": "CMake/C++",
     "omalive": "Rust",
     "omatuner": "Rust",
-    "opal": "Zig / C++",
     "oxfmt": "Rust",
     "ps_mem": "Python",
     "rgrc": "Rust",
