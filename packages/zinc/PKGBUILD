@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=zinc
-pkgver=0.2.1.r128.g5997fb1
+pkgver=0.2.1.r134.g5b91c07
 pkgrel=1
 pkgdesc='High-performance Wayland terminal emulator written in Zig'
 arch=('x86_64')
