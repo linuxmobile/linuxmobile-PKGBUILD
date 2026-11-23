@@ -29,6 +29,7 @@ PAYLOADS = {
     "isocast": "Rust",
     "jcode": "Rust",
     "kernwatch": "Rust",
+    "ladybird": "CMake/C++",
     "lui": "Zig",
     "mdrs": "Rust",
     "microsoft-edge-beta": "Upstream Debian package",

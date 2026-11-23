@@ -1,0 +1,129 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
+pkgname=ladybird
+pkgver=2026.47.7
+pkgrel=1
+pkgdesc='Independent web browser with its own engine'
+arch=('x86_64')
+url='https://ladybird.org/'
+license=('BSD-2-Clause')
+conflicts=('ladybird-git' 'ladybird-bin')
+replaces=('ladybird-git' 'ladybird-bin')
+options=('!lto' '!debug')
+
+# Pinned to the builtin-baseline of this release's vcpkg.json.
+# Upstream publishes the matching LGPL library sources separately at
+# https://download.ladybird.org/third-party/ (listed on the download page).
+_vcpkg_commit='8f363bdc11359ede4bc51e5eb32a2617538049c8'
+_srcdir="ladybird-${pkgver}"
+_vcpkgdir='vcpkg'
+
+depends=(
+  'gcc-libs'
+  'glibc'
+  'hicolor-icon-theme'
+  'libgl'
+  'ttf-liberation'
+  'vulkan-icd-loader'
+  'wayland'
+  'xcb-util-wm'
+)
+makedepends=(
+  'autoconf'
+  'autoconf-archive'
+  'automake'
+  'ccache'
+  'cmake'
+  'curl'
+  'git'
+  'libtool'
+  'nasm'
+  'ninja'
+  'patch'
+  'pkgconf'
+  'python'
+  'rust'
+  'tar'
+  'unzip'
+  'zip'
+)
+
+source=(
+  "${_srcdir}.tar.xz::https://download.ladybird.org/linux/${pkgver}/ladybird-${pkgver}-source.tar.xz"
+  "${_vcpkgdir}::git+https://github.com/microsoft/vcpkg.git#commit=${_vcpkg_commit}"
+)
+sha256sums=(
+  '420a46f1a481706565672f520aa15e3f0148b6a96eb7135300e961164adb0ec5'
+  'SKIP'
+)
+
+prepare() {
+  # Upstream's Release preset leaves LADYBIRD_BASELINE_CPU_TARGET off, which
+  # makes CMake compile with -march=native. Keep the repository's portable
+  # x86-64-v3 baseline for both the C++ and Rust parts of the browser.
+  sed -i \
+    -e 's/-march=x86-64-v2/-march=x86-64-v3/g' \
+    -e 's/-Ctarget-cpu=x86-64-v2/-Ctarget-cpu=x86-64-v3/g' \
+    "${_srcdir}/Meta/CMake/compile_options.cmake"
+  # GCC 16 warns in third-party headers; upstream's gcc builds need this.
+  sed -i '/add_cxx_compile_options(-Wno-unknown-warning-option)/a add_cxx_compile_options(-Wno-restrict)' \
+    "${_srcdir}/Meta/CMake/compile_options.cmake"
+
+  # vcpkg builds Qt, ICU, FFmpeg and friends with its own triplets. The
+  # generated toolchain variables replace the environment's LDFLAGS, so the
+  # ISA note has to be injected in the triplet itself.
+  cat >> "${_srcdir}/Meta/CMake/vcpkg/base-triplets/base.cmake" <<'EOF'
+string(APPEND VCPKG_C_FLAGS " -march=x86-64-v3")
+string(APPEND VCPKG_CXX_FLAGS " -march=x86-64-v3")
+string(APPEND VCPKG_LINKER_FLAGS " -Wl,-z,x86-64-v3")
+EOF
+
+  # The workflow provides ccache; let the vcpkg ports use it too so the large
+  # third-party builds ("Skia", Qt, FFmpeg) survive a source tarball bump.
+  if command -v ccache >/dev/null 2>&1; then
+    cat >> "${_srcdir}/Meta/CMake/vcpkg/base-triplets/base.cmake" <<'EOF'
+list(APPEND VCPKG_CMAKE_CONFIGURE_OPTIONS
+    "-DCMAKE_C_COMPILER_LAUNCHER=ccache"
+    "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+)
+EOF
+  fi
+
+  export VCPKG_ROOT="${srcdir}/${_vcpkgdir}"
+  export VCPKG_DISABLE_METRICS=1
+  export LADYBIRD_SOURCE_DIR="${srcdir}"
+
+  "${VCPKG_ROOT}/bootstrap-vcpkg.sh" -disableMetrics
+
+  cmake \
+    --preset Release \
+    -B "${srcdir}/build" \
+    -S "${srcdir}/${_srcdir}" \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBEXECDIR="lib/${pkgname}" \
+    -DLADYBIRD_BASELINE_CPU_TARGET=ON \
+    -DLADYBIRD_VCPKG_TYPE=distribution \
+    -DENABLE_INSTALL_HEADERS=OFF \
+    -Wno-dev
+}
+
+build() {
+  export VCPKG_ROOT="${srcdir}/${_vcpkgdir}"
+  export VCPKG_DISABLE_METRICS=1
+  export LADYBIRD_SOURCE_DIR="${srcdir}"
+
+  cmake --build "${srcdir}/build"
+}
+
+package() {
+  export VCPKG_ROOT="${srcdir}/${_vcpkgdir}"
+  export VCPKG_DISABLE_METRICS=1
+  export LADYBIRD_SOURCE_DIR="${srcdir}"
+
+  DESTDIR="${pkgdir}" cmake --install "${srcdir}/build"
+
+  find "${pkgdir}" -type f \( -name '*.a' -o -name '*.cmake' \) -delete
+  install -Dm644 "${srcdir}/${_srcdir}/LICENSE" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
