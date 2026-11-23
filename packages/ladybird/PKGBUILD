@@ -94,6 +94,10 @@ EOF
 
   "${VCPKG_ROOT}/bootstrap-vcpkg.sh" -disableMetrics
 
+  # Qt is an optional vcpkg feature in this release. Without it CMake looks for
+  # a system Qt6, whose libraries would not carry the repo's v3 ISA note.
+  # vcpkg's binary cache defaults to a directory inside srcdir, which --cleanbuild
+  # throws away; keep it outside so the next release build can reuse the ports.
   cmake \
     --preset Release \
     -B "${srcdir}/build" \
@@ -102,6 +106,8 @@ EOF
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBEXECDIR="lib/${pkgname}" \
+    -DLADYBIRD_BUILD_QT=ON \
+    -DLADYBIRD_CACHE_DIR="${srcdir}/../../.cache/ladybird" \
     -DLADYBIRD_BASELINE_CPU_TARGET=ON \
     -DLADYBIRD_VCPKG_TYPE=distribution \
     -DENABLE_INSTALL_HEADERS=OFF \

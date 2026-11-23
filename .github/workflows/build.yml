@@ -95,7 +95,7 @@ jobs:
       SCCACHE_CACHE_SIZE: 1G
       SCCACHE_CLIENT_SIDE: 1
       CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
-      CCACHE_MAXSIZE: 512M
+      CCACHE_MAXSIZE: ${{ matrix.package == 'ladybird' && '2G' || '512M' }}
     steps:
       - name: Prepare Arch environment
         run: |
@@ -121,7 +121,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Prepare cache directories
-        run: mkdir -p .cache/cargo .cache/sccache .cache/ccache
+        run: mkdir -p .cache/cargo .cache/sccache .cache/ccache .cache/ladybird
 
       - name: Restore compiler and Cargo caches
         uses: actions/cache@v6
@@ -131,6 +131,7 @@ jobs:
             .cache/cargo/git
             .cache/sccache
             .cache/ccache
+            .cache/ladybird
           key: archlinux-x86_64-v3-${{ matrix.package }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             archlinux-x86_64-v3-${{ matrix.package }}-
