@@ -8,6 +8,7 @@
 #   vcs          clone the PKGBUILD's git+ source and run its pkgver() function
 #   antigravity  read the official Antigravity CLI release manifest
 #   edge         read the Microsoft Edge beta package directory
+#   ladybird     read Ladybird's rolling alpha release manifest
 #   multiviewer  read the official MultiViewer download page
 #   widevine     read chromium-widevine-helper's RPM spec on master
 #   lui          read Codeberg main branch and build.zig.zon
@@ -35,7 +36,7 @@ hibiki	github	linuxmobile/hibiki	v	-
 isocast	vcs	-	-	-
 jcode	github	1jehuang/jcode	v	-
 kernwatch	github	matthart1983/kernwatch	v	-
-ladybird	github	LadybirdBrowser/ladybird	-	-
+ladybird	ladybird	-	-	-
 lui	lui	lukeflo/lui	-	-
 mdrs	github	NicKoehler/mediafire_rs	v	-
 microsoft-edge-beta	edge	-	-	-

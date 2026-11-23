@@ -5,131 +5,51 @@ pkgrel=1
 pkgdesc='Independent web browser with its own engine'
 arch=('x86_64')
 url='https://ladybird.org/'
-license=('BSD-2-Clause')
+license=('BSD-2-Clause' 'custom')
 conflicts=('ladybird-git' 'ladybird-bin')
 replaces=('ladybird-git' 'ladybird-bin')
-options=('!lto' '!debug')
+options=('!strip' '!zipman')
 
-# Pinned to the builtin-baseline of this release's vcpkg.json.
-# Upstream publishes the matching LGPL library sources separately at
-# https://download.ladybird.org/third-party/ (listed on the download page).
-_vcpkg_commit='8f363bdc11359ede4bc51e5eb32a2617538049c8'
-_srcdir="ladybird-${pkgver}"
-_vcpkgdir='vcpkg'
+# The alpha is a rolling release. Upstream only ships Linux binaries as Ubuntu
+# and Fedora packages (plus a Flatpak), so repackage the Ubuntu amd64 .deb.
+# The suffix is the pool filename published in
+# https://apt.ladybird.org/dists/noble/main/binary-amd64/Packages
+_debsuffix='1~ubuntu24.04'
+_srcdir='ladybird-deb'
 
 depends=(
   'gcc-libs'
+  'glib2'
   'glibc'
   'hicolor-icon-theme'
-  'libgl'
+  'libdrm'
+  'libglvnd'
+  'libpulse'
+  'libx11'
+  'libxcb'
+  'libxkbcommon'
+  'libxkbcommon-x11'
   'ttf-liberation'
   'vulkan-icd-loader'
   'wayland'
-  'xcb-util-wm'
+  'xcb-util'
+  'xcb-util-cursor'
+  'xcb-util-image'
+  'xcb-util-keysyms'
+  'xcb-util-renderutil'
 )
-makedepends=(
-  'autoconf'
-  'autoconf-archive'
-  'automake'
-  'ccache'
-  'cmake'
-  'curl'
-  'git'
-  'libtool'
-  'nasm'
-  'ninja'
-  'patch'
-  'pkgconf'
-  'python'
-  'rust'
-  'tar'
-  'unzip'
-  'zip'
-)
-
-source=(
-  "${_srcdir}.tar.xz::https://download.ladybird.org/linux/${pkgver}/ladybird-${pkgver}-source.tar.xz"
-  "${_vcpkgdir}::git+https://github.com/microsoft/vcpkg.git#commit=${_vcpkg_commit}"
-)
-sha256sums=(
-  '420a46f1a481706565672f520aa15e3f0148b6a96eb7135300e961164adb0ec5'
-  'SKIP'
-)
+source=("ladybird-${pkgver}-${_debsuffix}_amd64.deb::https://apt.ladybird.org/pool/main/l/ladybird/ladybird_${pkgver}-${_debsuffix}_amd64.deb")
+sha256sums=('67e33f0a234b672734b8965ea7dd5c63c8f0b616313b91d43522c53ad686b1d4')
 
 prepare() {
-  # Upstream's Release preset leaves LADYBIRD_BASELINE_CPU_TARGET off, which
-  # makes CMake compile with -march=native. Keep the repository's portable
-  # x86-64-v3 baseline for both the C++ and Rust parts of the browser.
-  sed -i \
-    -e 's/-march=x86-64-v2/-march=x86-64-v3/g' \
-    -e 's/-Ctarget-cpu=x86-64-v2/-Ctarget-cpu=x86-64-v3/g' \
-    "${_srcdir}/Meta/CMake/compile_options.cmake"
-  # GCC 16 warns in third-party headers; upstream's gcc builds need this.
-  sed -i '/add_cxx_compile_options(-Wno-unknown-warning-option)/a add_cxx_compile_options(-Wno-restrict)' \
-    "${_srcdir}/Meta/CMake/compile_options.cmake"
-
-  # vcpkg builds Qt, ICU, FFmpeg and friends with its own triplets. The
-  # generated toolchain variables replace the environment's LDFLAGS, so the
-  # ISA note has to be injected in the triplet itself.
-  cat >> "${_srcdir}/Meta/CMake/vcpkg/base-triplets/base.cmake" <<'EOF'
-string(APPEND VCPKG_C_FLAGS " -march=x86-64-v3")
-string(APPEND VCPKG_CXX_FLAGS " -march=x86-64-v3")
-string(APPEND VCPKG_LINKER_FLAGS " -Wl,-z,x86-64-v3")
-EOF
-
-  # The workflow provides ccache; let the vcpkg ports use it too so the large
-  # third-party builds ("Skia", Qt, FFmpeg) survive a source tarball bump.
-  if command -v ccache >/dev/null 2>&1; then
-    cat >> "${_srcdir}/Meta/CMake/vcpkg/base-triplets/base.cmake" <<'EOF'
-list(APPEND VCPKG_CMAKE_CONFIGURE_OPTIONS
-    "-DCMAKE_C_COMPILER_LAUNCHER=ccache"
-    "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
-)
-EOF
-  fi
-
-  export VCPKG_ROOT="${srcdir}/${_vcpkgdir}"
-  export VCPKG_DISABLE_METRICS=1
-  export LADYBIRD_SOURCE_DIR="${srcdir}"
-
-  "${VCPKG_ROOT}/bootstrap-vcpkg.sh" -disableMetrics
-
-  # Qt is an optional vcpkg feature in this release. Without it CMake looks for
-  # a system Qt6, whose libraries would not carry the repo's v3 ISA note.
-  # vcpkg's binary cache defaults to a directory inside srcdir, which --cleanbuild
-  # throws away; keep it outside so the next release build can reuse the ports.
-  cmake \
-    --preset Release \
-    -B "${srcdir}/build" \
-    -S "${srcdir}/${_srcdir}" \
-    -DBUILD_SHARED_LIBS=OFF \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBEXECDIR="lib/${pkgname}" \
-    -DLADYBIRD_BUILD_QT=ON \
-    -DLADYBIRD_CACHE_DIR="${srcdir}/../../.cache/ladybird" \
-    -DLADYBIRD_BASELINE_CPU_TARGET=ON \
-    -DLADYBIRD_VCPKG_TYPE=distribution \
-    -DENABLE_INSTALL_HEADERS=OFF \
-    -Wno-dev
-}
-
-build() {
-  export VCPKG_ROOT="${srcdir}/${_vcpkgdir}"
-  export VCPKG_DISABLE_METRICS=1
-  export LADYBIRD_SOURCE_DIR="${srcdir}"
-
-  cmake --build "${srcdir}/build"
+  mkdir -p "$_srcdir"
+  bsdtar -xf data.tar.xz -C "$_srcdir"
 }
 
 package() {
-  export VCPKG_ROOT="${srcdir}/${_vcpkgdir}"
-  export VCPKG_DISABLE_METRICS=1
-  export LADYBIRD_SOURCE_DIR="${srcdir}"
+  cp -a "${srcdir}/${_srcdir}/." "${pkgdir}/"
 
-  DESTDIR="${pkgdir}" cmake --install "${srcdir}/build"
-
-  find "${pkgdir}" -type f \( -name '*.a' -o -name '*.cmake' \) -delete
-  install -Dm644 "${srcdir}/${_srcdir}/LICENSE" \
-    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 \
+    "${srcdir}/${_srcdir}/opt/ladybird/share/Lagom/ladybird/LICENSES.txt.br" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSES.txt.br"
 }

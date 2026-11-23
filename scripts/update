@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import lzma
 import os
 import re
 import shutil
@@ -382,6 +383,31 @@ def latest_edge(entry: Entry) -> Latest:
     return Latest(version=max(versions, key=version_key))
 
 
+def latest_ladybird(entry: Entry) -> Latest:
+    del entry
+    manifest = json.loads(http_get("https://download.ladybird.org/releases.json"))
+    releases = manifest.get("releases")
+    if not isinstance(releases, list) or not releases:
+        raise UpdateError("no Ladybird releases in manifest")
+    version = releases[0].get("version")
+    if not isinstance(version, str) or not version:
+        raise UpdateError("Ladybird release has no version")
+
+    # The pool filename's suffix (Debian revision plus Ubuntu series) changes
+    # independently of the alpha version; read it from the apt index.
+    url = "https://apt.ladybird.org/dists/noble/main/binary-amd64/Packages.xz"
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            packages = lzma.decompress(response.read()).decode("utf-8", "replace")
+    except Exception as exc:
+        raise UpdateError(f"failed to fetch {url}: {exc}") from exc
+    match = re.search(rf"^Version: {re.escape(version)}-(\S+)$", packages, re.MULTILINE)
+    if not match:
+        raise UpdateError(f"no apt package found for Ladybird {version}")
+    return Latest(version=version, vars={"_debsuffix": match.group(1)})
+
+
 def latest_multiviewer(entry: Entry) -> Latest:
     del entry
     html = http_get("https://multiviewer.app/download")
@@ -455,6 +481,8 @@ def latest_for(entry: Entry) -> Latest:
         return latest_antigravity(entry)
     if entry.kind == "edge":
         return latest_edge(entry)
+    if entry.kind == "ladybird":
+        return latest_ladybird(entry)
     if entry.kind == "multiviewer":
         return latest_multiviewer(entry)
     if entry.kind == "widevine":

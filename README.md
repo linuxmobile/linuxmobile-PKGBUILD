@@ -56,7 +56,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | isocast | Rust | Enforced by CI (ELF ISA note) |
 | jcode | Rust | Enforced by CI (ELF ISA note) |
 | kernwatch | Rust | Enforced by CI (ELF ISA note) |
-| ladybird | CMake/C++ | Enforced by CI (ELF ISA note) |
+| ladybird | Upstream Debian package | Upstream binary; not guaranteed |
 | lui | Zig | v3 target selected; GNU ISA note not asserted |
 | mdrs | Rust | Enforced by CI (ELF ISA note) |
 | microsoft-edge-beta | Upstream Debian package | Upstream binary; not guaranteed |
