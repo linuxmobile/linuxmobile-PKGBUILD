@@ -90,13 +90,23 @@ pkgver() {
 prepare() {
   cd "${_srcdir}"
 
-  # Upstream bug at this commit: the Linux syncEngine shim does not re-export
+  # Older upstream Linux syncEngine shims did not re-export
   # takeOpenTabSyncCounts and setOpenTabsSynced, which browser code compiled
-  # into the Linux bundle imports. Add the missing re-exports.
-  if ! grep -q 'takeOpenTabSyncCounts' apps/linux/src/syncEngine.ts; then
-    sed -i 's/^export const takeSnapshotWrites = engine\.takeSnapshotWrites;/&\nexport const takeOpenTabSyncCounts = engine.takeOpenTabSyncCounts;\nexport const setOpenTabsSynced = engine.setOpenTabsSynced;/' \
-      apps/linux/src/syncEngine.ts
-  fi
+  # into the Linux bundle imports. Add the missing re-exports if needed.
+  # Upstream later moved the shim to apps/desktop, leaving apps/linux as a
+  # symlink, so check both paths.
+  local ui_sync
+  for ui_sync in apps/desktop/src/syncEngine.ts apps/linux/src/syncEngine.ts; do
+    [[ -f "${ui_sync}" ]] || continue
+    if ! grep -q 'takeOpenTabSyncCounts' "${ui_sync}"; then
+      grep -q '^export const takeSnapshotWrites = engine\.takeSnapshotWrites;' "${ui_sync}" || {
+        error "PKGBUILD: could not find the syncEngine re-export to patch in ${ui_sync}"
+        return 1
+      }
+      sed -i 's/^export const takeSnapshotWrites = engine\.takeSnapshotWrites;/&\nexport const takeOpenTabSyncCounts = engine.takeOpenTabSyncCounts;\nexport const setOpenTabsSynced = engine.setOpenTabsSynced;/' \
+        "${ui_sync}"
+    fi
+  done
 
   # The upstream uBO seeder launches the staged Chrome with the normal
   # user-namespace sandbox. GitHub's Arch container blocks unprivileged user
@@ -120,7 +130,7 @@ prepare() {
 build() {
   cd "${_srcdir}"
 
-  local version engine blocker dist cli_archive package_archive
+  local version engine blocker dist cli_archive package_archive ui_dist
   version=$(_upstream_version) || return 1
   [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?$ ]] || {
     printf "PKGBUILD: unexpected upstream version: %s\n" "${version}" >&2
@@ -139,7 +149,14 @@ build() {
   engine=$(packages/ardiacore/scripts/fetch-engine.sh --arch linux-x86_64 --nearest) || return 1
 
   msg2 'Building the Linux UI'
-  pnpm --filter @ardia/linux build
+  # Upstream renamed the Linux UI workspace package to @ardia/desktop; it is
+  # built in --mode linux and emits apps/desktop/dist/linux.
+  ui_dist=apps/desktop/dist/linux
+  pnpm --filter @ardia/desktop build || return 1
+  [[ -s "${ui_dist}/index.html" ]] || {
+    error "UI build did not produce ${ui_dist}/index.html"
+    return 1
+  }
 
   msg2 'Fetching the pinned Linux Ardia CLI'
   # Upstream moved the CLI to its own repository and now ships a versioned,
@@ -159,7 +176,7 @@ build() {
   package_archive="${dist}/Ardia-${version}-linux-x64.tar.xz"
   python3 scripts/linux/package.py \
     --out "${engine}" \
-    --ui apps/linux/dist \
+    --ui "${ui_dist}" \
     --content-blocker "${blocker}" \
     --version "${version}" \
     --cli "${cli_archive}" \
