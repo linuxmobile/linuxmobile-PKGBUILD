@@ -50,7 +50,7 @@ prepare() {
     printf 'prepare(): upstream changed the release switch in build.zig\n' >&2
     return 1
   fi
-  sed -i 's/^    const release = switch (b\.graph\.release_mode) {$/    const release = false; _ = switch (b.graph.release_mode) {/' build.zig
+  sed -i 's/^    const release = switch (b\.graph\.release_mode) {$/    const release = false;\n    _ = switch (b.graph.release_mode) {/' build.zig
 }
 
 build() {
