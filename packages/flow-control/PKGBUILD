@@ -1,0 +1,77 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
+pkgname=flow-control
+pkgver=0.7.2.r5082.g640ca35
+pkgrel=1
+pkgdesc='Flow Control: a fast, animated programmer text editor with a terminal UI'
+arch=('x86_64')
+url='https://github.com/neurocyte/flow'
+license=('MIT')
+
+conflicts=('flow-control-git')
+replaces=('flow-control-git')
+
+optdepends=('ripgrep: project-wide search')
+makedepends=(
+  'git'
+  'zig>=0.17.0'
+)
+
+# makepkg names the git clone after the source alias.
+_srcdir='flow-control'
+source=("${_srcdir}::git+${url}.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$_srcdir" || return 1
+  if [[ ! -d .git ]]; then
+    printf 'pkgver() needs the %s source checkout\n' "$_srcdir" >&2
+    return 1
+  fi
+
+  local version commit_count commit
+  version=$(sed -n 's/^[[:space:]]*\.version[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' build.zig.zon | head -n1)
+  if [[ -z "$version" ]]; then
+    printf 'pkgver() could not read the version from build.zig.zon\n' >&2
+    return 1
+  fi
+  commit_count=$(git rev-list --count HEAD)
+  commit=$(git rev-parse --short=7 HEAD)
+  printf '%s.r%s.g%s\n' "$version" "$commit_count" "$commit"
+}
+
+prepare() {
+  cd "$_srcdir"
+
+  # Upstream's release path of build.zig hardcodes baseline x86_64 targets and
+  # ignores -Dcpu. Its single-target path honours both -Dcpu and -Doptimize,
+  # so keep that one: it gives us a v3 terminal binary instead of a baseline
+  # terminal + GUI pair.
+  if ! grep -q 'const release = switch (b.graph.release_mode) {' build.zig; then
+    printf 'prepare(): upstream changed the release switch in build.zig\n' >&2
+    return 1
+  fi
+  sed -i 's/^    const release = switch (b\.graph\.release_mode) {$/    const release = false; _ = switch (b.graph.release_mode) {/' build.zig
+}
+
+build() {
+  cd "$_srcdir"
+
+  zig build -Doptimize=ReleaseFast -Dcpu=x86_64_v3 \
+    --prefix "$srcdir/build" \
+    --cache-dir "$srcdir/.zig-cache"
+}
+
+check() {
+  cd "$_srcdir"
+
+  zig build test -Dcpu=x86_64_v3 \
+    --cache-dir "$srcdir/.zig-cache"
+}
+
+package() {
+  cd "$_srcdir"
+
+  install -Dm755 "$srcdir/build/bin/flow" "$pkgdir/usr/bin/flow"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+}

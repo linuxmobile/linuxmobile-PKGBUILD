@@ -25,6 +25,7 @@ PAYLOADS = {
     "chromium-widevine-helper": "Python / assets",
     "cressida": "Meson/C++",
     "frame": "Rust",
+    "flow-control": "Zig",
     "hibiki": "Rust",
     "isocast": "Rust",
     "jcode": "Rust",

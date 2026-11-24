@@ -15,6 +15,7 @@ blurcam|required||CMake/C++ source build with x86-64-v3 compiler and linker flag
 chromium-widevine-helper|any||Python helper and extension assets; arch=any.
 cressida|required||Meson/C++ source build with x86-64-v3 compiler and linker flags.
 frame|required||Rust source build with x86-64-v3 target and linker flags.
+flow-control|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
 hibiki|required||Rust source build with x86-64-v3 target and linker flags.
 isocast|required||Rust source build with x86-64-v3 target; LTO is disabled by its recipe.
 jcode|required||Rust source build with x86-64-v3 target and linker flags.
