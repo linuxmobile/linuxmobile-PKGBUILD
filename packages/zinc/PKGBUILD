@@ -56,6 +56,23 @@ pkgver() {
   printf '%s.r%s.g%s\n' "$version" "$commit_count" "$commit"
 }
 
+prepare() {
+  cd "$_srcdir"
+
+  # The roundtrip test publishes a developer-specific cwd that does not exist
+  # in a clean build container; read() rejects records whose path is not a
+  # directory. Point just that test at /, which always exists. The separate
+  # "nonexistent directory" test keeps its missing path and still covers the
+  # rejection branch.
+  if ! grep -q 'publish(pid, "/mnt/data/dev/zinc");' src/session.zig ||
+     ! grep -q 'expectEqualStrings("/mnt/data/dev/zinc", res.?);' src/session.zig; then
+    printf 'prepare(): zinc changed the session roundtrip test\n' >&2
+    return 1
+  fi
+  sed -i 's#publish(pid, "/mnt/data/dev/zinc");#publish(pid, "/");#' src/session.zig
+  sed -i 's#expectEqualStrings("/mnt/data/dev/zinc", res.?);#expectEqualStrings("/", res.?);#' src/session.zig
+}
+
 build() {
   cd "$_srcdir"
 

@@ -234,14 +234,8 @@ def git_remote_head(repo: str, branch: str | None = None) -> str:
 
 
 def transform_version(version: str, entry: Entry) -> str:
-    transform = "none"
-    for option in entry.options:
-        if option.startswith("transform="):
-            transform = option.split("=", 1)[1]
-    if transform == "dots":
+    if "transform=dots" in entry.options:
         return version.replace("-", ".")
-    if transform == "underscore":
-        return version.replace("-", "_")
     return version.replace("-", "_")
 
 
@@ -418,10 +412,9 @@ def latest_multiviewer(entry: Entry) -> Latest:
     )
     if not matches:
         raise UpdateError("no Linux x64 download link found")
-    version, build_number, build_hash, filename_version = max(
+    _, build_number, build_hash, version = max(
         matches, key=lambda item: version_key(item[3])
     )
-    version = filename_version
     return Latest(
         version=version,
         vars={"_build": f"{version}/{build_number}/{build_hash}"},

@@ -83,10 +83,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 The ISA status table is generated from `config/isa-policy.tsv` during repository publication. `required` packages are checked for the GNU `x86 ISA needed` property. Rhun remains under review until its hand-written assembly is audited and tuned.
 <!-- END GENERATED PACKAGE ISA NOTE -->
 
-
-C/C++ builds receive `-march=x86-64-v3` and the linker requirement `-Wl,-z,x86-64-v3`. Rust builds receive `-C target-cpu=x86-64-v3` and the equivalent linker argument. `lui`, `zinc`, and `zmon` pin Zig's CPU target directly in their PKGBUILDs. Rawmakase bundles an upstream ONNX Runtime library, while Rhun needs separate work before it can be described as fully v3-targeted.
-
-CI checks the GNU `x86 ISA needed` property on every x86-64 ELF in packages marked `required`, with a documented exception for Rawmakase's bundled ONNX Runtime. Upstream binaries and architecture-independent packages are explicitly exempt from this check; the policy lives in `config/isa-policy.tsv`.
+C/C++ builds receive `-march=x86-64-v3` and the linker requirement `-Wl,-z,x86-64-v3`. Rust builds receive `-C target-cpu=x86-64-v3` and the equivalent linker argument. `flow-control`, `lui`, `zinc`, and `zmon` pin Zig's CPU target directly in their PKGBUILDs. Which packages CI checks, and which are exempt, is recorded in `config/isa-policy.tsv`.
 
 ## Local build
 
@@ -106,7 +103,7 @@ The script uses `config/makepkg.conf` and targets x86-64-v3. After building, run
 ./scripts/update --dry-run all
 ```
 
-The script requires `git`, `python`, `makepkg`, and `updpkgsums` (from `pacman-contrib`). Upstream locations and per-package rules live in `config/update-sources.tsv`. Git packages are cloned and their `pkgver()` function is evaluated, while release packages use tags or the vendor's download manifest. Auxiliary versions such as Rawmakase's ONNX Runtime, MultiViewer's build id, Monocode's native version, and Lui's pinned commit are updated alongside `pkgver`.
+The script requires `git`, `python`, `makepkg`, and `updpkgsums` (from `pacman-contrib`). Upstream locations and per-package rules live in `config/update-sources.tsv`. Git packages are cloned and their `pkgver()` function is evaluated, while release packages use tags or the vendor's download manifest. Auxiliary versions such as MultiViewer's build id, Monocode's native version, and Lui's pinned commit are updated alongside `pkgver`.
 
 ## Publishing
 
