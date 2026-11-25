@@ -34,8 +34,8 @@ _srcdir="frame-${pkgver}"
 
 prepare() {
   cd "$_srcdir"
-  # Upstream 0.34.0 vendors GPUI-CE in-tree and enables its X11 backend by
-  # default, so the binary links against libxcb and libxkbcommon-x11.
+  # Upstream vendors GPUI-CE in-tree and enables its X11 backend by default,
+  # so the binary links against libxcb and libxkbcommon-x11.
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch
 }

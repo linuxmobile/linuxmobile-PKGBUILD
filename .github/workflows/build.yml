@@ -180,7 +180,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p repo
-          gh release download repo --pattern '*.pkg.tar.zst' --dir repo || true
+          # A new repository has no release or archives yet; an existing release
+          # with archives must download successfully or the rebuilt database
+          # would drop every package that is not part of this build.
+          if gh release view repo >/dev/null 2>&1; then
+            assets=$(gh release view repo --json assets \
+              --jq '[.assets[].name | select(endswith(".pkg.tar.zst"))] | length')
+            if [ "$assets" -gt 0 ]; then
+              gh release download repo --pattern '*.pkg.tar.zst' --dir repo
+            fi
+          fi
       - uses: actions/download-artifact@v8
         id: download
         continue-on-error: true

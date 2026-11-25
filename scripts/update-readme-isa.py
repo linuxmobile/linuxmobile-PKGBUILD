@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-"""Regenerate the Packages ISA table from config/isa-policy.tsv.
+"""Regenerate the marked ISA table and note in README.md from config/isa-policy.tsv.
 
-The updater discovers the existing table under README.md's `## Packages`
-section, so the README itself does not need to be pre-patched or to have
-specific line numbers. It preserves unrelated README content.
+Only the marked regions are replaced; unrelated README content is preserved.
 """
 
 from pathlib import Path
@@ -32,6 +30,7 @@ PAYLOADS = {
     "kernwatch": "Rust",
     "ladybird": "Upstream Debian package",
     "lui": "Zig",
+    "mandara-shell": "Rust",
     "mdrs": "Rust",
     "microsoft-edge-beta": "Upstream Debian package",
     "monocode": "Rust",
@@ -104,47 +103,24 @@ def generated_table(entries: list[tuple[str, str, str]]) -> list[str]:
 def locate_table(lines: list[str]) -> tuple[int, int]:
     starts = [i for i, line in enumerate(lines) if line.strip() == TABLE_START]
     ends = [i for i, line in enumerate(lines) if line.strip() == TABLE_END]
-    if starts or ends:
-        if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
-            raise ValueError("README has malformed generated ISA table markers")
-        return starts[0], ends[0] + 1
-
-    try:
-        section = next(i for i, line in enumerate(lines) if line.strip() == "## Packages")
-    except StopIteration as exc:
-        raise ValueError("README is missing the '## Packages' section") from exc
-
-    for i in range(section + 1, len(lines)):
-        stripped = lines[i].strip()
-        if stripped.startswith("## "):
-            break
-        if stripped.startswith("|") and "Package" in stripped and "x86-64-v3" in stripped:
-            end = i + 1
-            while end < len(lines) and lines[end].lstrip().startswith("|"):
-                end += 1
-            return i, end
-    raise ValueError("README has no package table with an x86-64-v3 column under '## Packages'")
+    if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
+        raise ValueError("README has malformed generated ISA table markers")
+    return starts[0], ends[0] + 1
 
 
 def replace_note(lines: list[str]) -> list[str]:
     note = (
         NOTE_START + "\n"
         + "The ISA status table is generated from `config/isa-policy.tsv` during repository publication. "
-        + "`required` packages are checked for the GNU `x86 ISA needed` property. Rhun remains under "
-        + "review until its hand-written assembly is audited and tuned.\n"
+        + "`required` packages are checked for the GNU `x86 ISA needed` property.\n"
         + NOTE_END + "\n"
     ).splitlines(keepends=True)
 
     starts = [i for i, line in enumerate(lines) if line.strip() == NOTE_START]
     ends = [i for i, line in enumerate(lines) if line.strip() == NOTE_END]
-    if starts or ends:
-        if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
-            raise ValueError("README has malformed generated ISA note markers")
-        return lines[:starts[0]] + note + lines[ends[0] + 1 :]
-
-    table_start = next(i for i, line in enumerate(lines) if line.strip() == TABLE_START)
-    table_end = next(i for i, line in enumerate(lines) if line.strip() == TABLE_END)
-    return lines[: table_end + 1] + ["\n"] + note + ["\n"] + lines[table_end + 1 :]
+    if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
+        raise ValueError("README has malformed generated ISA note markers")
+    return lines[: starts[0]] + note + lines[ends[0] + 1 :]
 
 
 def main() -> int:
@@ -165,6 +141,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (OSError, ValueError, StopIteration) as exc:
+    except (OSError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         raise SystemExit(1)

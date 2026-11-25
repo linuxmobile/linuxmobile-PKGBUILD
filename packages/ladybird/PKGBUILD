@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=ladybird
-pkgver=2026.47.7
+pkgver=2026.47.8
 pkgrel=1
 pkgdesc='Independent web browser with its own engine'
 arch=('x86_64')
@@ -39,7 +39,7 @@ depends=(
   'xcb-util-renderutil'
 )
 source=("ladybird-${pkgver}-${_debsuffix}_amd64.deb::https://apt.ladybird.org/pool/main/l/ladybird/ladybird_${pkgver}-${_debsuffix}_amd64.deb")
-sha256sums=('67e33f0a234b672734b8965ea7dd5c63c8f0b616313b91d43522c53ad686b1d4')
+sha256sums=('f45bd4f822f45ebf1ca8a8c044d42a9da99fa80fabab09b845df73ea8d1d6726')
 
 prepare() {
   mkdir -p "$_srcdir"
