@@ -92,10 +92,11 @@ jobs:
       CARGO_INCREMENTAL: "0"
       # Upstream release profiles often use fat LTO with one codegen unit per
       # crate, which turns a cold 900-crate build into an ~80 min serial slog
-      # on a 4-core runner. CI still ships optimized binaries, just without
-      # the whole-program link step.
-      CARGO_PROFILE_RELEASE_LTO: "thin"
+      # on a 4-core runner. Ship optimized binaries without the memory-hungry
+      # whole-program link, and cap parallel rustc processes to fit 7 GB RAM.
+      CARGO_PROFILE_RELEASE_LTO: "off"
       CARGO_PROFILE_RELEASE_CODEGEN_UNITS: "16"
+      CARGO_BUILD_JOBS: "2"
       RUSTC_WRAPPER: sccache
       SCCACHE_DIR: ${{ github.workspace }}/.cache/sccache
       SCCACHE_CACHE_SIZE: 1G
