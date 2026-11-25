@@ -45,7 +45,7 @@ options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz"
         '0001-umbriel-overview-wallpaper.patch')
 sha256sums=('a8841207b2da769db9684b7801d21c84531e346ac44a196d376db4179e2ad19e'
-            'f10f4cd14681f98d23e4cadfd6501d2c8057e4df7de7e1e29fdad724dca91481')
+            'd3f0fe95a7ef00539d3565bcc3e3ddd43ec6ee2eaa4f4cf05f55fa246bf25e4e')
 
 _srcdir="mandara-${pkgver}"
 
