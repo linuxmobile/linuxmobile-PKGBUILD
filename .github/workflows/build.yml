@@ -76,6 +76,7 @@ jobs:
     needs: discover
     if: needs.discover.outputs.packages != '[]'
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     container:
       image: archlinux:latest
     strategy:
@@ -90,13 +91,8 @@ jobs:
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
       CARGO_HOME: ${{ github.workspace }}/.cache/cargo
       CARGO_INCREMENTAL: "0"
-      # Upstream release profiles often use fat LTO with one codegen unit per
-      # crate, which turns a cold 900-crate build into an ~80 min serial slog
-      # on a 4-core runner. Ship optimized binaries without the memory-hungry
-      # whole-program link, and cap parallel rustc processes to fit 7 GB RAM.
-      CARGO_PROFILE_RELEASE_LTO: "off"
-      CARGO_PROFILE_RELEASE_CODEGEN_UNITS: "16"
-      CARGO_BUILD_JOBS: "2"
+      # Build caps are set on the sudo child command below, where makepkg's
+      # unprivileged Cargo invocation can see them.
       RUSTC_WRAPPER: sccache
       SCCACHE_DIR: ${{ github.workspace }}/.cache/sccache
       SCCACHE_CACHE_SIZE: 1G
@@ -146,7 +142,17 @@ jobs:
         run: |
           chown -R builder:builder "$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-          sudo --preserve-env=CARGO_NET_GIT_FETCH_WITH_CLI,CARGO_HOME,CARGO_INCREMENTAL,RUSTC_WRAPPER,SCCACHE_DIR,SCCACHE_CACHE_SIZE,CCACHE_DIR,CCACHE_MAXSIZE -u builder bash scripts/build.sh "$PKG"
+          # Put the caps on the child command itself: sudo strips job env vars,
+          # but assignments after `sudo env` cannot be dropped by a preserve edit.
+          sudo --preserve-env=CARGO_NET_GIT_FETCH_WITH_CLI,CARGO_HOME,CARGO_INCREMENTAL,RUSTC_WRAPPER,SCCACHE_DIR,SCCACHE_CACHE_SIZE,SCCACHE_CLIENT_SIDE,CCACHE_DIR,CCACHE_MAXSIZE \
+            -u builder \
+            env CARGO_PROFILE_RELEASE_LTO=off \
+                CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 \
+                CARGO_BUILD_JOBS=2 \
+                NINJA_JOBS=2 \
+                MAKEFLAGS=-j2 \
+                CMAKE_BUILD_PARALLEL_LEVEL=2 \
+            bash scripts/build.sh "$PKG"
 
       - name: Validate x86-64-v3 ELF metadata
         run: bash scripts/validate-package-isa.sh "$PKG"
@@ -169,6 +175,7 @@ jobs:
       needs.discover.outputs.packages != '[]' &&
       !contains(needs.build.result, 'cancelled')
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
       - name: Refresh README ISA status
@@ -274,11 +281,37 @@ jobs:
             fi
           done < <(gh release view repo --json assets --jq '.assets[] | [.name, .updatedAt] | @tsv')
 
-          # Upload archives before the databases: a client that sees a new db
-          # must never ask for an archive that has not finished uploading.
-          mapfile -t archives < <(find repo -maxdepth 1 -name '*.pkg.tar.zst' -print | sort)
-          gh release upload repo "${archives[@]}" --clobber
-          gh release upload repo repo/linuxmobile.db repo/linuxmobile.files --clobber
+          # Upload only this run's archives: everything else in repo/ came from
+          # the release. Re-uploading unchanged assets churns the API; one such
+          # update returned HTTP 500 here. Retry transient failures below.
+          shopt -s nullglob
+          archives=(artifacts/*.pkg.tar.zst)
+          shopt -u nullglob
+          if [ ${#archives[@]} -eq 0 ]; then
+            echo "::error::no built archives found to publish"
+            exit 1
+          fi
+
+          upload() {
+            local asset="$1" attempt=1
+            until gh release upload repo "$asset" --clobber; do
+              if [ "$attempt" -ge 3 ]; then
+                echo "::error::failed to upload $asset after $attempt attempts"
+                return 1
+              fi
+              echo "::warning::upload of $asset failed; retrying in $((attempt * 10))s"
+              sleep $((attempt * 10))
+              attempt=$((attempt + 1))
+            done
+          }
+
+          # Archives before the databases: a client that sees a new db must
+          # never ask for an archive that has not finished uploading.
+          for archive in "${archives[@]}"; do
+            upload "$archive"
+          done
+          upload repo/linuxmobile.db
+          upload repo/linuxmobile.files
       - name: Assert all packages built
         if: contains(needs.build.result, 'failure')
         run: |
