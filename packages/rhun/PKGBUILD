@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=rhun
-pkgver=0.19.2
+pkgver=0.20.0
 pkgrel=1
 pkgdesc='Small and fast code editor written in assembly'
 arch=('x86_64')
@@ -14,7 +14,7 @@ provides=('rhun-bin')
 conflicts=('rhun-bin')
 replaces=('rhun-bin')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('3ce8ba3d3bf31d472ed8df77196478e18201bcbb15cd90f4e98ee3f080acde15')
+sha256sums=('2cb72f9531f0780d35d5a1c3ffbec82ca430c31c8abea0f9ef94aa5cf637666d')
 
 _srcdir="${pkgname}-${pkgver}"
 

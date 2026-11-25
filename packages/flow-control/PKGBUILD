@@ -1,6 +1,6 @@
 # Maintainer: Braian A. Diez <bdiez19@gmail.com>
 pkgname=flow-control
-pkgver=0.7.2.r5082.g640ca35
+pkgver=0.7.2.r5096.g0f7aeea
 pkgrel=1
 pkgdesc='Flow Control: a fast, animated programmer text editor with a terminal UI'
 arch=('x86_64')
