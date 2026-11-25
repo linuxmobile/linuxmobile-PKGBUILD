@@ -16,16 +16,18 @@ chromium-widevine-helper|any||Python helper and extension assets; arch=any.
 cressida|required||Meson/C++ source build with x86-64-v3 compiler and linker flags.
 frame|required||Rust source build with x86-64-v3 target and linker flags.
 flow-control|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
+herdr-app|required||Rust source build with x86-64-v3 target and linker flags.
+herdr-tui|required||Rust source build with x86-64-v3 target and linker flags.
 hibiki|required||Rust source build with x86-64-v3 target and linker flags.
 isocast|required||Rust source build with x86-64-v3 target; LTO is disabled by its recipe.
-jcode|required||Rust source build with x86-64-v3 target and linker flags.
 kernwatch|required||Rust source build with x86-64-v3 target and linker flags.
 ladybird|upstream||Upstream Ubuntu binary repackaged for pacman; not rebuilt by this repository.
 lui|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
-mandara-shell|required||Rust source build with x86-64-v3 target and linker flags.
+luciole|required||Meson/C++ source build with x86-64-v3 compiler and linker flags.
 mdrs|required||Rust source build with x86-64-v3 target and linker flags.
 microsoft-edge-beta|upstream||Upstream Debian binary; not rebuilt by this repository.
 monocode|required||Rust source build with x86-64-v3 target and linker flags.
+monstar|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
 multiviewer|upstream||Upstream Electron binary archive; not rebuilt by this repository.
 netwatch|required||Rust source build with x86-64-v3 target and linker flags.
 obs-pipewire-audio-capture|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
@@ -38,6 +40,7 @@ rhun|review||Hand-written assembly build; instruction-set usage is not audited o
 rlottie|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
 sonora|required||Rust source build with x86-64-v3 target and linker flags.
 strata|required||Rust source build with x86-64-v3 target and linker flags.
+strider|required||Rust source build with x86-64-v3 target and linker flags.
 syswatch|required||Rust source build with x86-64-v3 target and linker flags.
 zinc|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
 zmon|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.

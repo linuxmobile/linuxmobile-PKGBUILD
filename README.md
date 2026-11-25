@@ -53,16 +53,18 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | cressida | Meson/C++ | Enforced by CI (ELF ISA note) |
 | frame | Rust | Enforced by CI (ELF ISA note) |
 | flow-control | Zig | v3 target selected; GNU ISA note not asserted |
+| herdr-app | Rust, Zig | Enforced by CI (ELF ISA note) |
+| herdr-tui | Rust, Zig | Enforced by CI (ELF ISA note) |
 | hibiki | Rust | Enforced by CI (ELF ISA note) |
 | isocast | Rust | Enforced by CI (ELF ISA note) |
-| jcode | Rust | Enforced by CI (ELF ISA note) |
 | kernwatch | Rust | Enforced by CI (ELF ISA note) |
 | ladybird | Upstream Debian package | Upstream binary; not guaranteed |
 | lui | Zig | v3 target selected; GNU ISA note not asserted |
-| mandara-shell | Rust | Enforced by CI (ELF ISA note) |
+| luciole | Meson/C++ | Enforced by CI (ELF ISA note) |
 | mdrs | Rust | Enforced by CI (ELF ISA note) |
 | microsoft-edge-beta | Upstream Debian package | Upstream binary; not guaranteed |
 | monocode | Rust | Enforced by CI (ELF ISA note) |
+| monstar | Zig | v3 target selected; GNU ISA note not asserted |
 | multiviewer | Upstream Electron archive | Upstream binary; not guaranteed |
 | netwatch | Rust | Enforced by CI (ELF ISA note) |
 | obs-pipewire-audio-capture | CMake/C++ | Enforced by CI (ELF ISA note) |
@@ -75,6 +77,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | rlottie | CMake/C++ | Enforced by CI (ELF ISA note) |
 | sonora | Rust | Enforced by CI (ELF ISA note) |
 | strata | Rust | Enforced by CI (ELF ISA note) |
+| strider | Rust | Enforced by CI (ELF ISA note) |
 | syswatch | Rust | Enforced by CI (ELF ISA note) |
 | zinc | Zig | v3 target selected; GNU ISA note not asserted |
 | zmon | Zig | v3 target selected; GNU ISA note not asserted |
