@@ -60,7 +60,6 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | kernwatch | Rust | Enforced by CI (ELF ISA note) |
 | ladybird | Upstream Debian package | Upstream binary; not guaranteed |
 | lui | Zig | v3 target selected; GNU ISA note not asserted |
-| luciole | Meson/C++ | Enforced by CI (ELF ISA note) |
 | mdrs | Rust | Enforced by CI (ELF ISA note) |
 | microsoft-edge-beta | Upstream Debian package | Upstream binary; not guaranteed |
 | monocode | Rust | Enforced by CI (ELF ISA note) |
@@ -77,9 +76,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | rlottie | CMake/C++ | Enforced by CI (ELF ISA note) |
 | sonora | Rust | Enforced by CI (ELF ISA note) |
 | strata | Rust | Enforced by CI (ELF ISA note) |
-| strider | Rust | Enforced by CI (ELF ISA note) |
 | syswatch | Rust | Enforced by CI (ELF ISA note) |
-| zinc | Zig | v3 target selected; GNU ISA note not asserted |
 | zmon | Zig | v3 target selected; GNU ISA note not asserted |
 <!-- END GENERATED PACKAGE ISA STATUS -->
 
@@ -87,7 +84,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 The ISA status table is generated from `config/isa-policy.tsv` during repository publication. `required` packages are checked for the GNU `x86 ISA needed` property.
 <!-- END GENERATED PACKAGE ISA NOTE -->
 
-C/C++ builds receive `-march=x86-64-v3` and the linker requirement `-Wl,-z,x86-64-v3`. Rust builds receive `-C target-cpu=x86-64-v3` and the equivalent linker argument. `flow-control`, `lui`, `zinc`, and `zmon` pin Zig's CPU target directly in their PKGBUILDs. Which packages CI checks, and which are exempt, is recorded in `config/isa-policy.tsv`.
+C/C++ builds receive `-march=x86-64-v3` and the linker requirement `-Wl,-z,x86-64-v3`. Rust builds receive `-C target-cpu=x86-64-v3` and the equivalent linker argument. `flow-control`, `lui`, and `zmon` pin Zig's CPU target directly in their PKGBUILDs. Which packages CI checks, and which are exempt, is recorded in `config/isa-policy.tsv`.
 
 ## Local build
 

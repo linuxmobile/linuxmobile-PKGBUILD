@@ -31,7 +31,6 @@ PAYLOADS = {
     "kernwatch": "Rust",
     "ladybird": "Upstream Debian package",
     "lui": "Zig",
-    "luciole": "Meson/C++",
     "mdrs": "Rust",
     "microsoft-edge-beta": "Upstream Debian package",
     "monocode": "Rust",
@@ -48,9 +47,7 @@ PAYLOADS = {
     "rlottie": "CMake/C++",
     "sonora": "Rust",
     "strata": "Rust",
-    "strider": "Rust",
     "syswatch": "Rust",
-    "zinc": "Zig",
     "zmon": "Zig",
 }
 

@@ -23,7 +23,6 @@ isocast|required||Rust source build with x86-64-v3 target; LTO is disabled by it
 kernwatch|required||Rust source build with x86-64-v3 target and linker flags.
 ladybird|upstream||Upstream Ubuntu binary repackaged for pacman; not rebuilt by this repository.
 lui|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
-luciole|required||Meson/C++ source build with x86-64-v3 compiler and linker flags.
 mdrs|required||Rust source build with x86-64-v3 target and linker flags.
 microsoft-edge-beta|upstream||Upstream Debian binary; not rebuilt by this repository.
 monocode|required||Rust source build with x86-64-v3 target and linker flags.
@@ -40,7 +39,5 @@ rhun|review||Hand-written assembly build; instruction-set usage is not audited o
 rlottie|required||CMake/C++ source build with x86-64-v3 compiler and linker flags.
 sonora|required||Rust source build with x86-64-v3 target and linker flags.
 strata|required||Rust source build with x86-64-v3 target and linker flags.
-strider|required||Rust source build with x86-64-v3 target and linker flags.
 syswatch|required||Rust source build with x86-64-v3 target and linker flags.
-zinc|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
 zmon|target||Zig build explicitly sets -Dcpu=x86_64_v3; linker-note validation is not asserted.
