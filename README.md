@@ -53,8 +53,6 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | cressida | Meson/C++ | Enforced by CI (ELF ISA note) |
 | frame | Rust | Enforced by CI (ELF ISA note) |
 | flow-control | Zig | v3 target selected; GNU ISA note not asserted |
-| herdr-app | Rust, Zig | Enforced by CI (ELF ISA note) |
-| herdr-tui | Rust, Zig | Enforced by CI (ELF ISA note) |
 | hibiki | Rust | Enforced by CI (ELF ISA note) |
 | isocast | Rust | Enforced by CI (ELF ISA note) |
 | kernwatch | Rust | Enforced by CI (ELF ISA note) |
@@ -74,6 +72,7 @@ The repository targets **x86-64-v3 CPUs**. `arch=('x86_64')` in pacman metadata 
 | rgrc | Rust | Enforced by CI (ELF ISA note) |
 | rhun | Assembly | Review required; ISA audit/tuning pending |
 | rlottie | CMake/C++ | Enforced by CI (ELF ISA note) |
+| rune | Rust, Zig | Enforced by CI (ELF ISA note) |
 | sonora | Rust | Enforced by CI (ELF ISA note) |
 | strata | Rust | Enforced by CI (ELF ISA note) |
 | syswatch | Rust | Enforced by CI (ELF ISA note) |

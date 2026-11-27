@@ -1,6 +1,6 @@
 pkgbase = flow-control
 	pkgdesc = Flow Control: a fast, animated programmer text editor with a terminal UI
-	pkgver = 0.7.2.r5096.g0f7aeea
+	pkgver = 0.7.2.r5101.g4fe6c38
 	pkgrel = 1
 	url = https://github.com/neurocyte/flow
 	arch = x86_64

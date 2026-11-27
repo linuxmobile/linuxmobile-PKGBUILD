@@ -1,0 +1,101 @@
+# Maintainer: Braian A. Diez <bdiez19@gmail.com>
+pkgname=rune
+pkgver=0.0.0_dev_501
+pkgrel=1
+pkgdesc='Native OpenCode desktop client built on Rune'
+arch=('x86_64')
+url='https://github.com/anomalyco/opencode-rune'
+license=('MIT')
+depends=(
+  'alsa-lib'
+  'fontconfig'
+  'gcc-libs'
+  'glibc'
+  'hicolor-icon-theme'
+  'libx11'
+  'libxkbcommon'
+  'wayland'
+)
+makedepends=(
+  'cargo'
+  'clang'
+  'cmake'
+  'dbus'
+  'git'
+  'nasm'
+  'openssl'
+  'pkgconf'
+)
+optdepends=(
+  'opencode: OpenCode CLI runtime when no CLI is bundled'
+)
+options=('!lto')
+
+_version="${pkgver//_/-}"
+_tag="v${_version}"
+_srcdir="opencode-rune-${_version}"
+# libghostty-vt is built by the pinned Zig toolchain declared in
+# crates/terminal/build_support.rs; packaging the tarball keeps builds offline.
+_zig_version=0.17.0
+_zig_archive="zig-x86_64-linux-${_zig_version}.tar.xz"
+
+source=(
+  "${_srcdir}.tar.gz::${url}/archive/refs/tags/${_tag}.tar.gz"
+  "https://ziglang.org/download/${_zig_version}/${_zig_archive}"
+)
+sha256sums=(
+  'c71b08b2151c5d0e08eb72e7b9689f1223c9cd21224556e7de4cb51108c55881'
+  '1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026'
+)
+
+prepare() {
+  cd "$_srcdir"
+
+  bsdtar -xf "$srcdir/$_zig_archive" -C "$srcdir"
+  # Upstream stamps the release version into Cargo.toml and Cargo.lock.
+  bash apps/desktop/scripts/set-crate-version.sh . "$_version"
+
+  export RUSTUP_TOOLCHAIN=stable
+  export ZIG="$srcdir/zig-x86_64-linux-${_zig_version}/zig"
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "$_srcdir"
+
+  export RUSTUP_TOOLCHAIN=stable
+  export ZIG="$srcdir/zig-x86_64-linux-${_zig_version}/zig"
+  export OPENCODE_RUNE_VERSION="$_version"
+  export OPENCODE_RUNE_BUILD_CHANNEL=dev
+  export OPENCODE_RUNE_URL_SCHEME=opencode-rune
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$srcdir=/usr/src/debug/$pkgname"
+  # Upstream releases use release-quick: release-quick disables the fat LTO of
+  # the plain release profile, which needs about 10 GB for a single rustc.
+  cargo build --frozen --profile release-quick --package opencode-desktop
+}
+
+package() {
+  cd "$_srcdir"
+
+  install -Dm755 target/release-quick/opencode-desktop "$pkgdir/usr/bin/opencode-rune"
+  install -Dm644 apps/desktop/assets/icon/icon-1024.png \
+    "$pkgdir/usr/share/icons/hicolor/1024x1024/apps/opencode-rune.png"
+
+  install -d "$pkgdir/usr/share/applications"
+  cat > "$pkgdir/usr/share/applications/opencode-rune.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=OpenCode (Rune)
+Exec=opencode-rune %u
+Icon=opencode-rune
+Categories=Development;
+Terminal=false
+MimeType=x-scheme-handler/opencode-rune;
+EOF
+
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 THIRD_PARTY_NOTICES.md \
+    "$pkgdir/usr/share/doc/$pkgname/THIRD_PARTY_NOTICES.md"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+}
